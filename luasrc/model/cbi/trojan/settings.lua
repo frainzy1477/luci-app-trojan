@@ -15,7 +15,6 @@ bold_off = [[</strong>]]
 
 m = Map("trojan")
 s = m:section(TypedSection, "trojan")
---m.pageaction = false
 s.anonymous = true
 s.addremove=false
 
@@ -77,11 +76,7 @@ if apply then
 if luci.sys.call("pidof trojan >/dev/null") == 0 then
 	luci.sys.call("/etc/init.d/trojan restart >/dev/null 2>&1 &")
     luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
-else
-  	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan" ,"settings"))
 end
 end
-
-
 
 return m
