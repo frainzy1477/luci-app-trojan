@@ -1,0 +1,475 @@
+#!/bin/sh /etc/rc.common
+
+START=93
+STOP=15
+  
+SERVICE_DAEMONIZE=1
+NAME=trojan
+CONFIG_FILE=/etc/trojan/${NAME}.json
+Trojan=/etc/trojan/trojan
+REAL_LOG="/usr/share/trojan/trojan.txt"
+redir_tcp=0
+pdnsd_enable_flag=0
+switch_enable=0
+switch_server=$1
+MAXFD=32768
+CRON_FILE=/etc/crontabs/root
+
+
+uci_get_by_name() {
+	local ret=$(uci get $NAME.$1.$2 2>/dev/null)
+	echo ${ret:=$3}
+}
+
+uci_get_by_type() {
+	local ret=$(uci get $NAME.@$1[0].$2 2>/dev/null)
+	echo ${ret:=$3}
+}
+
+revert_dns() {
+#===========================================================================================================================  
+	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 >/dev/null 2>&1
+	uci set dhcp.@dnsmasq[0].noresolv=0
+	uci delete dhcp.@dnsmasq[0].cachesize
+	uci commit dhcp
+	/etc/init.d/dnsmasq restart >/dev/null 2>&1
+#=========================================================================================================================== 	 
+}
+
+add_cron(){
+
+	[ -z "$(grep -w "/usr/share/trojan/trojan-watchdog.sh" $CRON_FILE)" ] && echo "*/3 * * * * /usr/share/trojan/trojan-watchdog.sh" >> $CRON_FILE
+	[ -z "$(grep -w "/usr/share/trojan/kill_watchdog.sh" $CRON_FILE)" ] && echo "*/1 * * * * /usr/share/trojan/kill_watchdog.sh" >> $CRON_FILE
+	crontab $CRON_FILE
+#=========================================================================================================================== 	
+}
+
+del_cron(){
+#=========================================================================================================================== 
+	sed -i '/trojan-watchdog.sh/d' $CRON_FILE
+	sed -i '/trojan.txt/d' $CRON_FILE
+	/etc/init.d/cron restart
+#=========================================================================================================================== 	
+}
+
+
+
+dns_change(){
+#=========================================================================================================================== 	
+		
+			dnscache=$(uci get trojan.config.dnscache 2>/dev/null)
+		    uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
+	        uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
+			  	
+	        uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
+	        uci set dhcp.@dnsmasq[0].noresolv=1 
+			uci commit dhcp 
+			  
+			if [ "$dnscache"  -eq 0 ];then
+				uci set dhcp.@dnsmasq[0].cachesize=0 
+				uci commit dhcp
+			fi	      
+	   
+	
+#=========================================================================================================================== 	   
+}
+
+
+
+start_pdnsd() {
+	local usr_dns="$1"
+	local usr_port="$2"
+  
+	local tcp_dns_list="208.67.222.222, 208.67.220.220"
+	[ -z "$usr_dns" ] && usr_dns="8.8.4.4" && usr_port="53"
+
+  [ -d /var/etc ] || mkdir -p /var/etc
+
+   if [ ! -d /var/pdnsd ];then
+       mkdir -p /var/pdnsd
+       echo -ne "pd13\000\000\000\000" >/var/pdnsd/pdnsd.cache
+       chown -R nobody:nogroup /var/pdnsd
+   fi
+	
+	cat > /var/etc/pdnsd.conf <<EOF
+global {
+	perm_cache=1024;
+	cache_dir="/var/pdnsd";
+	pid_file = /var/run/pdnsd.pid;
+	run_as="nobody";
+	server_ip = 127.0.0.1;
+	server_port = 5335;
+	status_ctl = on;
+	query_method = tcp_only;
+	min_ttl=1h;
+	max_ttl=1w;
+	timeout=10;
+	neg_domain_pol=on;
+	proc_limit=2;
+	procq_limit=8;
+	par_queries=1;
+}
+server {
+	label= "usrdns";
+	ip = $usr_dns;
+	port = $usr_port;
+	timeout=6;
+	uptest=none;
+	interval=10m;
+	purge_cache=off;
+}
+server {
+	label= "pdnsd";
+	ip = $tcp_dns_list;
+	port = 5353;
+	timeout=6;
+	uptest=none;
+	interval=10m;
+	purge_cache=off;
+}
+EOF
+
+/usr/sbin/pdnsd -c /var/etc/pdnsd.conf -d
+}
+
+gen_config_file() {
+
+	local usr_dns=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\1/'`
+	local usr_port=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\2/'`
+	
+	[ "$usr_dns" == "127.0.0.1" ] && usr_dns="8.8.4.4" && usr_port="53" && dnsforward=1
+		 
+
+global_config=$(uci_get_by_type global ctype 2>/dev/null)
+
+if [ "${global_config}" -eq 1 ];then
+sh /usr/share/trojan/rule.sh >/dev/null 2>&1
+
+	cat <<-EOF >/tmp/trojan.json
+{
+    "buffer_size": 32,
+    "forward_proxy": {
+        "enabled": false,
+        "proxy_addr": "127.0.0.1",
+        "proxy_port": 1086
+    },	
+    "local_addr": "0.0.0.0",
+    "local_port": 51837,
+    "log_level": 1,
+    "mux": {
+        "concurrency": $(uci_get_by_name $1 concurrency),
+        "enabled": $(uci_get_by_name $1 mux),
+        "idle_timeout": $(uci_get_by_name $1 idle_timeout)
+    },
+    "password": [
+        "$(uci_get_by_name $1 password)"
+    ],
+    "remote_addr": "$(uci_get_by_name $1 remote_addr)",
+    "remote_port": $(uci_get_by_name $1 remote_port),
+    "run_type": "nat",
+    "shadowsocks": {
+        "enabled": $(uci_get_by_name $1 shadowdocks),
+        "method": "$(uci_get_by_name $1 cipher)",
+        "password": "$(uci_get_by_name $1 shadowsocks_passw)"
+    },
+    "ssl": {
+        "alpn": [
+            "h2",
+            "http/1.1"
+        ],
+        "cert": "",
+        "cipher": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-SHA:AES256-SHA:DES-CBC3-SHA",
+        "cipher_tls13": "TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384",
+        "curves": "",
+        "fingerprint": "$(uci_get_by_name $1 fingerprint)",
+        "reuse_session": $(uci_get_by_name $1 reuse_session),
+        "session_ticket": $(uci_get_by_name $1 session_ticket),
+        "sni": "$(uci_get_by_name $1 sni)",
+        "verify": true,
+        "verify_hostname": true
+    },
+    "tcp": {
+        "fast_open": $(uci_get_by_name $1 fast_open),
+        "fast_open_qlen": 20,
+        "keep_alive": $(uci_get_by_name $1 keep_alive),
+        "no_delay": $(uci_get_by_name $1 no_delay)
+    },
+    "transport_plugin": {
+        "enabled": $(uci_get_by_name $1 plugin),
+        "type": "$(uci_get_by_name $1 plugin_type)",
+        "command": "$(uci_get_by_name $1 plugin_command)",
+        "arg": [$(uci_get_by_name $1 plugin_arg)],
+        "env": [$(uci_get_by_name $1 plugin_env)],
+        "option": "$(uci_get_by_name $1 plugin_option)"
+        
+    },	
+    "websocket": {
+        "enabled": $(uci_get_by_name $1 websocket),
+        "hostname": "$(uci_get_by_name $1 websocket_host)",
+        "path": "$(uci_get_by_name $1 path)"
+    },	
+EOF
+cat /tmp/trojan.json /tmp/rules.json >>$CONFIG_FILE
+rm -rf /tmp/rules.json /tmp/trojan.json
+else
+
+cp /usr/share/trojan/config/"$(uci_get_by_type global global_config 2>/dev/null)" $CONFIG_FILE
+
+run_type=`awk '/run_type/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
+local_port=`awk '/local_port/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
+
+if [ $run_type != "nat" ];then
+  sed -i "s/$run_type/nat/g" $CONFIG_FILE
+fi
+
+if [ $local_port != "51837" ];then
+  sed -i "s/$local_port/51837/g" $CONFIG_FILE  
+fi
+
+
+
+fi  
+}
+
+
+start_rules(){
+#===========================================================================================================================
+
+		        global_config=$(uci_get_by_type global ctype 2>/dev/null)
+				
+				if [ "${global_config}" -eq 2 ];then
+				 local server=`awk '/remote_addr/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
+				else
+					local server=$(uci_get_by_name $1 remote_addr 2>/dev/null)
+				fi
+				
+				if echo $server|grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$">/dev/null; then         
+				Trojan_Server=${server}
+				elif  [ "$server" != "${server#*:[0-9a-fA-F]}" ] ;then
+				Trojan_Server=${server}
+				else
+					Trojan_Server=`nslookup ${server} | grep 'Address 1' | sed 's/Address 1: //g'`
+				fi		
+
+				if [ "$(uci get trojan.config.access_control 2>/dev/null)" = "1" ] && [ -n "$(uci get trojan.config.proxy_lan_ips 2>/dev/null)" ]; then
+					proxy_ips=$(uci get trojan.config.proxy_lan_ips 2>/dev/null)
+					ipset -! -R <<-EOF
+						create proxy_lan hash:net
+						$(for ip in $proxy_ips; do echo "add proxy_lan $ip"; done)
+					EOF
+				elif [ "$(uci get trojan.config.access_control 2>/dev/null)" = "2" ] && [ -n "$(uci get trojan.config.reject_lan_ips 2>/dev/null)" ]; then
+					reject_ips=$(uci get trojan.config.reject_lan_ips 2>/dev/null)
+					ipset -! -R <<-EOF
+						create reject_lan hash:net
+						$(for ip in $reject_ips; do echo "add reject_lan $ip"; done)
+					EOF
+				
+				fi
+				
+				sh /usr/share/trojan/chinaipset.sh >/dev/null 2>&1
+
+				if [ "$(iptables -t nat -nL PREROUTING --line-number |grep "udp dpt:53" |grep "0.0.0.0/0 \{0,\}0.0.0.0/0" |wc -l)" -gt 1 ]; then
+				   pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/0.0.0.0\/0 \{0,\}0.0.0.0\/0 \{0,\}udp dpt:53/=' 2>/dev/null |sort -rn)
+				   for pre_line in $pre_lines; do
+					  iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
+				   done
+				   iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53 >/dev/null 2>&1
+				   sleep 2
+				fi
+		
+
+				if [ -z "$(uci get firewall.trojan 2>/dev/null)" ] || [ -z "$(uci get ucitrack.@trojan[-1].init 2>/dev/null)" ]; then
+				   uci delete ucitrack.@trojan[-1] >/dev/null 2>&1
+				   uci add ucitrack trojan >/dev/null 2>&1
+				   uci set ucitrack.@trojan[-1].init=trojan >/dev/null 2>&1
+				   uci commit ucitrack >/dev/null 2>&1
+				   uci delete firewall.trojan >/dev/null 2>&1
+				   uci set firewall.trojan=include >/dev/null 2>&1
+				   uci set firewall.trojan.type=script >/dev/null 2>&1
+				   uci set firewall.trojan.path=/var/etc/trojan.include >/dev/null 2>&1
+				   uci set firewall.trojan.reload=1 >/dev/null 2>&1
+				fi				
+				
+				INTERFACE=$(uci -P/var/state get network.lan.ifname 2>/dev/null)
+				
+				ip route add local default dev lo table 100
+				ip rule add fwmark 1 lookup 100	
+
+				iptables -t mangle -N TROJAN_GO				
+				iptables -t mangle -A TROJAN_GO -d $Trojan_Server -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 0.0.0.0/8 -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 10.0.0.0/8 -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 127.0.0.0/8 -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 169.254.0.0/16 -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 172.16.0.0/12 -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 192.168.0.0/16 -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 224.0.0.0/4 -j RETURN
+				iptables -t mangle -A TROJAN_GO -d 240.0.0.0/4 -j RETURN
+	
+				iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
+				iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
+				iptables -t mangle -A TROJAN_GO -m set --match-set china dst -j RETURN
+				
+				iptables -t mangle -A TROJAN_GO -j TPROXY -p tcp --on-port 51837 --tproxy-mark 0x01/0x01
+				iptables -t mangle -A TROJAN_GO -j TPROXY -p udp --on-port 51837 --tproxy-mark 0x01/0x01
+
+				iptables -t mangle -A PREROUTING -p tcp -i $INTERFACE -j TROJAN_GO
+				iptables -t mangle -A PREROUTING -p udp -i $INTERFACE -j TROJAN_GO
+
+				
+	
+				
+#=========================================================================================================================== 
+}	 
+
+redir(){
+	  local pid_file
+	  redir_tcp=1
+		
+	  [ ${redir_tcp} -eq 1 ] && gen_config_file $GLOBAL_SERVER 0
+		
+	  if [ "$dns_mode" == "pdnsd" ] ;then
+		local dnsserver dnsport
+		dnsserver=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\1/'`
+		dnsport=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\2/'`
+		start_pdnsd $dnsserver $dnsport 
+		pdnsd_enable_flag=1
+	  fi
+}
+
+rules() {
+	[ "$GLOBAL_SERVER" = "nil" ] && return 1
+	mkdir -p /var/run /var/etc
+	start_rules >/dev/null 2>&1
+}
+
+start(){
+
+enable=$(uci_get_by_type global enable 2>/dev/null)
+rm -rf $CONFIG_FILE
+
+if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
+
+	local GLOBAL_SERVER 
+	local dns_mode dnsstr pdnsd dnsforward 
+	
+	if [ -z "$switch_server" ] ;then
+			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
+	else
+			GLOBAL_SERVER=$switch_server
+			switch_enable=1
+	fi
+		
+	if [ "${GLOBAL_SERVER}" == "nil" ] ; then
+		dns_mode="disable"
+	fi
+	
+	dns_mode=$(uci get trojan.config.dns_mode 2>/dev/null)
+	dnsstr=$(uci get trojan.config.tunnel_forward 2>/dev/null)
+	
+	rm -f /var/etc/trojan*
+	
+    dns_change 2>/dev/null 2>&1
+	
+	redir >/dev/null 2>&1
+
+	rules >/dev/null 2>&1
+	
+	/etc/init.d/dnsmasq restart >/dev/null 2>&1
+
+    $Trojan -config $CONFIG_FILE >>$REAL_LOG
+
+fi
+}
+
+
+remove_mark(){
+
+	    rm -rf /var/etc/trojan.include 2>/dev/null
+
+	    ip route del local default dev lo table 100
+	    ip rule del fwmark 1 lookup 100
+		
+	    pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/8\.8\./=' 2>/dev/null |sort -rn)
+	    for pre_line in $pre_lines; do
+		  iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
+	    done
+
+		iptables -t mangle -F TROJAN_GO 2>/dev/null
+		iptables -t mangle -X TROJAN_GO 2>/dev/null
+		
+
+		ipset -! flush proxy_lan >/dev/null 2>&1
+		ipset -! flush reject_lan >/dev/null 2>&1
+		ipset destroy reject_lan >/dev/null 2>&1
+		ipset destroy proxy_lan >/dev/null 2>&1
+		ipset -! flush china >/dev/null 2>&1
+		ipset destroy china >/dev/null 2>&1
+		
+		nat=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/tcp dpt:53/=' | sort -r)
+		for natx in $nat; do
+			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+		done
+		
+
+		mag=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
+		for nat_indexv in $mag; do
+			iptables -t mangle -D PREROUTING $nat_indexv >/dev/null 2>&1
+		done						
+		
+		iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT
+		
+		proxy_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/! match-set proxy_lan src/=' | sort -r)
+		for natx in $proxy_lan; do
+			iptables -t mangle -D PREROUTING $natx >/dev/null 2>&1
+		done
+		
+		reject_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/match-set reject_lan src/=' | sort -r)
+		for natx in $reject_lan; do
+			iptables -t mangle -D PREROUTING $natx >/dev/null 2>&1
+		done		
+
+		china_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/match-set china/=' | sort -r)
+		for natx in $china_lan; do
+			iptables -t mangle -D PREROUTING $natx >/dev/null 2>&1
+		done
+		
+		revert_dns >/dev/null 2>&1
+		
+}
+
+stop(){
+#=========================================================================================================================== 	
+		rm -rf $CONFIG_FILE
+		remove_mark >/dev/null 2>&1
+
+		kill -9 `pidof trojan|sed "s/$//g"` 2>/dev/null
+		
+		if [ -f /var/run/pdnsd.pid ] ;then
+			service_stop /usr/sbin/pdnsd
+			kill $(cat /var/run/pdnsd.pid) >/dev/null 2>&1
+		else
+			kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
+		fi
+
+  	  	del_cron >/dev/null 2>&1
+		
+	 	echo "" >/usr/share/trojan/trojan.txt >/dev/null 2>&1
+
+		echo "0" > /usr/share/trojan/logstatus_check >/dev/null 2>&1	
+
+#=========================================================================================================================== 	
+}
+
+restart(){
+#=========================================================================================================================== 
+		if pidof trojan >/dev/null; then
+			stop  >/dev/null 2>&1
+                        sleep 1
+			start >/dev/null 2>&1
+		else
+		    start >/dev/null 2>&1
+		fi
+#=========================================================================================================================== 
+}
+

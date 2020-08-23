@@ -1,0 +1,330 @@
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+
+msgid "Client"
+msgstr "客户端"
+
+msgid "CLIENT"
+msgstr "客户端"
+
+msgid "STATUS"
+msgstr "状态"
+
+msgid "TYPE"
+msgstr "配置类型"
+
+msgid "SERVER"
+msgstr "器配置"
+
+msgid "Server List"
+msgstr "自定义配置"
+
+msgid "Upload Config"
+msgstr "上载配置"
+
+msgid "RULE MANAGER"
+msgstr "规则经理"
+
+msgid "RULES"
+msgstr "规则"
+
+msgid "SERVER"
+msgstr "器配置"
+
+msgid "PDNSD"
+msgstr "DNS转发"
+
+msgid "Servers"
+msgstr "器配置"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Logs"
+msgstr "日志"
+
+msgid "NORMAL"
+msgstr "正常"
+
+msgid "TIMEOUT"
+msgstr "超时"
+
+msgid "NOT SET"
+msgstr "未设置"
+
+msgid "NO ACCESS"
+msgstr "无法访问"
+
+msgid "DOMESTIC IP"
+msgstr "国内网IP"
+
+msgid "GLOBAL IP"
+msgstr "国外网IP"
+
+msgid "NOT FOUND"
+msgstr "未找到"
+
+msgid "RUNNING"
+msgstr "运行中"
+
+msgid "NOT RUNNING"
+msgstr "末运行"
+
+msgid "Access Control"
+msgstr "访问控制"
+
+msgid "Download"
+msgstr "下载"
+
+msgid "Return"
+msgstr "返回检查"
+
+msgid "Proxy Lan List"
+msgstr "走代理的IP列表"
+
+msgid "Only selected IPs will be proxied"
+msgstr "选择IP只走代理"
+
+msgid "Bypass Lan List"
+msgstr "不走代理的IP列表"
+
+msgid "Selected IPs will not be proxied"
+msgstr "选择LAN IP只不走代理"
+
+msgid "Upload Trogan-go"
+msgstr "上载Trojan"
+
+msgid "DNS Stream"
+msgstr "DNS服务器"
+
+msgid "Upload Time"
+msgstr "上载时间"
+
+msgid "File Name"
+msgstr "文件名"
+
+msgid "Size"
+msgstr "文件大小"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Download Config"
+msgstr "下载配置"
+
+msgid "Config Name"
+msgstr "配置名"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "DNS Cache"
+msgstr "缓存的DNS"
+
+msgid "Downloading..."
+msgstr "下载中.."
+
+msgid "Checking..."
+msgstr "检查..."
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Upload"
+msgstr "上载"
+
+msgid "Add/Edit Rule"
+msgstr "添加/编辑规则"
+
+msgid "Add/Edit Server"
+msgstr "添加/编辑服务器"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Format"
+msgstr "格式"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Choose Type"
+msgstr "选择类型"
+
+msgid "Choose Format"
+msgstr "选择格式"
+
+msgid "Resolver"
+msgstr "设置为启用或禁用dns缓存"
+
+msgid "Use Pdnsd tcp query and cache"
+msgstr "使用Pdnsd TCP查询和缓存"
+
+msgid "Github User/Repo"
+msgstr "Github 用户/存储库"
+
+msgid "Architecture"
+msgstr "CPU架构"
+
+msgid "Select Arch"
+msgstr "选择CPU架构"
+
+msgid "Input Github User/Repo of Trogan-go"
+msgstr "输入Github用户/ Trogan-go存储库"
+
+msgid "No specify upload file."
+msgstr "没有指定上传文件。"
+
+msgid "Manually upload trojan-go core /etc/trojan/trojan"
+msgstr "手动上传trojan-go到 /etc/trojan/ trojan"
+
+msgid "Whitelist or Blacklist IPs to use Trojan"
+msgstr "将白名单或黑名单IP"
+
+msgid "DNS Use To Forward Queries"
+msgstr "DNS用于转发查询"
+
+msgid "DNS Forwarder"
+msgstr "DNS转发"
+
+msgid "disabled"
+msgstr "禁用"
+
+msgid "enabled"
+msgstr "启用"
+
+msgid "Whitelist IPs"
+msgstr "将白名单IP"
+
+msgid "Blacklist Ips"
+msgstr "黑名单IP"
+
+msgid "Download logs"
+msgstr "下载日志"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Disabled"
+msgstr "禁用"
+
+msgid "Type"
+msgstr "节点类型"
+
+msgid "Alias"
+msgstr "节点别名"
+
+msgid "Server Address"
+msgstr "服务器地址"
+
+msgid "Server Port"
+msgstr "服务器端口"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Encryption Method"
+msgstr "加密方式"
+
+msgid "Latency"
+msgstr "延迟"
+
+msgid "Upload Config"
+msgstr "上传配置文件"
+
+msgid "Upload"
+msgstr "上传"
+
+msgid "File saved to"
+msgstr "文件已成功上传到"
+
+msgid "upload file error."
+msgstr "文件上传失败"
+
+msgid "No file chosen"
+msgstr "未选择文件"
+
+msgid "Chose File"
+msgstr "选择文件"
+
+msgid "Custom Config List"
+msgstr "自定义配置列表"
+
+msgid "Sort"
+msgstr "排序"
+
+msgid "Upload Config List"
+msgstr "上传配置列表"
+
+msgid "FingerPrint"
+msgstr "指纹伪造类型"
+
+msgid "Reuse Session"
+msgstr "重用会话"
+
+msgid "Session Ticket"
+msgstr "会议Ticket"
+
+msgid "Enable Transport Plugin"
+msgstr "传输层插件选项"
+
+msgid "Plugin Type"
+msgstr "插件类型"
+
+msgid "Plugin Command"
+msgstr "插件命令"
+
+msgid "Plugin Argument"
+msgstr "插件参数"
+
+msgid "Plugin Environment"
+msgstr "插件环境"
+
+msgid "Plugin Option"
+msgstr "插件选项"
+
+msgid "Enable Websocket"
+msgstr "启用Websocket"
+
+msgid "Websocket Path"
+msgstr "Websocket路径"
+
+msgid "Websockrt Host"
+msgstr "Websocket主机"
+
+msgid "Enable Shadowdocks"
+msgstr "启用Shadowdocks"
+
+msgid "Shadowdocks Password"
+msgstr "Shadowdocks密码"
+
+msgid "Fast Open"
+msgstr "快开Fast Open"
+
+msgid "Keep Alive"
+msgstr "活着Keep Alive"
+
+msgid "No Delay"
+msgstr "没延迟No Delay"
+
+msgid "Idle Timeout"
+msgstr "空闲超时"
+
+msgid "Concurrency"
+msgstr "并发"
+
+msgid "Enable Mux"
+msgstr "启用Mux"
+
+msgid "True"
+msgstr "启用"
+
+msgid "False"
+msgstr "禁用"
+
+msgid "CONFIG"
+msgstr "配置"
+
+msgid "DNS Servers"
+msgstr "DNS服务器"

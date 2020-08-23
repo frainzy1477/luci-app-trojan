@@ -1,0 +1,44 @@
+
+config global
+	option enable '0'
+
+config trojan 'config'
+	option access_control '0'
+	option download_core 'linux-amd64'
+	option dnscache '1'
+	option dns_mode 'pdnsd'
+	option tunnel_forward '208.67.222.222:53'
+	option download_source 'p4gefau1t/trojan-go'
+
+config rules
+	option type 'bypass'
+	option format 'geoip'
+	option name 'cn'
+
+config rules
+	option type 'bypass'
+	option format 'geoip'
+	option name 'private'
+
+config rules
+	option type 'bypass'
+	option format 'geosite'
+	option name 'cn'
+
+config rules
+	option type 'bypass'
+	option format 'geosite'
+	option name 'geolocation-cn'
+
+config rules
+	option type 'block'
+	option format 'geosite'
+	option name 'category-ads'
+
+config rules
+	option type 'proxy'
+	option format 'geosite'
+	option name 'geolocation-!cn'
+
+
+
