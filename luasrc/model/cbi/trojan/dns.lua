@@ -72,6 +72,24 @@ luci.ip.neighbors({ family = 4 }, function(entry)
 end)
 o:depends("access_control", 2)
 
+o = s:option(Button, "Apply")
+o.title = luci.util.pcdata(translate("Save & Apply"))
+o.inputtitle = translate("Save & Apply")
+o.inputstyle = "apply"
+o.write = function()
+m.uci:commit("trojan")
+luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan" ,"settings"))
+
+end
+
+
+
+x = Map("trojan")
+s = x:section(TypedSection, "trojan")
+s.anonymous = true
+s.addremove=false
+
+
 o = s:option(FileUpload, "")
 o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /etc/trojan/trojan")..bold_off..font_off..' '
 
@@ -126,6 +144,7 @@ if luci.http.formvalue("upload") then
 	end
 end
 
+
 o = s:option(ListValue, "download_source", translate("Github User/Repo"))
 o.description = translate("Input Github User/Repo of Trogan-go")
 o:value("frainzy1477/trojan_go")
@@ -149,9 +168,6 @@ o:value("linux-mips64le")
 o:value("linux-mipsle-softfloat")
 o:value("linux-mipsle-hardfloat")
 
-o = s:option(Button,"download")
-o.title = translate("Download")
-o.template = "trojan/core_check"
 
 o = s:option(Button, "Apply")
 o.title = luci.util.pcdata(translate("Save & Apply"))
@@ -159,12 +175,11 @@ o.inputtitle = translate("Save & Apply")
 o.inputstyle = "apply"
 o.write = function()
 m.uci:commit("trojan")
-if luci.sys.call("pidof trojan >/dev/null") == 0 then
-	luci.sys.call("/etc/init.d/trojan restart >/dev/null 2>&1 &")
-    luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
-else
-  	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan" ,"settings"))
-end
+luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan" ,"settings"))
 end
 
-return m
+o = s:option(Button,"download")
+o.title = translate("Download")
+o.template = "trojan/core_check"
+
+return m, x
