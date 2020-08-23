@@ -57,7 +57,7 @@ s = m:section(TypedSection, "global")
 s.anonymous = true
 
 o = s:option(DummyValue, "version", translate("Trojan-GO"))
-o.value = "<span id=\"_version\" style=\"line-height: 2.1em;\">%s</span> <span id=\"_new_version\" style=\"line-height: 2.1em;\"></span>" %{''..font_red..bold_on..translate("【 NOT FOUND 】")..bold_off..font_off..''}
+o.value = "<span id=\"_version\" style=\"line-height: 2.1em;\"></span> <span id=\"_new_version\" style=\"line-height: 2.1em;\"></span>"
 o.rawhtml = true
 
 o = s:option(DummyValue, "_client", translate("CLIENT"))
