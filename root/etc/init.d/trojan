@@ -294,24 +294,6 @@ start_rules(){
 				EOF
 				
 				#INTERFACE=$(uci -P/var/state get network.lan.ifname 2>/dev/null)
-				iptables -t nat -N TROJAN_GO
-				iptables -t nat -F TROJAN_GO
-				iptables -t nat -A TROJAN_GO -d $Trojan_Server -j RETURN
-				iptables -t nat -A TROJAN_GO -d 0.0.0.0/8 -j RETURN
-				iptables -t nat -A TROJAN_GO -d 10.0.0.0/8 -j RETURN
-				iptables -t nat -A TROJAN_GO -d 127.0.0.0/8 -j RETURN
-				iptables -t nat -A TROJAN_GO -d 169.254.0.0/16 -j RETURN
-				iptables -t nat -A TROJAN_GO -d 172.16.0.0/12 -j RETURN
-				iptables -t nat -A TROJAN_GO -d 192.168.0.0/16 -j RETURN
-				iptables -t nat -A TROJAN_GO -d 224.0.0.0/4 -j RETURN
-				iptables -t nat -A TROJAN_GO -d 240.0.0.0/4 -j RETURN
-				iptables -t nat -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
-				iptables -t nat -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
-				iptables -t nat -A TROJAN_GO -m set --match-set china dst -j RETURN			
-				iptables -t nat -A TROJAN_GO -p tcp -j REDIRECT --to-ports 51837
-				iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 -j REDIRECT --to-ports 51837
-				iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 -j REDIRECT --to-ports 51837			
-           		iptables -t nat -A PREROUTING -p tcp -j TROJAN_GO
 
 				
 				ip route add local default dev lo table 100
@@ -418,8 +400,6 @@ remove_mark(){
 		iptables -t mangle -F TROJAN_GO 2>/dev/null
 		iptables -t mangle -X TROJAN_GO 2>/dev/null
 		
-		iptables -t nat -F TROJAN_GO 2>/dev/null
-		iptables -t nat -X TROJAN_GO 2>/dev/null
 		
 		ipset -! flush proxy_lan >/dev/null 2>&1
 		ipset -! flush reject_lan >/dev/null 2>&1
@@ -432,20 +412,13 @@ remove_mark(){
 		for natx in $nat; do
 			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
 		done
-	    pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/8\.8\./=' 2>/dev/null |sort -rn)
-	    for pre_line in $pre_lines; do
-		  iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
-	    done			   
+		   
 	   
 		mag=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
 		for nat_indexv in $mag; do
 			iptables -t mangle -D PREROUTING $nat_indexv >/dev/null 2>&1
 		done						
-		
-		nag=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
-		for nat_indexv in $nag; do
-			iptables -t nat -D PREROUTING $nat_indexv >/dev/null 2>&1
-		done		
+			
 		
 		proxy_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/! match-set proxy_lan src/=' | sort -r)
 		for natx in $proxy_lan; do
@@ -462,21 +435,6 @@ remove_mark(){
 			iptables -t mangle -D PREROUTING $natx >/dev/null 2>&1
 		done
 
-
-		proxy_lan1=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/! match-set proxy_lan src/=' | sort -r)
-		for natx in $proxy_lan1; do
-			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
-		done
-		
-		reject_lan1=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set reject_lan src/=' | sort -r)
-		for natx in $reject_lan1; do
-			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
-		done		
-
-		china_lan1=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set china/=' | sort -r)
-		for natx in $china_lan1; do
-			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
-		done
 
 		iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT
 		
