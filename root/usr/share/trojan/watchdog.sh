@@ -1,7 +1,7 @@
 #!/bin/sh /etc/rc.common
 
 REAL_LOG="/usr/share/trojan/trojan.txt"
-
+ 
 count=$(grep -c '' /usr/share/trojan/trojan.txt 2>/dev/null)
 enable=$(uci get trojan.@global[0].enable 2>/dev/null)
 
@@ -20,7 +20,7 @@ if [ "${enable}" -eq 1 ];then
 	fi
 fi
 
-
+ 
 
 
 
