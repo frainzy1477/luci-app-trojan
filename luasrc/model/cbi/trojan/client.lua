@@ -101,6 +101,7 @@ o.title = translate("OPERATION")
 o.inputtitle = translate("START & RESTART & STOP")
 o.inputstyle = "reload"
 o.write = function()
+  m.uci:commit("trojan")
   os.execute("/etc/init.d/trojan restart >/dev/null 2>&1 &")
 end
 
