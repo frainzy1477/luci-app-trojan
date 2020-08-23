@@ -308,7 +308,7 @@ start_rules(){
 				iptables -t nat -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
 				iptables -t nat -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
 				iptables -t nat -A TROJAN_GO -m set --match-set china dst -j RETURN			
-				iptables -t nat -A TROJAN_GO -p tcp -j REDIRECT --to-ports "${redir_port}"
+				iptables -t nat -A TROJAN_GO -p tcp -j REDIRECT --to-ports 51837
 				iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 -j REDIRECT --to-ports 51837
 				iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 -j REDIRECT --to-ports 51837			
            		iptables -t nat -A PREROUTING -p tcp -j TROJAN_GO
