@@ -253,6 +253,7 @@
 <%end%>	
 
 <fieldset  class="cbi-section">
+	<p><center><span id="_new_version"></span></center></p>
 	<table width="100%" cellspacing="10">
 		<tr><td width="50%"><span><center><%:TROJAN-GO%><center></span></td><td id="_version"><em><center><%:Collecting data...%></center></em></td> </tr>
 		<tr><td width="50%"><span><center><%:CLIENT%></center></span></td><td id="_trojan"><em><center><%:Collecting data...%></center></em></td> </tr>
@@ -485,10 +486,9 @@
 						}else{
 						document.getElementById('_version').innerHTML ='<b><font color=red><center><%:【 NOT FOUND 】%></center></font></b>';
 						}
-						
 						if(status.new_version > status.current_version)
 						{
-						document.getElementById('_new_version').innerHTML ='<a href="https://github.com/frainzy1477/luci-app-trojan/releases/download/'+status.new_version+'/luci-app-trojan_'+status.new_version+'_all.ipk" class="btn" style="height:20px;font-size:15px;margin-top:-20px;background-color:black;color:#ffffff;" target="_blank"><b><%:Download Latest Client%></b></a>';
+						document.getElementById('_new_version').innerHTML ='<a href="https://github.com/frainzy1477/luci-app-trojan/releases/download/'+status.new_version+'/luci-app-trojan_'+status.new_version+'_all.ipk" class="btn" style="font-size:18px;margin-top:-20px;" target="_blank"><b><center><%:Download Latest Client%></center></b></a>';
 						}
 						IP.getIpifyIP();
 						IP.getIpipnetIP();

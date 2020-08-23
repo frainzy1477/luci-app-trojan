@@ -56,10 +56,6 @@ table.sort(key_table)
 s = m:section(TypedSection, "global")
 s.anonymous = true
 
-o = s:option(DummyValue, "version")
-o.value = "<span id=\"_new_version\" style=\"line-height: 2.1em;\"></span>"
-o.rawhtml = true
-
 
 o = s:option(ListValue, "enable", translate("STATUS"))
 o.default = "0"
