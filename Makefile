@@ -107,6 +107,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./root/usr/share/trojan/logstatus_check $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/trojan.txt $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/watchdog.sh $(1)/usr/share/trojan
+	$(INSTALL_BIN) ./root/usr/share/trojan/core_download.sh $(1)/usr/share/trojan
 
 	$(INSTALL_DATA) ./luasrc/trojan.lua $(1)/usr/lib/lua/luci
 	$(INSTALL_DATA) ./luasrc/controller/*.lua $(1)/usr/lib/lua/luci/controller
