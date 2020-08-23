@@ -334,3 +334,6 @@ msgstr "更新"
 
 msgid "NB: Only upload file with name .json"
 msgstr "注意：仅上传扩展名为.json的文件"
+
+msgid "Download Latest Client"
+msgstr "下载最新客户端"

@@ -59,6 +59,17 @@ local function trojan_core()
 	end
 end
 
+local function current_version()
+	return luci.sys.exec("sed -n 1p /usr/share/trojan/luci_version")
+end
+
+local function new_version()
+	return luci.sys.exec("sed -n 1p /usr/share/trojan/new_luci_version")
+end
+
+local function check_version()
+	return luci.sys.exec("sh /usr/share/trojan/check_luci_version.sh")
+end
 
 local function downcheck()
 	if nixio.fs.access("/var/run/core_update_error") then
@@ -83,7 +94,10 @@ function action_status()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
 		trojan_core = trojan_core(),
-		pdnsd = pdnsd_running(),	
+		pdnsd = pdnsd_running(),
+		check_version = check_version(),
+		current_version = current_version(),
+		new_version = new_version(),		
 		client = trojan_running()
 	})
 end

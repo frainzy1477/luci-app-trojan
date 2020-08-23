@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v1.0.0
+PKG_VERSION:=v1.0.1
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -11,7 +11,7 @@ define Package/luci-app-trojan
 	CATEGORY:=LuCI
 	SUBMENU:=2. Trojan
 	TITLE:=LuCI app for Trojan
-	DEPENDS:=+luci-base +wget +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt
+	DEPENDS:=+luci-base +wget +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl
 	PKGARCH:=all
 	MAINTAINER:=frainzy1477
 endef
@@ -101,10 +101,12 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./root/usr/share/trojan/luci_version $(1)/usr/share/trojan
 
 	$(INSTALL_BIN) ./root/usr/share/trojan/rule.sh $(1)/usr/share/trojan
+	$(INSTALL_BIN) ./root/usr/share/trojan/check_luci_version.sh $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/chinaipset.sh $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/china_ip.txt $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/logstatus_check $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/trojan.txt $(1)/usr/share/trojan
+	$(INSTALL_BIN) ./root/usr/share/trojan/watchdog.sh $(1)/usr/share/trojan
 
 	$(INSTALL_DATA) ./luasrc/trojan.lua $(1)/usr/lib/lua/luci
 	$(INSTALL_DATA) ./luasrc/controller/*.lua $(1)/usr/lib/lua/luci/controller
