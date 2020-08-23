@@ -21,7 +21,8 @@ function index()
 
 	entry({"admin", "services", "trojan", "servers" },cbi("trojan/servers"),_("Servers"), 30).leaf = true
 	entry({"admin", "services", "trojan", "server"},cbi("trojan/add-server"), nil).leaf = true
-	entry({"admin", "services", "trojan", "settings"},cbi("trojan/dns"),_("Settings"), 50).leaf = true
+	entry({"admin", "services", "trojan", "settings"},cbi("trojan/settings"),_("Settings"), 50).leaf = true
+	entry({"admin", "services", "trojan", "update"},cbi("trojan/update"),_("Update"), 60).leaf = true
 	entry({"admin", "services", "trojan", "logs"},cbi("trojan/logs"),_("Logs"), 70).leaf = true
 	
 
@@ -59,7 +60,6 @@ local function trojan_core()
 end
 
 
-
 local function downcheck()
 	if nixio.fs.access("/var/run/core_update_error") then
 		return "0"
@@ -79,17 +79,14 @@ function down_check()
 end
 
 
-
 function action_status()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
 		trojan_core = trojan_core(),
 		pdnsd = pdnsd_running(),	
 		client = trojan_running()
-		
 	})
 end
-
 
 function act_ping()
 	local e={}
@@ -99,15 +96,10 @@ function act_ping()
 	luci.http.write_json(e)
 end
 
-
-
-
 function do_update()
 	fs.writefile("/var/run/trojanlog","0")
 	luci.sys.exec("(rm /var/run/core_update_error ;  touch /var/run/core_update ; sh /usr/share/trojan/core_download.sh >/tmp/trojan_update.txt 2>&1  || touch /var/run/core_update_error ;rm /var/run/core_update) &")
 end
-
-
 
 function check_update_log()
 	luci.http.prepare_content("text/plain; charset=utf-8")
@@ -126,8 +118,6 @@ end
 end
 
 
-
-
 function logstatus_check()
 	luci.http.prepare_content("text/plain; charset=utf-8")
 	local fdp=tonumber(fs.readfile("/usr/share/trojan/logstatus_check")) or 0
@@ -143,4 +133,3 @@ else
 	luci.http.write(a.."\0")
 end
 end
-

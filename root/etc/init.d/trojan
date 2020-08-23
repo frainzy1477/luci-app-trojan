@@ -38,16 +38,14 @@ revert_dns() {
 
 add_cron(){
 
-	[ -z "$(grep -w "/usr/share/trojan/trojan-watchdog.sh" $CRON_FILE)" ] && echo "*/3 * * * * /usr/share/trojan/trojan-watchdog.sh" >> $CRON_FILE
-	[ -z "$(grep -w "/usr/share/trojan/kill_watchdog.sh" $CRON_FILE)" ] && echo "*/1 * * * * /usr/share/trojan/kill_watchdog.sh" >> $CRON_FILE
+	[ -z "$(grep -w "/usr/share/trojan/watchdog.sh" $CRON_FILE)" ] && echo "*/1 * * * * /usr/share/trojan/watchdog.sh" >> $CRON_FILE
 	crontab $CRON_FILE
 #=========================================================================================================================== 	
 }
 
 del_cron(){
 #=========================================================================================================================== 
-	sed -i '/trojan-watchdog.sh/d' $CRON_FILE
-	sed -i '/trojan.txt/d' $CRON_FILE
+	sed -i '/watchdog.sh/d' $CRON_FILE
 	/etc/init.d/cron restart
 #=========================================================================================================================== 	
 }
@@ -288,7 +286,12 @@ start_rules(){
 				   uci set firewall.trojan.type=script >/dev/null 2>&1
 				   uci set firewall.trojan.path=/var/etc/trojan.include >/dev/null 2>&1
 				   uci set firewall.trojan.reload=1 >/dev/null 2>&1
-				fi				
+				fi	
+				
+				mkdir -p /var/etc
+				cat > "/var/etc/trojan.include" <<-EOF
+				/etc/init.d/trojan reload >/dev/null 2>&1
+				EOF
 				
 				INTERFACE=$(uci -P/var/state get network.lan.ifname 2>/dev/null)
 				
@@ -375,6 +378,8 @@ if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
 
 	rules >/dev/null 2>&1
 	
+	add_cron >/dev/null 2>&1
+	
 	/etc/init.d/dnsmasq restart >/dev/null 2>&1
 
     $Trojan -config $CONFIG_FILE >>$REAL_LOG
@@ -445,12 +450,7 @@ stop(){
 
 		kill -9 `pidof trojan|sed "s/$//g"` 2>/dev/null
 		
-		if [ -f /var/run/pdnsd.pid ] ;then
-			service_stop /usr/sbin/pdnsd
-			kill $(cat /var/run/pdnsd.pid) >/dev/null 2>&1
-		else
-			kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
-		fi
+		kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
 
   	  	del_cron >/dev/null 2>&1
 		
@@ -473,3 +473,12 @@ restart(){
 #=========================================================================================================================== 
 }
 
+reload()
+{
+if pidof trojan >/dev/null; then
+    remove_mark 2>/dev/null
+    dns_change 2>/dev/null 2>&1
+	rules >/dev/null 2>&1 
+	
+fi	  
+}

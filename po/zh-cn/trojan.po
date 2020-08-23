@@ -328,3 +328,9 @@ msgstr "配置"
 
 msgid "DNS Servers"
 msgstr "DNS服务器"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "NB: Only upload file with name .json"
+msgstr "注意：仅上传扩展名为.json的文件"
