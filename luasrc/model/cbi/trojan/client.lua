@@ -12,11 +12,11 @@ local trojan = "trojan"
 font_red = [[<font color="red">]]
 font_green = [[<font color="green">]]
 font_off = [[</font>]]
-bold_on  = [[<strong>]]
-bold_off = [[</strong>]]
+bold_on  = [[<b>]]
+bold_off = [[</b>]]
 
 m = Map(trojan)
-
+m.pageaction = false
 m:append(Template("trojan/status"))
 
 
@@ -31,7 +31,7 @@ function IsYmlFile(e)
    return e == ".json"
 end
 
---m.pageaction = false
+
 --s.anonymous = true
 --s = m:section(TypedSection, "trojan")
 
@@ -56,18 +56,9 @@ table.sort(key_table)
 s = m:section(TypedSection, "global")
 s.anonymous = true
 
-o = s:option(DummyValue, "version", translate("Trojan-GO"))
-o.value = "<span id=\"_version\" style=\"line-height: 2.1em;\"></span> <span id=\"_new_version\" style=\"line-height: 2.1em;\"></span>"
+o = s:option(DummyValue, "version")
+o.value = "<span id=\"_new_version\" style=\"line-height: 2.1em;\"></span>"
 o.rawhtml = true
-
-o = s:option(DummyValue, "_client", translate("CLIENT"))
-o.value = "<span id=\"_trojan\" style=\"line-height: 2.1em;\">%s</span>" %{''..font_red..bold_on..translate("NOT RUNNING")..bold_off..font_off..''}
-o.rawhtml = true
-
-o = s:option(DummyValue, "_dns", translate("PDNSD"))
-o.value = "<span id=\"_pdnsd\" style=\"line-height: 2.1em;\">%s</span>" %{''..font_red..bold_on..translate("NOT RUNNING")..bold_off..font_off..''}
-o.rawhtml = true
-
 
 
 o = s:option(ListValue, "enable", translate("STATUS"))
@@ -109,10 +100,14 @@ o.write = function()
   luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan", "rules"))
 end
 
-local apply = luci.http.formvalue("cbi.apply")
-if apply then
-	luci.sys.call("/etc/init.d/trojan restart >/dev/null 2>&1 &")
+o = s:option(Button,"start")
+o.title = translate("OPERATION")
+o.inputtitle = translate("START & RESTART & STOP")
+o.inputstyle = "reload"
+o.write = function()
+  os.execute("/etc/init.d/trojan restart >/dev/null 2>&1 &")
 end
+
 
 return m
 

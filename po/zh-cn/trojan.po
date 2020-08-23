@@ -337,3 +337,9 @@ msgstr "注意：仅上传扩展名为.json的文件"
 
 msgid "Download Latest Client"
 msgstr "下载最新客户端"
+
+msgid "START & RESTART & STOP"
+msgstr "启动&重启&停止"
+
+msgid "OPERATION"
+msgstr "操作"

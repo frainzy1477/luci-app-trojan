@@ -251,6 +251,15 @@
     </div>
 </fieldset>	
 <%end%>	
+
+<fieldset  class="cbi-section">
+	<table width="100%" cellspacing="10">
+		<tr><td width="50%"><span><center><%:TROJAN-GO%><center></span></td><td id="_version"><em><center><%:Collecting data...%></center></em></td> </tr>
+		<tr><td width="50%"><span><center><%:CLIENT%></center></span></td><td id="_trojan"><em><center><%:Collecting data...%></center></em></td> </tr>
+		<tr><td width="50%"><span><center><%:PDNSD%></center></span></td><td id="_pdnsd"><em><center><%:Collecting data...%></center></em></td> </tr>
+	</table>
+</fieldset>	
+
 <script type="text/javascript">//<![CDATA[
 
 <% if luci.i18n.context.lang == "zh-cn" then %>
@@ -467,14 +476,14 @@
 		
 		XHR.poll(1, '<%=luci.dispatcher.build_url("admin", "services", "trojan", "status")%>', null, function(x, status) {
 				if ( x && x.status == 200 ) {
-						document.getElementById('_trojan').innerHTML = status.client ? '<b><font color=green><%:RUNNING%></font></b>' : '<b><font color=red><%:NOT RUNNING%></font></b>';
-						document.getElementById('_pdnsd').innerHTML = status.pdnsd ? '<b><font color=green><%:RUNNING%></font></b>' : '<b><font color=red><%:NOT RUNNING%></font></b>';
+						document.getElementById('_trojan').innerHTML = status.client ? '<b><font color=green><center><%:RUNNING%></center></font></b>' : '<b><font color=red><center><%:NOT RUNNING%></center></font></b>';
+						document.getElementById('_pdnsd').innerHTML = status.pdnsd ? '<b><font color=green><center><%:RUNNING%></center></font></b>' : '<b><font color=red><center><%:NOT RUNNING%></center></font></b>';
 						
 						if(status.trojan_core != 0)
 						{
-						document.getElementById('_version').innerHTML ='<b><font color=green>【 '+status.trojan_core+' 】</font></b>';
+						document.getElementById('_version').innerHTML ='<b><font color=green><center>【 '+status.trojan_core+' 】</center></font></b>';
 						}else{
-						document.getElementById('_version').innerHTML ='<b><font color=red><%:【 NOT FOUND 】%></font></b>';
+						document.getElementById('_version').innerHTML ='<b><font color=red><center><%:【 NOT FOUND 】%></center></font></b>';
 						}
 						
 						if(status.new_version > status.current_version)
