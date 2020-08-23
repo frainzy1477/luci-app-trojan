@@ -62,8 +62,8 @@ msgstr "国内网IP"
 msgid "GLOBAL IP"
 msgstr "国外网IP"
 
-msgid "NOT FOUND"
-msgstr "未找到"
+msgid "【 NOT FOUND 】"
+msgstr "【 未找到 】"
 
 msgid "RUNNING"
 msgstr "运行中"
