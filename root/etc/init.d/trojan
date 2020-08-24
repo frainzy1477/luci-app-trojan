@@ -203,7 +203,7 @@ sh /usr/share/trojan/rule.sh >/dev/null 2>&1
     },	
     "websocket": {
         "enabled": $(uci_get_by_name $1 websocket),
-        "hostname": "$(uci_get_by_name $1 websocket_host)",
+        "host": "$(uci_get_by_name $1 websocket_host)",
         "path": "$(uci_get_by_name $1 path)"
     },	
 EOF
