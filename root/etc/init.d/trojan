@@ -145,6 +145,11 @@ sh /usr/share/trojan/rule.sh >/dev/null 2>&1
 
 	cat <<-EOF >/tmp/trojan.json
 {
+    "api": {
+        "api_addr": "127.0.0.1",
+        "api_port": 57721,
+        "enabled": true
+    },
     "buffer_size": 32,
     "forward_proxy": {
         "enabled": false,
@@ -159,9 +164,7 @@ sh /usr/share/trojan/rule.sh >/dev/null 2>&1
         "enabled": $(uci_get_by_name $1 mux),
         "idle_timeout": $(uci_get_by_name $1 idle_timeout)
     },
-    "password": [
-        "$(uci_get_by_name $1 password)"
-    ],
+    "password": [ "$(uci_get_by_name $1 password)" ],
     "remote_addr": "$(uci_get_by_name $1 remote_addr)",
     "remote_port": $(uci_get_by_name $1 remote_port),
     "run_type": "nat",
@@ -349,7 +352,7 @@ rules() {
 }
 
 start(){
-
+lang=$(uci get luci.main.lang 2>/dev/null)
 enable=$(uci_get_by_type global enable 2>/dev/null)
 rm -rf $CONFIG_FILE
 
@@ -359,10 +362,10 @@ if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
 	local dns_mode dnsstr pdnsd dnsforward 
 	
 	if [ -z "$switch_server" ] ;then
-			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
+		GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
 	else
-			GLOBAL_SERVER=$switch_server
-			switch_enable=1
+		GLOBAL_SERVER=$switch_server
+		switch_enable=1
 	fi
 		
 	if [ "${GLOBAL_SERVER}" == "nil" ] ; then
@@ -383,7 +386,13 @@ if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
 	add_cron >/dev/null 2>&1
 	
 	/etc/init.d/dnsmasq restart >/dev/null 2>&1
-
+	
+	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+		echo "  $(date "+%Y-%m-%d %H:%M:%S") - CLIENT IS RUNNING" >> /usr/share/trojan/trojan.txt
+	elif [ "${lang}" == "zh_cn" ];then
+		echo "  $(date "+%Y-%m-%d %H:%M:%S")  - 客户端被运行中 " >> /usr/share/trojan/trojan.txt
+	fi	
+	
     $Trojan -config $CONFIG_FILE >>$REAL_LOG
 
 fi
@@ -460,10 +469,8 @@ stop(){
 		
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 			echo "  $(date "+%Y-%m-%d %H:%M:%S") - CLIENT IS DISABLED " >> /usr/share/trojan/trojan.txt
-			echo "Client is Disabled " >$REAL_LOG
 		elif [ "${lang}" == "zh_cn" ];then
 			echo "  $(date "+%Y-%m-%d %H:%M:%S")  - 客户端被禁用 " >> /usr/share/trojan/trojan.txt
-			echo "客户端被禁用 " >$REAL_LOG
 		fi	
 #=========================================================================================================================== 	
 }

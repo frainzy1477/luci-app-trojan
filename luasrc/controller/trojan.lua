@@ -45,6 +45,9 @@ local function pdnsd_running()
  return luci.sys.call("pidof pdnsd >/dev/null") == 0                   
 end	
 
+local function trojan_traffic()
+	return luci.sys.exec("sh /usr/share/trojan/traffic.sh")
+end
 
 local function trojan_core()
 	if nixio.fs.access("/etc/trojan/trojan") then
@@ -58,6 +61,16 @@ local function trojan_core()
 		return "0"
 	end
 end
+
+local function check_core_new()
+	return luci.sys.exec("sed -n 1p /usr/share/trojan/trojan_core_new.sh")
+end
+
+
+local function trojan_core_new()
+	return luci.sys.exec("sed -n 1p /usr/share/trojan/trojan_core_new")
+end
+
 
 local function current_version()
 	return luci.sys.exec("sed -n 1p /usr/share/trojan/luci_version")
@@ -94,10 +107,13 @@ function action_status()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
 		trojan_core = trojan_core(),
+		trojan_core_new = trojan_core_new(),
+		check_core_new = check_core_new(),
 		pdnsd = pdnsd_running(),
 		check_version = check_version(),
 		current_version = current_version(),
-		new_version = new_version(),		
+		new_version = new_version(),
+		traffic = trojan_traffic(),		
 		client = trojan_running()
 	})
 end

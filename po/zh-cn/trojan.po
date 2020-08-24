@@ -343,3 +343,12 @@ msgstr "启动&重启&停止"
 
 msgid "OPERATION"
 msgstr "操作"
+
+msgid "Installed Version"
+msgstr "已安装版本"
+
+msgid "New Version"
+msgstr "新版本"
+
+msgid "DNL / UPL SPEED"
+msgstr "下载速度/上载速度"

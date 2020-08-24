@@ -18,6 +18,9 @@ s = x:section(TypedSection, "trojan")
 s.anonymous = true
 s.addremove=false
 
+o = s:option(DummyValue, "_status", translate("Trojan-Go"))
+o.value = "<span id=\"_trojan\" style=\"line-height: 2.1em;\">%s</span> <span id=\"_trojan_new\" style=\"line-height: 2.1em;\"></span>" %{translate("【  】")}
+o.rawhtml = true
 
 o = s:option(FileUpload, "")
 o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /etc/trojan/trojan")..bold_off..font_off..' '
@@ -77,7 +80,6 @@ end
 o = s:option(ListValue, "download_source", translate("Github User/Repo"))
 o.description = translate("Input Github User/Repo of Trogan-go")
 o:value("frainzy1477/trojan_go")
-o:value("p4gefau1t/trojan-go")
 o:value("peter-tank/trojan-go")
 
 

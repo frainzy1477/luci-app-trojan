@@ -258,15 +258,18 @@
 <fieldset  class="cbi-section">
 	<p><center><span id="_new_version"></span></center></p>
 	<table width="100%" cellspacing="10">
-		<tr><td width="50%"><span><center><%:TROJAN-GO%><center></span></td><td id="_version"><em><center><%:Collecting data...%></center></em></td> </tr>
+		<tr><td width="50%" align="center"><span><%:DNL / UPL SPEED%></span></td >  <td align="center"><b>↓ <span id="_speed_download">0 B</span> / ↑ <span id="_speed_upload">0 B</span></b></td></tr>
 		<tr><td width="50%"><span><center><%:CLIENT%></center></span></td><td id="_trojan"><em><center><%:Collecting data...%></center></em></td> </tr>
 		<tr><td width="50%"><span><center><%:PDNSD%></center></span></td><td id="_pdnsd"><em><center><%:Collecting data...%></center></em></td> </tr>
+			
 	</table>
 </fieldset>	
 
+
+
 <script type="text/javascript">//<![CDATA[
 
-
+		
 <% if luci.i18n.context.lang == "zh-cn" then %>
 		let random = parseInt(Math.random() * 100000000);
 		let IP = {
@@ -295,7 +298,7 @@
 				  parseIPIpip: (ip, elID) => {
 						IP.get(`https://qqwry.api.skk.moe/${ip}`, 'json')
 							.then(resp => {
-								 document.getElementById(elID).innerHTML = resp.data.geo;
+								 document.getElementById(elID).innerHTML = "-" +  resp.data.geo;
 							})
 					},
 
@@ -304,7 +307,7 @@
 							.then((resp) => {
 								let data = resp.data.replace('当前 IP：', '').split(' 来自于：');
 								//var u= data[0].indexOf("来自于：")
-								document.getElementById('d-ip').innerHTML = `${data[0]} - `
+								document.getElementById('d-ip').innerHTML = `${data[0]} `
 								return `${data[0]}`
 							})
 							.then(ip => {
@@ -316,7 +319,7 @@
 					getIpifyIP: () => {
 						IP.get(`https://ip4.seeip.org/json?z=${random}`, 'json')
 						.then(resp => {
-						document.getElementById('ip-ipify').innerHTML = `${resp.data.ip} - `;
+						document.getElementById('ip-ipify').innerHTML = `${resp.data.ip} `;
 							return resp.data.ip
 						})
 						.then(ip => {
@@ -359,7 +362,7 @@
 					Ipip: (ip, elID) => {
 						IP.get(`https://api.ip.sb/geoip/${ip}`, 'json')
 							.then(resp => {
-								 document.getElementById(elID).innerHTML = `${resp.data.country} ${resp.data.region} ${resp.data.city} ${resp.data.isp} ${resp.data.asn_organization}`
+								 document.getElementById(elID).innerHTML = `- ${resp.data.country} ${resp.data.region} ${resp.data.city} ${resp.data.isp} ${resp.data.asn_organization}`
 							})
 					},
 					
@@ -370,7 +373,7 @@
 							.then((resp) => {
 								let data = resp.data.replace('当前 IP：', '').split(' 来自于：');
 								//var u= data[0].indexOf("来自于：")
-								document.getElementById('d-ip').innerHTML = `${data[0]} - `
+								document.getElementById('d-ip').innerHTML = `${data[0]} `
 								return `${data[0]}`
 							})
 							.then(ip => {
@@ -382,7 +385,7 @@
 					getIpifyIP: () => {
 						IP.get(`https://ip4.seeip.org/json?z=${random}`, 'json')
 						.then(resp => {
-						document.getElementById('d-ip-g').innerHTML = `${resp.data.ip} - `;
+						document.getElementById('d-ip-g').innerHTML = `${resp.data.ip} `;
 							return resp.data.ip
 						})
 						.then(ip => {
@@ -426,19 +429,14 @@
 				if ( x && x.status == 200 ) {
 						document.getElementById('_trojan').innerHTML = status.client ? '<b><font color=green><center><%:RUNNING%></center></font></b>' : '<b><font color=red><center><%:NOT RUNNING%></center></font></b>';
 						document.getElementById('_pdnsd').innerHTML = status.pdnsd ? '<b><font color=green><center><%:RUNNING%></center></font></b>' : '<b><font color=red><center><%:NOT RUNNING%></center></font></b>';
-						
-						if(status.trojan_core != 0)
-						{
-						document.getElementById('_version').innerHTML ='<b><font color=green><center>【 '+status.trojan_core+' 】</center></font></b>';
-						}else{
-						document.getElementById('_version').innerHTML ='<b><font color=red><center><%:【 NOT FOUND 】%></center></font></b>';
-						}
 						if(status.new_version > status.current_version)
 						{
 						document.getElementById('_new_version').innerHTML ='<a href="https://github.com/frainzy1477/luci-app-trojan/releases/download/'+status.new_version+'/luci-app-trojan_'+status.new_version+'_all.ipk" class="btn" style="font-size:18px;margin-top:-20px;" target="_blank"><b><center><%:Download Latest Client%></center></b></a>';
 						}
 						IP.getIpifyIP();
 						IP.getIpipnetIP();
+						traffic(status.traffic);
+						
 				}
 		});
 		
@@ -458,7 +456,43 @@
 		HTTP.checker('www.google.com', 'status_google');
 		HTTP.checker('www.youtube.com', 'status_youtube');
 		HTTP.checker('github.com', 'status_github');
+		
 
+		
+		
+		function traffic(value) {
+			//var dnl_tra = value.split(":")[4].split("}")[0];
+			//var upl_tra = value.split(":")[3].split(",")[0];
+			var upl_spd = value.split(":")[6].split(",")[0];
+			var dnl_spd = value.split(":")[7].split("}")[0];
+			
+			//var dnltra = flow(dnl_tra);
+			//var upltra = flow(upl_tra);
+			var uplspd = flow(upl_spd);
+			var dnlspd = flow(dnl_spd);
+			
+			//document.getElementById('_traffic_download').innerHTML = dnltra;
+			//document.getElementById('_traffic_upload').innerHTML = upltra;
+			document.getElementById('_speed_upload').innerHTML = uplspd;
+			document.getElementById('_speed_download').innerHTML = dnlspd;
+		}
+
+		
+		function flow(value) {	
+			if (value > 1099511627776) {
+				return Math.round(value/1099511627776) + " TB"
+			} else if (value > 1073741824) {
+				return Math.round(value/1073741824) + " GB"
+			} else if (value > 1048576) {
+				return Math.round(value/1048576) + " MB"
+			} else if( value > 1024) {
+				return Math.round(value/1024) + " KB"
+			} else {
+				return Math.round(value) + " B"
+			}
+		}
+
+		
 //]]></script>
 
 
