@@ -4,7 +4,6 @@ new_version=`curl -sL "https://github.com/frainzy1477/trojan_go/tags"| grep "/fr
 
 if [ "$?" -eq "0" ]; then
 rm -rf /usr/share/trojan/trojan_core_new
-rm -rf /usr/share/trojan/trojan_core_new
 if [ $new_version ]; then
 echo $new_version > /usr/share/trojan/trojan_core_new 2>&1 & >/dev/null
 else
