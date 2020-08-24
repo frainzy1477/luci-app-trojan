@@ -1,7 +1,9 @@
 <h2 align="center">
   <br>Luci App For Trojan-Go <br>
 </h2>
-
+  <p align="center">
+	Proxy Client for Openwrt Based On <a href="https://github.com/p4gefau1t/trojan-go" target="_blank">Trojan-GO</a>.
+  </p>
   <p align="center">
   <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v1.0.2">
     <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v1.0.2-blue.svg"> 	  
