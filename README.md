@@ -119,7 +119,7 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
     },	
     "websocket": {
         "enabled": false,
-        "hostname": "",
+        "host": "",
         "path": ""
     },	
     "router":{
