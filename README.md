@@ -75,9 +75,7 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
         "enabled": true,
         "idle_timeout": 60
     },
-    "password": [
-        "password"
-    ],
+    "password": ["password"],
     "remote_addr": "",
     "remote_port": 443,
     "run_type": "nat",
