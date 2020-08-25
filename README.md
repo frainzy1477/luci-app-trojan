@@ -60,7 +60,11 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
 ## Upload Config.json Sample
 ```
 {
-
+    "api": {
+        "api_addr": "127.0.0.1",
+        "api_port": 57721,
+        "enabled": true
+    },
     "buffer_size": 32,
     "forward_proxy": {
         "enabled": false,
