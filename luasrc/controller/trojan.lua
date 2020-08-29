@@ -52,7 +52,7 @@ end
 
 local function trojan_core()
 	if nixio.fs.access("/etc/trojan/trojan") then
-		local core=luci.sys.exec("sed -n 1p /usr/share/trojan/core_version")		
+		local core=luci.sys.exec("/etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P")		
 		if core ~= "" then
 			return luci.sys.exec("/etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P")
 		else
