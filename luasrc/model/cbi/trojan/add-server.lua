@@ -27,6 +27,11 @@ s = m:section(NamedSection, sid, "servers")
 s.anonymous = true
 s.addremove   = false
 
+o = s:option(DummyValue,"trojan_url","Trojan URL") 
+o.rawhtml  = true
+o.template = "trojan/url"
+o.value =sid
+
 o = s:option(Value, "name", translate("Alias"))
 o.default = "Trojan - Server"
 o.rmempty = false

@@ -39,6 +39,10 @@ revert_dns() {
 add_cron(){
 
 	[ -z "$(grep -w "/usr/share/trojan/watchdog.sh" $CRON_FILE)" ] && echo "*/1 * * * * /usr/share/trojan/watchdog.sh" >> $CRON_FILE
+	auto=$(uci get trojan.@server_subscribe[0].auto_update 2>/dev/null)
+	if [ "${auto}" -eq 1 ]; then
+	[ -z "$(grep -w "/usr/share/trojan/subscribe.sh" $CRON_FILE)" ] && echo "0 */$(uci get trojan.@server_subscribe[0].auto_update_time 2>/dev/null) * * * bash /usr/share/trojan/subscribe.sh >/usr/share/trojan/trojan.txt 2>&1 &" >> $CRON_FILE
+	fi
 	crontab $CRON_FILE
 #=========================================================================================================================== 	
 }
@@ -46,6 +50,7 @@ add_cron(){
 del_cron(){
 #=========================================================================================================================== 
 	sed -i '/watchdog.sh/d' $CRON_FILE
+	sed -i '/subscribe.sh/d' $CRON_FILE
 	/etc/init.d/cron restart
 #=========================================================================================================================== 	
 }

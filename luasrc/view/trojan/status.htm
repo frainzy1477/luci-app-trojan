@@ -118,6 +118,12 @@
 
 </style>
 
+<fieldset class="cbi-section">
+	  <p width="100%" align="center"><font color="blue"><b id="_realtimelog">Trojan-GO for OpenWRT</b></font></p>
+	  <p width="100%" align="center"><%:Rule-based Custom Proxy Client%></p>
+	  <p width="100%" align="center"><span id="_new_version"></span></p>
+	  
+</fieldset>
 
 <fieldset class="cbi-section">
 		
@@ -254,17 +260,140 @@
 <%end%>	
 
 
+<fieldset  class="cbi-section">
+	
+	<table width="100%" cellspacing="10">
+		<tr><td width="20%" ><span></span></td ><td width="40%" ><span><%:UPL SPEED%></span></td >  <td ><b><span> ↑ </span>  <span id="_speed_upload">0 B/s</span></b></td></tr>
+		<tr><td width="20%" ><span></span></td ><td width="40%" ><span><%:DNL SPEED%></span></td >  <td ><b><span> ↓ </span>  <span id="_speed_download">0 B/s</span></b></td></tr>	
+	</table>
+</fieldset>
 
 <fieldset  class="cbi-section">
 	<p><center><span id="_new_version"></span></center></p>
 	<table width="100%" cellspacing="10">
-		<tr><td width="50%" align="center"><span><%:DNL / UPL SPEED%></span></td >  <td align="center"><b>↓ <span id="_speed_download">0 B</span> / ↑ <span id="_speed_upload">0 B</span></b></td></tr>
-		<tr><td width="50%"><span><center><%:CLIENT%></center></span></td><td id="_trojan"><em><center><%:Collecting data...%></center></em></td> </tr>
-		<tr><td width="50%"><span><center><%:PDNSD%></center></span></td><td id="_pdnsd"><em><center><%:Collecting data...%></center></em></td> </tr>
-			
+		
+		<tr><td width="20%" ><span></span></td ><td width="40%"><span><%:CLIENT%></span></td><td id="_trojan"><em><%:Collecting data...%></em></td> </tr>
+		<tr><td width="20%" ><span></span></td ><td width="40%"><span><%:PDNSD%></span></td><td id="_pdnsd"><em><%:Collecting data...%></em></td> </tr>
+		<tr><td width="20%" ><span></span></td ><td width="40%" ><span><%:CONFIG%></span></td><td  id="_config"><em><%:Collecting data...%></em></td> </tr>	
 	</table>
 </fieldset>	
 
+
+<style>
+    .modals-bg{
+        position: fixed;
+        z-index: 90;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background: rgba(0,0,0,0.8);
+        display: none;
+    }
+    .modals {
+        position: fixed;
+        z-index: 100;
+        width: 70%;
+        height: 650px;
+        background: #FFFFFF;
+        left: 20%;
+        top: 15%;
+        color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        /* Firefox */
+        -webkit-box-sizing: border-box;
+        /* Safari */
+    }
+
+    .modals h2 {}
+
+    .modals h3 {
+        font-size: 14px;
+        color: red;
+        background: transparent;
+        margin: 0;
+        padding: 0;
+    }
+    @media screen and (max-width: 1024px) {
+        .modals {
+            position: fixed;
+            z-index: 100;
+            width: 80%;
+            height: 550px;
+            background: #FFFFFF;
+            left: 10%;
+            top: 15%;
+            color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+    }
+    @media screen and (max-width: 700px) {
+        .modals-bg{
+            position: fixed;
+            z-index: 100000;
+
+        }
+        .modals {
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+        }
+    }
+	
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}	
+</style>
+<div class="modals-bg">
+	
+    <div class="modals">
+	<span><input type="button" class="cbi-button cbi-button-apply" value="<%:Download%>" style=" display:inline;" onclick=" return download_conf()" /></span><br /><span class="close">&times;</span>
+	<br /><h3 style="margin-left:0;"><%:If config does not show refresh page%></h3><br />
+	 <span><textarea id="cbid.logview.1.conf" style="width:100%;height:80%; font-family:'Lucida Console'; font-size:12px;padding-left:3px;padding-right:22px;" readonly="readonly" wrap="off" rows="25"><%=pcdata(nixio.fs.readfile("/etc/trojan/trojan.json"))%></textarea></span>
+   </div>
+</div>
+<script>
+var btn = document.getElementById("myBtn");
+var span = document.getElementsByClassName("close")[0];
+var cfg = document.getElementsByClassName("modals-bg")[0];
+span.onclick = function() {
+  cfg.style.display = "none";
+}
+function view(btn) {
+  cfg.style.display = "inline";
+}
+
+function createAndDownloadFile(fileName, content) {
+    var aTag = document.createElement('a');
+    var blob = new Blob([content]);
+    aTag.download = fileName;
+    aTag.href = URL.createObjectURL(blob);
+    aTag.click();
+    URL.revokeObjectURL(blob);
+}
+function download_conf(){
+	var lv = document.getElementById('cbid.logview.1.conf');
+	var dt = new Date();
+	createAndDownloadFile("trojan.json",lv.innerHTML)
+	return
+}
+</script>
 
 
 <script type="text/javascript">//<![CDATA[
@@ -427,8 +556,9 @@
 		
 		XHR.poll(1, '<%=luci.dispatcher.build_url("admin", "services", "trojan", "status")%>', null, function(x, status) {
 				if ( x && x.status == 200 ) {
-						document.getElementById('_trojan').innerHTML = status.client ? '<b><font color=green><center><%:RUNNING%></center></font></b>' : '<b><font color=red><center><%:NOT RUNNING%></center></font></b>';
-						document.getElementById('_pdnsd').innerHTML = status.pdnsd ? '<b><font color=green><center><%:RUNNING%></center></font></b>' : '<b><font color=red><center><%:NOT RUNNING%></center></font></b>';
+						document.getElementById('_trojan').innerHTML = status.client ? '<b><font color=green><%:RUNNING%></font></b>' : '<b><font color=red><%:NOT RUNNING%></font></b>';
+						document.getElementById('_pdnsd').innerHTML = status.pdnsd ? '<b><font color=green><%:RUNNING%></font></b>' : '<b><font color=red><%:NOT RUNNING%></font></b>';
+						document.getElementById('_config').innerHTML = status.client ? '<b><input type="button" class="btn" style="background-color:black;padding: 5px;font-color:green;color:green;font-weight:bold" value="<%:VIEW CONFIG%>" onclick="return view(this)" /></b>' : '<b><font color="red"><%:NOT RUNNING%></font></b>';
 						if(status.new_version > status.current_version)
 						{
 						document.getElementById('_new_version').innerHTML ='<a href="https://github.com/frainzy1477/luci-app-trojan/releases/download/'+status.new_version+'/luci-app-trojan_'+status.new_version+'_all.ipk" class="btn" style="font-size:18px;margin-top:-20px;" target="_blank"><b><center><%:Download Latest Client%></center></b></a>';
@@ -440,7 +570,15 @@
 				}
 		});
 		
-
+		var rtlog = document.getElementById('_realtimelog');
+		XHR.poll(1, '<%=luci.dispatcher.build_url("admin", "services", "trojan", "readlog")%>', status.readlog, function(x, status) {
+		  if ( x && x.status == 200 ) {
+			 if ( status.readlog != "\n" || status.readlog != "" ) {
+				rtlog.innerHTML = '<b>'+status.readlog+'</b>';
+			}
+		  }
+		});
+	
 		XHR.poll(3, '<%=luci.dispatcher.build_url("admin", "services", "trojan", "status")%>', null, function(x, status) {
 			if ( x && x.status == 200 ) {			
 				HTTP.checker('www.baidu.com', 'status_baidu');
@@ -480,15 +618,15 @@
 		
 		function flow(value) {	
 			if (value > 1099511627776) {
-				return Math.round(value/1099511627776) + " TB"
+				return Math.round(value/1099511627776) + " TB/s"
 			} else if (value > 1073741824) {
-				return Math.round(value/1073741824) + " GB"
+				return Math.round(value/1073741824) + " GB/s"
 			} else if (value > 1048576) {
-				return Math.round(value/1048576) + " MB"
+				return Math.round(value/1048576) + " MB/s"
 			} else if( value > 1024) {
-				return Math.round(value/1024) + " KB"
+				return Math.round(value/1024) + " KB/s"
 			} else {
-				return Math.round(value) + " B"
+				return Math.round(value) + " B/s"
 			}
 		}
 

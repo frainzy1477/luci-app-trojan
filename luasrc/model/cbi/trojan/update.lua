@@ -77,10 +77,9 @@ if luci.http.formvalue("upload") then
 end
 
 
-o = s:option(ListValue, "download_source", translate("Github User/Repo"))
-o.description = translate("Input Github User/Repo of Trogan-go")
+o = s:option(ListValue, "download_source", translate("Download Trogan-go"))
+o.description = translate("Download Trogan-go")
 o:value("frainzy1477/trojan_go")
-o:value("peter-tank/trojan-go")
 
 
 local cpu_model=SYS.exec("opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' 2>/dev/null")

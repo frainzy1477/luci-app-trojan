@@ -5,8 +5,8 @@
 	Proxy Client for Openwrt Based On <a href="https://github.com/p4gefau1t/trojan-go" target="_blank">Trojan-GO</a>.
   </p>
   <p align="center">
-  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v1.0.3">
-    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v1.0.3-blue.svg"> 	  
+  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v1.0.4">
+    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v1.0.4-blue.svg"> 	  
   </a>
   <a href="https://github.com/frainzy1477/luci-app-trojan/releases" target="_blank">
         <img src="https://img.shields.io/github/downloads/frainzy1477/luci-app-trojan/total.svg?style=flat-square"/>
@@ -18,8 +18,8 @@
 - Upload ipk file to tmp folder
 - cd /tmp
 - opkg update
-- opkg install luci-app-trojan_v1.0.3_all.ipk  
-- opkg install luci-app-trojan_v1.0.3_all.ipk --force-depends
+- opkg install luci-app-trojan_v1.0.4_all.ipk  
+- opkg install luci-app-trojan_v1.0.4_all.ipk --force-depends
 
  ## Uninstall
 - opkg remove luci-app-trojan 
@@ -79,9 +79,9 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
         "enabled": true,
         "idle_timeout": 60
     },
-    "password": ["password"],
-    "remote_addr": "",
-    "remote_port": 443,
+    "password": ["your_password"],
+    "remote_addr": "your_hostname",
+    "remote_port": your_server_port,
     "run_type": "nat",
     "shadowsocks": {
         "enabled": false,
@@ -100,7 +100,7 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
         "fingerprint": "firefox",
         "reuse_session": true,
         "session_ticket": true,
-        "sni": "",
+        "sni": "your_hostname",
         "verify": true,
         "verify_hostname": true
     },
@@ -139,7 +139,10 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
                     "geosite:geolocation-!cn"
         ],
         "default_policy": "proxy",
-        "domain_strategy": "as_is"
+        "domain_strategy": "as_is",
+        "geoip": "/etc/trojan/geoip.dat",
+        "geosite": "/etc/trojan/geosite.dat"
+		
     }
 }
 ```

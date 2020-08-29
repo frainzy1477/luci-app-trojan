@@ -1,6 +1,12 @@
 
 config global
 	option enable '0'
+	
+config server_subscribe
+	list subscribe_url ''
+	option auto_update '0'
+	option auto_update_time '1'
+
 
 config trojan 'config'
 	option access_control '0'

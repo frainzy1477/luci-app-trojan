@@ -10,11 +10,11 @@ function index()
 		return
 	end
 
-	local page = entry({"admin", "services", "trojan"},alias("admin", "services", "trojan", "client"), _("Trojan"), 2)
+	local page = entry({"admin", "services", "trojan"},alias("admin", "services", "trojan", "overview"), _("TrojanGO"), 2)
 	page.dependent = true
 	page.acl_depends = {"luci-app-trojan"}
 	
-
+    entry({"admin", "services", "trojan", "overview"},cbi("trojan/status"),_("Overview"), 10).leaf = true
 	entry({"admin", "services", "trojan", "client"},cbi("trojan/client"),_("Client"), 20).leaf = true
 	entry({"admin", "services", "trojan", "rules"},cbi("trojan/rules"), nil).leaf = true
 	entry({"admin", "services", "trojan", "rule"},cbi("trojan/add-rule"), nil).leaf = true
@@ -33,6 +33,7 @@ function index()
 
 	entry({"admin", "services", "trojan", "corelog"},call("down_check")).leaf=true
 	entry({"admin", "services", "trojan", "logstatus"},call("logstatus_check")).leaf=true
+	entry({"admin", "services", "trojan", "readlog"},call("action_read")).leaf=true
 	
 end
 
@@ -162,4 +163,16 @@ if fs.access("/var/run/logstatus") then
 else
 	luci.http.write(a.."\0")
 end
+end
+
+local function readlog()
+	return luci.sys.exec("sed -n '$p' /usr/share/trojan/readlog.txt 2>/dev/null")
+end
+
+
+function action_read()
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+	readlog = readlog();
+	})
 end

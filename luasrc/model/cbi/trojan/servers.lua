@@ -16,9 +16,34 @@ font_off = [[</font>]]
 bold_on  = [[<strong>]]
 bold_off = [[</strong>]]
 
-m = Map(trojan)
+b = Map(trojan)
 --m.pageaction = false
 
+s = b:section(TypedSection, "server_subscribe")
+s.anonymous = true
+
+o = s:option(Flag, "auto_update", translate("Auto Update"))
+o.description = translate("Auto Update Server Subscription")
+
+o = s:option(ListValue, "auto_update_time", translate("Update time (every day)"))
+o:value("1", translate("Every Hour"))
+o:value("6", translate("Every 6 Hours"))
+o:value("12", translate("Every 12 Hours"))
+o:value("24", translate("Every 24 Hours"))
+o.description = translate("Daily Server subscription update time")
+
+o = s:option(DynamicList, "subscribe_url", translate("Subscribe URL"))
+o.rmempty = true
+
+o = s:option(Button,"update",translate("Update"))
+o.inputstyle = "reload"
+o.write = function()
+    b.uci:commit("trojan")
+    luci.sys.call("bash /usr/share/trojan/subscribe.sh >>/usr/share/trojan/trojan.txt 2>&1 &")
+end
+
+
+m = Map(trojan)
 -- servers list --
 s = m:section(TypedSection, "servers", translate("Custom Config List"))
 s.anonymous = true
@@ -183,5 +208,5 @@ if luci.http.formvalue("upload") then
 	end
 end
 
-return m, ko, fr
+return b,ko,m , fr
 

@@ -26,8 +26,8 @@ msgstr "上载配置"
 msgid "RULE MANAGER"
 msgstr "规则经理"
 
-msgid "RULES"
-msgstr "规则"
+msgid "MANAGER"
+msgstr "规则经理"
 
 msgid "SERVER"
 msgstr "器配置"
@@ -94,6 +94,9 @@ msgstr "选择LAN IP只不走代理"
 
 msgid "Upload Trogan-go"
 msgstr "上载Trojan"
+
+msgid "Download Trogan-go"
+msgstr "下载Trogan-go"
 
 msgid "DNS Stream"
 msgstr "DNS服务器"
@@ -169,9 +172,6 @@ msgstr "CPU架构"
 
 msgid "Select Arch"
 msgstr "选择CPU架构"
-
-msgid "Input Github User/Repo of Trogan-go"
-msgstr "输入Github用户/ Trogan-go存储库"
 
 msgid "No specify upload file."
 msgstr "没有指定上传文件。"
@@ -350,5 +350,71 @@ msgstr "已安装版本"
 msgid "New Version"
 msgstr "新版本"
 
-msgid "DNL / UPL SPEED"
-msgstr "下载速度/上载速度"
+msgid "UPL SPEED"
+msgstr "上载速度"
+
+msgid "DNL SPEED"
+msgstr "下载速度"
+
+msgid "RULES"
+msgstr "路由策略"
+
+msgid "Import Successful"
+msgstr "导入Trojan配置信息成功"
+
+msgid "Import Config"
+msgstr "导入配置信息"
+
+msgid "Export Config"
+msgstr "导出配置信息"
+
+msgid "Import Cancelled"
+msgstr "导入取消"
+
+msgid "Invalid Format"
+msgstr "无效格式"
+
+msgid "Paste Configuration Link Here"
+msgstr "在这里黏贴配置链接"
+
+msgid "Copy Config Successfully"
+msgstr "成功复制配置"
+
+msgid "Unable To Copy Config"
+msgstr "无法复制配置"
+
+msgid "Overview"
+msgstr "总览"
+
+msgid "Auto Update"
+msgstr "自动更新"
+
+msgid "Auto Update Server Subscription"
+msgstr "自动更新服务器订阅"
+
+msgid "Update time (every day)"
+msgstr "更新时间（每天）"
+
+msgid "Daily Server subscription update time"
+msgstr "每日更新服务器订阅时间"
+
+msgid "Subscribe URL"
+msgstr "服务器订阅地址"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "Subscription Update"
+msgstr "更新服务器订阅"
+
+msgid "Every Hour"
+msgstr "每个小时"
+
+msgid "Every 6 Hours"
+msgstr "每个6小时"
+
+msgid "Every 12 Hours"
+msgstr "每个12小时"
+
+msgid "Every 24 Hours"
+msgstr "每个24小时"
