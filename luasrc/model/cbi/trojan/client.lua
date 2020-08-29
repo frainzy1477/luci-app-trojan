@@ -109,6 +109,7 @@ o.inputstyle = "reload"
 o.write = function()
   m.uci:commit("trojan")
   os.execute("/etc/init.d/trojan restart >/dev/null 2>&1 &")
+  luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
 end
 
 

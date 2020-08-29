@@ -40,6 +40,7 @@ o.inputstyle = "reload"
 o.write = function()
     b.uci:commit("trojan")
     luci.sys.call("bash /usr/share/trojan/subscribe.sh >>/usr/share/trojan/trojan.txt 2>&1 &")
+	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
 end
 
 
