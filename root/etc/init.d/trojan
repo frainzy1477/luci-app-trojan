@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-
+ 
 START=93
 STOP=15
   
@@ -148,36 +148,20 @@ global_config=$(uci_get_by_type global ctype 2>/dev/null)
 if [ "${global_config}" -eq 1 ];then
 sh /usr/share/trojan/rule.sh >/dev/null 2>&1
 
-	cat <<-EOF >/tmp/trojan.json
+cat  >> /tmp/trojan.json <<-EOF
 {
     "api": {
         "api_addr": "127.0.0.1",
         "api_port": 57721,
         "enabled": true
     },
-    "buffer_size": 32,
-    "forward_proxy": {
-        "enabled": false,
-        "proxy_addr": "127.0.0.1",
-        "proxy_port": 1086
-    },	
+    "run_type": "nat",	
     "local_addr": "0.0.0.0",
     "local_port": 51837,
-    "log_level": 1,
-    "mux": {
-        "concurrency": $(uci_get_by_name $1 concurrency),
-        "enabled": $(uci_get_by_name $1 mux),
-        "idle_timeout": $(uci_get_by_name $1 idle_timeout)
-    },
+    "log_level": 1,	
     "password": ["$(uci_get_by_name $1 password)"],
     "remote_addr": "$(uci_get_by_name $1 remote_addr)",
-    "remote_port": $(uci_get_by_name $1 remote_port),
-    "run_type": "nat",
-    "shadowsocks": {
-        "enabled": $(uci_get_by_name $1 shadowdocks),
-        "method": "$(uci_get_by_name $1 cipher)",
-        "password": "$(uci_get_by_name $1 shadowsocks_passw)"
-    },
+    "remote_port": $(uci_get_by_name $1 remote_port),	
     "ssl": {
         "alpn": [
             "h2",
@@ -188,18 +172,63 @@ sh /usr/share/trojan/rule.sh >/dev/null 2>&1
         "cipher_tls13": "TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384",
         "curves": "",
         "fingerprint": "$(uci_get_by_name $1 fingerprint)",
+EOF
+if [ "$(uci_get_by_name $1 reuse_session)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF	
         "reuse_session": $(uci_get_by_name $1 reuse_session),
+		EOF
+fi
+if [ "$(uci_get_by_name $1 session_ticket)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF			
         "session_ticket": $(uci_get_by_name $1 session_ticket),
+		EOF
+fi		
+cat  >> /tmp/trojan.json <<-EOF		
         "sni": "$(uci_get_by_name $1 sni)",
         "verify": true,
         "verify_hostname": true
+    },	
+    "buffer_size": 32,
+    "forward_proxy": {
+        "enabled": false,
+        "proxy_addr": "127.0.0.1",
+        "proxy_port": 1086
     },
+EOF
+
+if [ "$(uci_get_by_name $1 mux)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF
+    "mux": {
+        "concurrency": $(uci_get_by_name $1 concurrency),
+        "enabled": $(uci_get_by_name $1 mux),
+        "idle_timeout": $(uci_get_by_name $1 idle_timeout)
+    },
+EOF
+fi
+
+if [ "$(uci_get_by_name $1 shadowdocks)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF
+    "shadowsocks": {
+        "enabled": $(uci_get_by_name $1 shadowdocks),
+        "method": "$(uci_get_by_name $1 cipher)",
+        "password": "$(uci_get_by_name $1 shadowsocks_passw)"
+    },
+EOF
+fi
+
+if [ "$(uci_get_by_name $1 fast_open)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF
     "tcp": {
         "fast_open": $(uci_get_by_name $1 fast_open),
         "fast_open_qlen": 20,
         "keep_alive": $(uci_get_by_name $1 keep_alive),
         "no_delay": $(uci_get_by_name $1 no_delay)
     },
+EOF
+fi
+
+if [ "$(uci_get_by_name $1 plugin)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF
     "transport_plugin": {
         "enabled": $(uci_get_by_name $1 plugin),
         "type": "$(uci_get_by_name $1 plugin_type)",
@@ -208,14 +237,21 @@ sh /usr/share/trojan/rule.sh >/dev/null 2>&1
         "env": [$(uci_get_by_name $1 plugin_env)],
         "option": "$(uci_get_by_name $1 plugin_option)"
         
-    },	
+    },
+EOF
+fi
+
+if [ "$(uci_get_by_name $1 websocket)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF
     "websocket": {
         "enabled": $(uci_get_by_name $1 websocket),
         "host": "$(uci_get_by_name $1 websocket_host)",
         "path": "$(uci_get_by_name $1 path)"
     },	
 EOF
-cat /tmp/trojan.json /tmp/rules.json >>$CONFIG_FILE
+fi
+
+cat  /tmp/trojan.json  /tmp/rules.json >>$CONFIG_FILE
 rm -rf /tmp/rules.json /tmp/trojan.json
 else
 
