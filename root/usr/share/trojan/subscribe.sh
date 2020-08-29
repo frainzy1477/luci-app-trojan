@@ -4,6 +4,7 @@ lang=$(uci get luci.main.lang 2>/dev/null)
 server_file="/tmp/server_file.yaml"
 single_server="/tmp/single_server.yaml"
 REAL_LOG="/usr/share/trojan/trojan.txt"
+CFG_FILE="/etc/config/trojan"
 
 name=trojan
 subscribe_url=($(uci get $name.@server_subscribe[0].subscribe_url)) 
@@ -26,7 +27,10 @@ single_server="/tmp/single_server.yaml"
 num=$(grep -c "password=" $server_file 2>/dev/null)
 count=1
 
-
+while [[ "$( grep -c "config servers" $CFG_FILE )" -ne 0 ]] 
+do
+    uci delete trojan.@servers[0] && uci commit trojan >/dev/null 2>&1
+done
 
 cfg_get()
 {

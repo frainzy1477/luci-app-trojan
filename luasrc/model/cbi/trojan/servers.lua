@@ -19,7 +19,7 @@ bold_off = [[</strong>]]
 b = Map(trojan)
 --m.pageaction = false
 
-s = b:section(TypedSection, "server_subscribe")
+s = b:section(TypedSection, "server_subscribe", translate("Subscription Update"))
 s.anonymous = true
 
 o = s:option(Flag, "auto_update", translate("Auto Update"))
