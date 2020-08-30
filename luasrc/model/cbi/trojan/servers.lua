@@ -80,6 +80,9 @@ o = s:option(DummyValue, "remote_addr" ,translate("Latency"))
 o.template="trojan/ping"
 o.width="10%"
 
+o = s:option(DummyValue, "remote_port", translate("Socket Connect"))
+o.template="trojan/socket"
+o.width="10%"
 
 m:append(Template("trojan/serverlist"))
 

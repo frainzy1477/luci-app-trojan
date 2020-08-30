@@ -95,7 +95,7 @@ do
    fi
    if [ $ss_type == "ss" ];then
    ${uci_set}shadowdocks="true" 
-   ${uci_set}ciphe="$ss_cipher"
+   ${uci_set}cipher="$ss_cipher"
    ${uci_set}shadowdocks_passw="$ss_pass"   
    fi
    count=$(( $count + 1))

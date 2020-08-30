@@ -123,6 +123,13 @@ function act_ping()
 	local e={}
 	e.index=luci.http.formvalue("index")
 	e.ping=luci.sys.exec("ping -c 1 -W 1 -w 5 %q 2>&1 | grep -o 'time=[0-9]*.[0-9]' | awk -F '=' '{print$2}'"%luci.http.formvalue("domain"))
+	local domain = luci.http.formvalue("domain")
+	local port = luci.http.formvalue("port")
+	local socket = nixio.socket("inet", "stream")
+	socket:setopt("socket", "rcvtimeo", 3)
+	socket:setopt("socket", "sndtimeo", 3)
+	e.socket = socket:connect(domain, port)
+	socket:close()	
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end

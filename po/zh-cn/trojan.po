@@ -418,3 +418,12 @@ msgstr "每个12小时"
 
 msgid "Every 24 Hours"
 msgstr "每个24小时"
+
+msgid "Socket Connect"
+msgstr "连接测试"
+
+msgid "Connect OK"
+msgstr "连接正常"
+
+msgid "Connect Error"
+msgstr "连接错误"

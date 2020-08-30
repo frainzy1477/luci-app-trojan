@@ -6,10 +6,12 @@ local dsp = require "luci.dispatcher"
 <script type="text/javascript">
 	//<![CDATA[
 	var pings = document.getElementsByClassName('ping');
+	var ports = document.getElementsByClassName("socket-connected")
 	for(var i = 0; i < pings.length; i++) {
 		XHR.get('<%=dsp.build_url("admin", "services", "trojan", "ping")%>', {
 				index: i,
-				domain: pings[i].getAttribute("hint")
+				domain: pings[i].getAttribute("hint"),
+				port: ports[i].getAttribute("hint")
 			},
 			function(x, result) {
 					if (result.ping < 500) {
@@ -21,12 +23,19 @@ local dsp = require "luci.dispatcher"
 					if (result.ping < 100){
 					pings[result.index].innerHTML = (result.ping ? "<b><font color='#007e1a'>"+result.ping+"</font></b> ms" : "<b><font color=red><%:Error%></font></b>");
 					}
+					if (result.socket) {
+					ports[result.index].innerHTML = '<b><font color="#007e1a"><%:Connect OK%></font></b>'
+					} else {
+					ports[result.index].innerHTML = '<b><font color="#ee1010"><%:Connect Error%></font></b>'
+					}
+					
 					
 			}
 		);
 		XHR.poll(20,'<%=dsp.build_url("admin", "services", "trojan", "ping")%>',{
 				index: i,
-				domain: pings[i].getAttribute("hint")
+				domain: pings[i].getAttribute("hint"),
+				port: ports[i].getAttribute("hint")
 			},
 			function(x, result) {
 					if (result.ping < 500) {
@@ -37,6 +46,11 @@ local dsp = require "luci.dispatcher"
 					}
 					if (result.ping < 100){
 					pings[result.index].innerHTML = (result.ping ? "<b><font color='#007e1a'>"+result.ping+"</font></b> ms" : "<b><font color=red><%:Error%></font></b>");
+					}
+					if (result.socket) {
+					ports[result.index].innerHTML = '<b><font color="#007e1a"><%:Connect OK%></font></b>'
+					} else {
+					ports[result.index].innerHTML = '<b><font color="#ee1010"><%:Connect Error%></font></b>'
 					}
 					
 			}

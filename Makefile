@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v1.0.5
+PKG_VERSION:=v1.1.0
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -36,7 +36,6 @@ endef
 
 define Package/$(PKG_NAME)/prerm
 #!/bin/sh
-# check if we are on real system
 if [ -z "$${IPKG_INSTROOT}" ]; then
     echo "Removing rc.d symlink for trojan"
      /etc/init.d/trojan disable
