@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v1.1.0
+PKG_VERSION:=v1.1.1
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -11,7 +11,7 @@ define Package/luci-app-trojan
 	CATEGORY:=LuCI
 	SUBMENU:=2. Trojan
 	TITLE:=LuCI app for Trojan
-	DEPENDS:=+luci-base +wget +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl
+	DEPENDS:=+luci-base +wget +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl +dnscrypt-proxy
 	PKGARCH:=all
 	MAINTAINER:=frainzy1477
 endef
@@ -30,9 +30,9 @@ endef
 define Build/Compile
 endef
 
-define Package/$(PKG_NAME)/conffiles
-/etc/config/trojan
-endef
+#define Package/$(PKG_NAME)/conffiles
+#/etc/config/trojan
+#endef
 
 define Package/$(PKG_NAME)/prerm
 #!/bin/sh
@@ -55,7 +55,7 @@ define Package/$(PKG_NAME)/preinst
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	rm -rf /tmp/dnsmasq.trojan 2>/dev/null
-	mv /etc/config/trojan /etc/config/trojan.bak 2>/dev/null
+	#mv /etc/config/trojan /etc/config/trojan.bak 2>/dev/null
 	rm -rf /usr/lib/lua/luci/model/cbi/trojan 2>/dev/null
 	rm -rf /usr/lib/lua/luci/view/trojan 2>/dev/null
 fi
@@ -68,7 +68,7 @@ define Package/$(PKG_NAME)/postinst
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	rm -rf /tmp/luci*
-	mv /etc/config/trojan.bak /etc/config/trojan 2>/dev/null
+	#mv /etc/config/trojan.bak /etc/config/trojan 2>/dev/null
 	/etc/init.d/trojan disable 2>/dev/null
 fi
 
@@ -101,6 +101,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./root/usr/share/trojan/logstatus_check $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/*.txt $(1)/usr/share/trojan
 	$(INSTALL_BIN) ./root/usr/share/trojan/*.sh $(1)/usr/share/trojan
+	$(INSTALL_BIN) ./root/usr/share/trojan/*.csv $(1)/usr/share/trojan
 
 	$(INSTALL_DATA) ./luasrc/trojan.lua $(1)/usr/lib/lua/luci
 	$(INSTALL_DATA) ./luasrc/controller/*.lua $(1)/usr/lib/lua/luci/controller

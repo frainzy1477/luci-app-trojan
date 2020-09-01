@@ -2,7 +2,7 @@
  
 START=93
 STOP=15
-  
+   
 SERVICE_DAEMONIZE=1
 NAME=trojan
 CONFIG_FILE=/etc/trojan/${NAME}.json
@@ -27,11 +27,19 @@ uci_get_by_type() {
 }
 
 revert_dns() {
-#===========================================================================================================================  
+#=========================================================================================================================== 
+	dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
+	port=$(uci get trojan.@settings[0].port 2>/dev/null)
+	if [ "$dns_mode" == "pdnsd" ];then
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 >/dev/null 2>&1
+	elif [ "$dns_mode" == "dnscrypt" ];then
+	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
+	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
+	fi
 	uci set dhcp.@dnsmasq[0].noresolv=0
+	uci set dhcp.@dnsmasq[0].resolvfile=""
 	uci delete dhcp.@dnsmasq[0].cachesize
-	uci commit dhcp
+	uci commit dhcp	
 	/etc/init.d/dnsmasq restart >/dev/null 2>&1
 #=========================================================================================================================== 	 
 }
@@ -59,15 +67,30 @@ del_cron(){
 
 dns_change(){
 #=========================================================================================================================== 	
-		
-			dnscache=$(uci get trojan.config.dnscache 2>/dev/null)
-		    uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
-	        uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
-			  	
-	        uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
-	        uci set dhcp.@dnsmasq[0].noresolv=1 
+			dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
+			dnscache=$(uci get trojan.@settings[0].dnscache 2>/dev/null)
+			port=$(uci get trojan.@settings[0].port 2>/dev/null)
+
+			if [ "$dns_mode" == "pdnsd" ];then
+		    	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
+	        	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
+			uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
+			elif  [ "$dns_mode" == "dnscrypt" ];then
+			uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
+			uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
+			uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#$port
+			uci add_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8
+			if [ ! -f "/etc/resolv-crypt.conf" ] || [ "$(ls -l /etc/resolv-crypt.conf |awk '{print int($5)}')" -eq 0 ]; then
+				uci set dhcp.@dnsmasq[0].resolvfile=/tmp/resolv.conf.auto
+			else
+				uci set dhcp.@dnsmasq[0].resolvfile=/etc/resolv-crypt.conf
+			fi
+			uci set dhcp.@dnsmasq[0].allservers=0	
+			fi	
+	       		uci set dhcp.@dnsmasq[0].noresolv=1 
 			uci commit dhcp 
-			  
+			 
+			
 			if [ "$dnscache"  -eq 0 ];then
 				uci set dhcp.@dnsmasq[0].cachesize=0 
 				uci commit dhcp
@@ -79,7 +102,7 @@ dns_change(){
 
 
 
-start_pdnsd() {
+pdnsd_dns() {
 	local usr_dns="$1"
 	local usr_port="$2"
   
@@ -159,6 +182,7 @@ cat  >> /tmp/trojan.json <<-EOF
     "local_addr": "0.0.0.0",
     "local_port": 51837,
     "log_level": 1,	
+	"log_file": "$REAL_LOG",
     "password": ["$(uci_get_by_name $1 password)"],
     "remote_addr": "$(uci_get_by_name $1 remote_addr)",
     "remote_port": $(uci_get_by_name $1 remote_port),	
@@ -277,30 +301,23 @@ fi
 start_rules(){
 #===========================================================================================================================
 
-		        global_config=$(uci_get_by_type global ctype 2>/dev/null)
+				server=`awk '/remote_addr/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
 				
-				if [ "${global_config}" -eq 2 ];then
-				 local server=`awk '/remote_addr/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
-				else
-					local server=$(uci_get_by_name $1 remote_addr 2>/dev/null)
-				fi
 				
-				if echo $server|grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$">/dev/null; then         
-				Trojan_Server=${server}
-				elif  [ "$server" != "${server#*:[0-9a-fA-F]}" ] ;then
-				Trojan_Server=${server}
+				if echo $server | grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$">/dev/null; then         
+				    Trojan_Server=$server
 				else
 					Trojan_Server=`nslookup ${server} | grep 'Address 1' | sed 's/Address 1: //g'`
 				fi		
 
-				if [ "$(uci get trojan.config.access_control 2>/dev/null)" = "1" ] && [ -n "$(uci get trojan.config.proxy_lan_ips 2>/dev/null)" ]; then
-					proxy_ips=$(uci get trojan.config.proxy_lan_ips 2>/dev/null)
+				if [ "$(uci get trojan.@settings[0].access_control 2>/dev/null)" = "1" ] && [ -n "$(uci get trojan.@settings[0].proxy_lan_ips 2>/dev/null)" ]; then
+					proxy_ips=$(uci get trojan.@settings[0].proxy_lan_ips 2>/dev/null)
 					ipset -! -R <<-EOF
 						create proxy_lan hash:net
 						$(for ip in $proxy_ips; do echo "add proxy_lan $ip"; done)
 					EOF
-				elif [ "$(uci get trojan.config.access_control 2>/dev/null)" = "2" ] && [ -n "$(uci get trojan.config.reject_lan_ips 2>/dev/null)" ]; then
-					reject_ips=$(uci get trojan.config.reject_lan_ips 2>/dev/null)
+				elif [ "$(uci get trojan.@settings[0].access_control 2>/dev/null)" = "2" ] && [ -n "$(uci get trojan.@settings[0].reject_lan_ips 2>/dev/null)" ]; then
+					reject_ips=$(uci get trojan.@settings[0].reject_lan_ips 2>/dev/null)
 					ipset -! -R <<-EOF
 						create reject_lan hash:net
 						$(for ip in $reject_ips; do echo "add reject_lan $ip"; done)
@@ -337,7 +354,7 @@ start_rules(){
 				/etc/init.d/trojan reload >/dev/null 2>&1
 				EOF
 				
-				#INTERFACE=$(uci -P/var/state get network.lan.ifname 2>/dev/null)
+				INTERFACE=$(uci -P/var/state get network.lan.ifname 2>/dev/null)
 
 				
 				ip route add local default dev lo table 100
@@ -361,10 +378,10 @@ start_rules(){
 				iptables -t mangle -A TROJAN_GO -j TPROXY -p tcp --on-port 51837 --tproxy-mark 0x01/0x01
 				iptables -t mangle -A TROJAN_GO -j TPROXY -p udp --on-port 51837 --tproxy-mark 0x01/0x01
 
-				#iptables -t mangle -A PREROUTING -p tcp -i $INTERFACE -j TROJAN_GO
-				#iptables -t mangle -A PREROUTING -p udp -i $INTERFACE -j TROJAN_GO
-				iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
-				iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
+				iptables -t mangle -A PREROUTING -p tcp -i $INTERFACE -j TROJAN_GO
+				iptables -t mangle -A PREROUTING -p udp -i $INTERFACE -j TROJAN_GO
+				#iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
+				#iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
 				
 	
 				
@@ -373,15 +390,15 @@ start_rules(){
 
 redir(){
 	  local pid_file
-	  redir_tcp=1
+	  gen_config_file $GLOBAL_SERVER 0
 		
-	  [ ${redir_tcp} -eq 1 ] && gen_config_file $GLOBAL_SERVER 0
-		
-	  if [ "$dns_mode" == "pdnsd" ] ;then
+	  if [ "$dns_mode" == "dnscrypt" ];then 
+		sh /usr/share/trojan/dnscrypt.sh >/dev/null 2>&1 &
+	  elif [ "$dns_mode" == "pdnsd" ];then
 		local dnsserver dnsport
 		dnsserver=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\1/'`
 		dnsport=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\2/'`
-		start_pdnsd $dnsserver $dnsport 
+		pdnsd_dns $dnsserver $dnsport 
 		pdnsd_enable_flag=1
 	  fi
 }
@@ -393,14 +410,14 @@ rules() {
 }
 
 start(){
-lang=$(uci get luci.main.lang 2>/dev/null)
+
 enable=$(uci_get_by_type global enable 2>/dev/null)
 rm -rf $CONFIG_FILE
 
 if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
 
 	local GLOBAL_SERVER 
-	local dns_mode dnsstr pdnsd dnsforward 
+	local dns_mode dnsstr pdnsd dnsforward dnscrypt
 	
 	if [ -z "$switch_server" ] ;then
 		GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
@@ -408,34 +425,25 @@ if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
 		GLOBAL_SERVER=$switch_server
 		switch_enable=1
 	fi
+			
+
+	dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
+	dnsstr=$(uci get trojan.@settings[0].tunnel_forward 2>/dev/null)
 		
-	if [ "${GLOBAL_SERVER}" == "nil" ] ; then
-		dns_mode="disable"
-	fi
-	
-	dns_mode=$(uci get trojan.config.dns_mode 2>/dev/null)
-	dnsstr=$(uci get trojan.config.tunnel_forward 2>/dev/null)
-	
 	rm -f /var/etc/trojan*
-	
-    dns_change 2>/dev/null 2>&1
-	
+
+	dns_change 2>/dev/null 2>&1
+
 	redir >/dev/null 2>&1
 
 	rules >/dev/null 2>&1
-	
+
 	add_cron >/dev/null 2>&1
 	
 	/etc/init.d/dnsmasq restart >/dev/null 2>&1
-	
-	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-		echo "  $(date "+%Y-%m-%d %H:%M:%S") - CLIENT IS RUNNING" >> /usr/share/trojan/trojan.txt
-	elif [ "${lang}" == "zh_cn" ];then
-		echo "  $(date "+%Y-%m-%d %H:%M:%S")  - 客户端被运行中 " >> /usr/share/trojan/trojan.txt
-	fi	
-	
-    $Trojan -config $CONFIG_FILE >>$REAL_LOG
 
+	$Trojan -config $CONFIG_FILE  >/dev/null 2>&1 &
+   
 fi
 }
 
@@ -453,9 +461,10 @@ remove_mark(){
 		
 		ipset -! flush proxy_lan >/dev/null 2>&1
 		ipset -! flush reject_lan >/dev/null 2>&1
+		ipset -! flush china >/dev/null 2>&1
+		
 		ipset destroy reject_lan >/dev/null 2>&1
 		ipset destroy proxy_lan >/dev/null 2>&1
-		ipset -! flush china >/dev/null 2>&1
 		ipset destroy china >/dev/null 2>&1
 		
 		nat=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/tcp dpt:53/=' | sort -r)
@@ -494,38 +503,43 @@ remove_mark(){
 
 stop(){
 #=========================================================================================================================== 
-        lang=$(uci get luci.main.lang 2>/dev/null)	
+
 		rm -rf $CONFIG_FILE
+
 		remove_mark >/dev/null 2>&1
+
+		rm -rf /var/etc/dnscrypt-proxy-ns1.conf
+
+		rm -rf /var/etc/pdnsd.conf
 
 		kill -9 `pidof trojan|sed "s/$//g"` 2>/dev/null
 		
 		kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
 
+		kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
+		
   	  	del_cron >/dev/null 2>&1
 		
 	 	echo "" >/usr/share/trojan/trojan.txt >/dev/null 2>&1
 
 		echo "0" > /usr/share/trojan/logstatus_check >/dev/null 2>&1
-		
-		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-			echo "  $(date "+%Y-%m-%d %H:%M:%S") - CLIENT IS DISABLED " >> /usr/share/trojan/trojan.txt
-		elif [ "${lang}" == "zh_cn" ];then
-			echo "  $(date "+%Y-%m-%d %H:%M:%S")  - 客户端被禁用 " >> /usr/share/trojan/trojan.txt
-		fi	
+			
 #=========================================================================================================================== 	
 }
 
+
+
 restart(){
 #=========================================================================================================================== 
-		if pidof trojan >/dev/null; then
 			stop  >/dev/null 2>&1
-             sleep 1
+            sleep 1
 			start >/dev/null 2>&1
-		else
-		    start >/dev/null 2>&1
-		fi
 #=========================================================================================================================== 
+}
+
+
+boot(){
+	restart >/dev/null 2>&1
 }
 
 reload()

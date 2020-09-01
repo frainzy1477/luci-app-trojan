@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head> 
 <meta charset="utf-8">
 <meta http-equiv="x-dns-prefetch-control" content="on">
 <link rel="dns-prefetch" href="//cdn.jsdelivr.net">	
@@ -271,10 +271,11 @@
 <fieldset  class="cbi-section">
 	<p><center><span id="_new_version"></span></center></p>
 	<table width="100%" cellspacing="10">
-		
+		<tr><td width="20%" ><span></span></td ><td width="40%" ><span><%:CONFIG%></span></td><td  id="_config"><%:Collecting data...%></td> </tr>
 		<tr><td width="20%" ><span></span></td ><td width="40%"><span><%:CLIENT%></span></td><td id="_trojan"><%:Collecting data...%></td> </tr>
 		<tr><td width="20%" ><span></span></td ><td width="40%"><span><%:PDNSD%></span></td><td id="_pdnsd"><%:Collecting data...%></td> </tr>
-		<tr><td width="20%" ><span></span></td ><td width="40%" ><span><%:CONFIG%></span></td><td  id="_config"><%:Collecting data...%></td> </tr>	
+		<tr><td width="20%" ><span></span></td ><td width="40%"><span><%:DNSCRYPT%></span></td><td id="_dnscrypt"><%:Collecting data...%></td> </tr>
+			
 	</table>
 </fieldset>	
 
@@ -558,6 +559,7 @@ function download_conf(){
 				if ( x && x.status == 200 ) {
 						document.getElementById('_trojan').innerHTML = status.client ? '<b><font color=green><%:RUNNING%></font></b>' : '<b><font color=red><%:NOT RUNNING%></font></b>';
 						document.getElementById('_pdnsd').innerHTML = status.pdnsd ? '<b><font color=green><%:RUNNING%></font></b>' : '<b><font color=red><%:NOT RUNNING%></font></b>';
+						document.getElementById('_dnscrypt').innerHTML = status.dnscrypt ? '<b><font color=green><%:RUNNING%></font></b>' : '<b><font color=red><%:NOT RUNNING%></font></b>';
 						document.getElementById('_config').innerHTML = status.client ? '<b><input type="button" class="btn" style="background-color:black;padding: 5px;font-color:green;color:green;font-weight:bold" value="<%:VIEW CONFIG%>" onclick="return view(this)" /></b>' : '<b><font color="red"><%:NOT RUNNING%></font></b>';
 						if(status.new_version > status.current_version)
 						{
@@ -565,6 +567,12 @@ function download_conf(){
 						}
 						IP.getIpifyIP();
 						IP.getIpipnetIP();
+						
+				}
+		});
+
+		XHR.poll(1, '<%=luci.dispatcher.build_url("admin", "services", "trojan", "status")%>', null, function(x, status) {
+				if ( x && x.status == 200 ) {
 						traffic(status.traffic);
 						
 				}
@@ -601,13 +609,46 @@ function download_conf(){
 		function traffic(value) {
 			//var dnl_tra = value.split(":")[4].split("}")[0];
 			//var upl_tra = value.split(":")[3].split(",")[0];
-			var upl_spd = value.split(":")[6].split(",")[0];
-			var dnl_spd = value.split(":")[7].split("}")[0];
+			
+			var sp = value.split(",")[2];
+			if (sp == "" || sp == "NaN" || sp == "undefined" || ! sp){
+			
+				var upl_spd = value.split(",")[0];
+				if (upl_spd == "" || upl_spd == "undefined" || upl_spd == "NaN"){
+					var upl = 0;
+				}else{
+					var upl = upl_spd;
+				}
+				
+				var dnl_spd = value.split(",")[1];
+				if (dnl_spd == "" || dnl_spd == "undefined" || dnl_spd == "NaN"){
+					var dnl = 0;
+				}else{
+					var dnl = dnl_spd;
+				}
+			
+			}else{
+				var upl_spd = value.split(",")[1];
+				if (upl_spd == "" || upl_spd == "undefined" || upl_spd == "NaN"){
+					var upl = 0;
+				}else{
+					var upl = upl_spd;
+				}
+				
+				var dnl_spd = value.split(",")[2];
+				if (dnl_spd == "" || dnl_spd == "undefined" || dnl_spd == "NaN"){
+					var dnl = 0;
+				}else{
+					var dnl = dnl_spd;
+				}			
+			
+			}
 			
 			//var dnltra = flow(dnl_tra);
 			//var upltra = flow(upl_tra);
-			var uplspd = flow(upl_spd);
-			var dnlspd = flow(dnl_spd);
+			
+			var uplspd = flow(upl);
+			var dnlspd = flow(dnl);
 			
 			//document.getElementById('_traffic_download').innerHTML = dnltra;
 			//document.getElementById('_traffic_upload').innerHTML = upltra;

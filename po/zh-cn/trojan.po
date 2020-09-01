@@ -427,3 +427,30 @@ msgstr "连接正常"
 
 msgid "Connect Error"
 msgstr "连接错误"
+
+msgid "DNS Use To Forward Queries(LOCATION/DNSSEC/NOLOG)"
+msgstr "DNS用于转发查询(地点/DNSSEC/没日志)"
+
+msgid "Resolver List"
+msgstr "DNS解析器列表"
+
+msgid "Port"
+msgstr "DNS转发端口"
+
+msgid "Port for DNS queries"
+msgstr "DNS转发端口"
+
+msgid "No SSL support available<br/>"
+msgstr "没有可用的SSL支持<br/>"
+
+msgid "Please install a libustream-ssl library to download the current resolver list"
+msgstr "请安装libustream-ssl库以下载当前的解析器列表"
+
+msgid "Refresh Resolver"
+msgstr "刷新解析器"
+
+msgid "Download the current resolver list"
+msgstr "下载最新的解析器列表"
+
+msgid "Refresh List"
+msgstr "刷新清单"

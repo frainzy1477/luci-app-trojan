@@ -1,11 +1,19 @@
 
 config global
 	option enable '0'
+
+config settings
+	option dnscache '0'
+	option address '127.0.0.1'
+	option dns_mode 'dnscrypt'
+	option access_control '0'
+	list port '5353'
+	option resolver 'adguard-dns-family-ns1'
 	
 config server_subscribe
 	list subscribe_url ''
 	option auto_update '0'
-	option auto_update_time '1'
+	option auto_update_time '0'
 
 
 config trojan 'config'

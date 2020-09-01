@@ -42,6 +42,10 @@ local function trojan_running()
    return luci.sys.call("pidof trojan >/dev/null") == 0
 end
 
+local function dnscrypt_proxy()
+ return luci.sys.call("pidof dnscrypt-proxy >/dev/null") == 0                   
+end	
+
 local function pdnsd_running()
  return luci.sys.call("pidof pdnsd >/dev/null") == 0                   
 end	
@@ -111,6 +115,7 @@ function action_status()
 		trojan_core_new = trojan_core_new(),
 		check_core_new = check_core_new(),
 		pdnsd = pdnsd_running(),
+		dnscrypt = dnscrypt_proxy(),
 		check_version = check_version(),
 		current_version = current_version(),
 		new_version = new_version(),

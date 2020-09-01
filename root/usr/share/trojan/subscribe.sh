@@ -1,5 +1,5 @@
 #!/bin/bash /etc/rc.common
-  
+   
 lang=$(uci get luci.main.lang 2>/dev/null)
 server_file="/tmp/server_file.yaml"
 single_server="/tmp/single_server.yaml"
