@@ -73,7 +73,7 @@ dns_change(){
 	        	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
 			uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
 			elif  [ "$dns_mode" == "dnscrypt" ];then
-			uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#$port
+			uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#8888
 			uci add_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8
 			if [ ! -f "/etc/resolv-crypt.conf" ] || [ "$(ls -l /etc/resolv-crypt.conf |awk '{print int($5)}')" -eq 0 ]; then
 				uci set dhcp.@dnsmasq[0].resolvfile=/tmp/resolv.conf.auto
