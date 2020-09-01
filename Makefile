@@ -30,9 +30,9 @@ endef
 define Build/Compile
 endef
 
-#define Package/$(PKG_NAME)/conffiles
-#/etc/config/trojan
-#endef
+define Package/$(PKG_NAME)/conffiles
+/etc/config/trojan
+endef
 
 define Package/$(PKG_NAME)/prerm
 #!/bin/sh
@@ -55,7 +55,7 @@ define Package/$(PKG_NAME)/preinst
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	rm -rf /tmp/dnsmasq.trojan 2>/dev/null
-	#mv /etc/config/trojan /etc/config/trojan.bak 2>/dev/null
+	mv /etc/config/trojan /etc/config/trojan.bak 2>/dev/null
 	rm -rf /usr/lib/lua/luci/model/cbi/trojan 2>/dev/null
 	rm -rf /usr/lib/lua/luci/view/trojan 2>/dev/null
 fi
@@ -68,7 +68,7 @@ define Package/$(PKG_NAME)/postinst
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	rm -rf /tmp/luci*
-	#mv /etc/config/trojan.bak /etc/config/trojan 2>/dev/null
+	mv /etc/config/trojan.bak /etc/config/trojan 2>/dev/null
 	/etc/init.d/trojan disable 2>/dev/null
 fi
 
