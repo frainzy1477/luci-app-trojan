@@ -29,13 +29,9 @@ uci_get_by_type() {
 revert_dns() {
 #=========================================================================================================================== 
 	dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
-	port=$(uci get trojan.@settings[0].port 2>/dev/null)
-	if [ "$dns_mode" == "pdnsd" ];then
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 >/dev/null 2>&1
-	elif [ "$dns_mode" == "dnscrypt" ];then
-	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
+	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#8888 >/dev/null 2>&1
 	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
-	fi
 	uci set dhcp.@dnsmasq[0].noresolv=0
 	uci set dhcp.@dnsmasq[0].resolvfile=""
 	uci delete dhcp.@dnsmasq[0].cachesize
@@ -69,15 +65,14 @@ dns_change(){
 #=========================================================================================================================== 	
 			dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
 			dnscache=$(uci get trojan.@settings[0].dnscache 2>/dev/null)
-			port=$(uci get trojan.@settings[0].port 2>/dev/null)
+			uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#8888 >/dev/null 2>&1
+			uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
+		    	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
 
 			if [ "$dns_mode" == "pdnsd" ];then
-		    	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
 	        	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
 			uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
 			elif  [ "$dns_mode" == "dnscrypt" ];then
-			uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
-			uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
 			uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#$port
 			uci add_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8
 			if [ ! -f "/etc/resolv-crypt.conf" ] || [ "$(ls -l /etc/resolv-crypt.conf |awk '{print int($5)}')" -eq 0 ]; then
@@ -85,7 +80,7 @@ dns_change(){
 			else
 				uci set dhcp.@dnsmasq[0].resolvfile=/etc/resolv-crypt.conf
 			fi
-			uci set dhcp.@dnsmasq[0].allservers=0	
+				uci set dhcp.@dnsmasq[0].allservers=0	
 			fi	
 	       		uci set dhcp.@dnsmasq[0].noresolv=1 
 			uci commit dhcp 
@@ -532,7 +527,7 @@ stop(){
 restart(){
 #=========================================================================================================================== 
 			stop  >/dev/null 2>&1
-            sleep 1
+            		sleep 2
 			start >/dev/null 2>&1
 #=========================================================================================================================== 
 }

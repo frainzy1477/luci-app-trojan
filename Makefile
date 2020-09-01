@@ -30,9 +30,9 @@ endef
 define Build/Compile
 endef
 
-define Package/$(PKG_NAME)/conffiles
-/etc/config/trojan
-endef
+#define Package/$(PKG_NAME)/conffiles
+#/etc/config/trojan
+#endef
 
 define Package/$(PKG_NAME)/prerm
 #!/bin/sh

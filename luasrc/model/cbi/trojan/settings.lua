@@ -120,14 +120,6 @@ else
 end
 
 
-i = s:option(DynamicList, "port", translate("Port"))
-i.description=translate("Port for DNS queries")
-i.datatype = "port"
-i:value("5353")
-i.rmempty = false
-i:depends("dns_mode", "dnscrypt")
-
-
 i3 = s:option(ListValue, "resolver", translate("Resolver List"),
 	translate("DNS Use To Forward Queries(LOCATION/DNSSEC/NOLOG)"))
 i3.datatype = "hostname"
@@ -139,19 +131,19 @@ for i, v in ipairs(res_list) do
 	end
 end
 i3.default = resolver
-i3.rmempty = false
 i3:depends("dns_mode", "dnscrypt")
 
 
 
 local apply = luci.http.formvalue("cbi.apply")
 if apply then
+m.uci:commit("trojan")
 if not fs.access("/etc/resolv-crypt.conf") or fs.stat("/etc/resolv-crypt.conf").size == 0 then
 luci.sys.call("env -i echo 'options timeout:1' > '/etc/resolv-crypt.conf'")
 end
 if luci.sys.call("pidof trojan >/dev/null") == 0 then
 	luci.sys.call("/etc/init.d/trojan restart >/dev/null 2>&1 &")
-    luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
+        luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
 end
 end
 

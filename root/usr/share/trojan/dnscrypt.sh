@@ -24,7 +24,7 @@ create_config_file() {
     [ -f "$config_path" ] && rm "$config_path"
 
     config_get      address         $1 'address'        '127.0.0.1'
-    config_get      port            $1 'port'           '5353'
+    config_get      port            $1 'port'           '8888'
     config_get      resolver        $1 'resolver'       ''
     config_get      provider_name   $1 'providername'   ''
     config_get      provider_key    $1 'providerkey'    ''
