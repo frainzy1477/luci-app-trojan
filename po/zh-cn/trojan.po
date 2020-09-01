@@ -33,7 +33,7 @@ msgid "SERVER"
 msgstr "器配置"
 
 msgid "PDNSD"
-msgstr "DNS转发"
+msgstr "PDNSD"
 
 msgid "Servers"
 msgstr "器配置"
@@ -454,3 +454,6 @@ msgstr "下载最新的解析器列表"
 
 msgid "Refresh List"
 msgstr "刷新清单"
+
+msgid "DNS Query Mode"
+msgstr "DNS查询方式"

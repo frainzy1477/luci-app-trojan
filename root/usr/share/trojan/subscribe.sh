@@ -1,4 +1,5 @@
 #!/bin/bash /etc/rc.common
+. /lib/functions.sh
    
 lang=$(uci get luci.main.lang 2>/dev/null)
 server_file="/tmp/server_file.yaml"
@@ -19,9 +20,6 @@ echo $subscribe_data  | base64 -d | sed 's/\r//g' | sed 's/\:\/\//password=/g'| 
 urldecode(){
   echo -e "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"
 }
-
-server_file="/tmp/server_file.yaml"
-single_server="/tmp/single_server.yaml"
 
 
 num=$(grep -c "password=" $server_file 2>/dev/null)

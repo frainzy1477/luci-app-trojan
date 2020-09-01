@@ -57,7 +57,7 @@ o.orientation = "horizontal"
 o:value("off", translate("Disabled"))
 o:value("dnscrypt", translate("DNSCrypt"))
 o:value("pdnsd", translate("Pdnsd"))
-o.description = translate("Resolve Dns Mode")
+o.description = translate("DNS Query Mode")
 o.default = "dnscrypt"
 o.rmempty = false
 

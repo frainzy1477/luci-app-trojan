@@ -17,11 +17,7 @@ config server_subscribe
 
 
 config trojan 'config'
-	option access_control '0'
 	option download_core 'linux-amd64'
-	option dnscache '1'
-	option dns_mode 'pdnsd'
-	option tunnel_forward '208.67.222.222:53'
 	option download_source 'frainzy1477/trojan_go'
 
 config rules
