@@ -426,9 +426,11 @@ if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
 	dnsstr=$(uci get trojan.@settings[0].tunnel_forward 2>/dev/null)
 		
 	rm -f /var/etc/trojan*
-
+	
+	if [ "$dns_mode" != "off" ];then
 	dns_change 2>/dev/null 2>&1
-
+	fi
+	
 	redir >/dev/null 2>&1
 
 	rules >/dev/null 2>&1
