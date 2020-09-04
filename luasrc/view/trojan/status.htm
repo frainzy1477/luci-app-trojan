@@ -5,9 +5,7 @@
 <meta http-equiv="x-dns-prefetch-control" content="on">
 <link rel="dns-prefetch" href="//cdn.jsdelivr.net">	
 <meta name="referrer" content="no-referrer">
-<link rel="preconnect" href="https://qqwry.api.skk.moe">
 <link rel="preconnect" href="https://myip.ipip.net">
-<link rel="preconnect" href="https://api.ipify.org">
 </head>
 </html>	
  
@@ -426,9 +424,9 @@ function download_conf(){
 							throw error;
 						}),
 				  parseIPIpip: (ip, elID) => {
-						IP.get(`https://qqwry.api.skk.moe/${ip}`, 'json')
+						IP.get(`https://geoip.gbxcloud.com/?geoip=${ip}`, 'text')
 							.then(resp => {
-								 document.getElementById(elID).innerHTML = "-" +  resp.data.geo;
+								 document.getElementById(elID).innerHTML = "- " +  resp.data;
 							})
 					},
 
@@ -607,8 +605,6 @@ function download_conf(){
 		
 		
 		function traffic(value) {
-			//var dnl_tra = value.split(":")[4].split("}")[0];
-			//var upl_tra = value.split(":")[3].split(",")[0];
 			
 			var sp = value.split(",")[2];
 			if (sp == "" || sp == "NaN" || sp == "undefined" || ! sp){
@@ -644,14 +640,10 @@ function download_conf(){
 			
 			}
 			
-			//var dnltra = flow(dnl_tra);
-			//var upltra = flow(upl_tra);
 			
 			var uplspd = flow(upl);
 			var dnlspd = flow(dnl);
 			
-			//document.getElementById('_traffic_download').innerHTML = dnltra;
-			//document.getElementById('_traffic_upload').innerHTML = upltra;
 			document.getElementById('_speed_upload').innerHTML = uplspd;
 			document.getElementById('_speed_download').innerHTML = dnlspd;
 		}

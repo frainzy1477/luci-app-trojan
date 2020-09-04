@@ -20,7 +20,7 @@ o = a:option(Button, "Apply")
 o.inputtitle = translate("Back to Overview")
 o.inputstyle = "reset"
 o.write = function()
-  HTTP.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
+  HTTP.redirect(luci.dispatcher.build_url("admin", "services", "trojan", "client"))
 end
 
 

@@ -105,4 +105,4 @@ rm -rf  $single_server $server_file >/dev/null 2>&1
 		echo "Trojan-GO for OpenWRT" >$REAL_LOG
 		exit 0
 done
-/etc/init.d/trojan boot >/dev/null 2>&1
+/etc/init.d/trojan restart >/dev/null 2>&1

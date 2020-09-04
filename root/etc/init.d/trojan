@@ -97,70 +97,8 @@ dns_change(){
 
 
 
-pdnsd_dns() {
-	local usr_dns="$1"
-	local usr_port="$2"
-  
-	local tcp_dns_list="208.67.222.222, 208.67.220.220"
-	[ -z "$usr_dns" ] && usr_dns="8.8.4.4" && usr_port="53"
-
-  [ -d /var/etc ] || mkdir -p /var/etc
-
-   if [ ! -d /var/pdnsd ];then
-       mkdir -p /var/pdnsd
-       echo -ne "pd13\000\000\000\000" >/var/pdnsd/pdnsd.cache
-       chown -R nobody:nogroup /var/pdnsd
-   fi
-	
-	cat > /var/etc/pdnsd.conf <<EOF
-global {
-	perm_cache=1024;
-	cache_dir="/var/pdnsd";
-	pid_file = /var/run/pdnsd.pid;
-	run_as="nobody";
-	server_ip = 127.0.0.1;
-	server_port = 5335;
-	status_ctl = on;
-	query_method = tcp_only;
-	min_ttl=1h;
-	max_ttl=1w;
-	timeout=10;
-	neg_domain_pol=on;
-	proc_limit=2;
-	procq_limit=8;
-	par_queries=1;
-}
-server {
-	label= "usrdns";
-	ip = $usr_dns;
-	port = $usr_port;
-	timeout=6;
-	uptest=none;
-	interval=10m;
-	purge_cache=off;
-}
-server {
-	label= "pdnsd";
-	ip = $tcp_dns_list;
-	port = 5353;
-	timeout=6;
-	uptest=none;
-	interval=10m;
-	purge_cache=off;
-}
-EOF
-
-/usr/sbin/pdnsd -c /var/etc/pdnsd.conf -d
-}
-
 gen_config_file() {
-
-	local usr_dns=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\1/'`
-	local usr_port=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\2/'`
-	
-	[ "$usr_dns" == "127.0.0.1" ] && usr_dns="8.8.4.4" && usr_port="53" && dnsforward=1
-		 
-
+ 
 global_config=$(uci_get_by_type global ctype 2>/dev/null)
 
 if [ "${global_config}" -eq 1 ];then
@@ -322,14 +260,6 @@ start_rules(){
 				
 				sh /usr/share/trojan/chinaipset.sh >/dev/null 2>&1
 
-				if [ "$(iptables -t nat -nL PREROUTING --line-number |grep "udp dpt:53" |grep "0.0.0.0/0 \{0,\}0.0.0.0/0" |wc -l)" -gt 1 ]; then
-				   pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/0.0.0.0\/0 \{0,\}0.0.0.0\/0 \{0,\}udp dpt:53/=' 2>/dev/null |sort -rn)
-				   for pre_line in $pre_lines; do
-					  iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
-				   done
-				   iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53 >/dev/null 2>&1
-				   sleep 2
-				fi
 		
 
 				if [ -z "$(uci get firewall.trojan 2>/dev/null)" ] || [ -z "$(uci get ucitrack.@trojan[-1].init 2>/dev/null)" ]; then
@@ -349,8 +279,25 @@ start_rules(){
 				/etc/init.d/trojan reload >/dev/null 2>&1
 				EOF
 				
-				INTERFACE=$(uci -P/var/state get network.lan.ifname 2>/dev/null)
+				#INTERFACE=$(uci -P/var/state get network.lan.ifname 2>/dev/null)
 
+				#iptables -t nat -N TROJAN_GO				
+				#iptables -t nat -A TROJAN_GO -d $Trojan_Server -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 0.0.0.0/8 -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 10.0.0.0/8 -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 127.0.0.0/8 -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 169.254.0.0/16 -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 172.16.0.0/12 -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 192.168.0.0/16 -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 224.0.0.0/4 -j RETURN
+				#iptables -t nat -A TROJAN_GO -d 240.0.0.0/4 -j RETURN
+				#iptables -t nat -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
+				#iptables -t nat -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
+				#iptables -t nat -A TROJAN_GO -m set --match-set china dst -j RETURN
+				#iptables -t nat -A TROJAN_GO -p tcp -j REDIRECT --to-ports 51837
+				#iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 -j REDIRECT --to-ports 51837
+				#iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 -j REDIRECT --to-ports 51837			
+           		#iptables -t nat -A PREROUTING -p tcp -j TROJAN_GO
 				
 				ip route add local default dev lo table 100
 				ip rule add fwmark 1 lookup 100	
@@ -365,18 +312,13 @@ start_rules(){
 				iptables -t mangle -A TROJAN_GO -d 192.168.0.0/16 -j RETURN
 				iptables -t mangle -A TROJAN_GO -d 224.0.0.0/4 -j RETURN
 				iptables -t mangle -A TROJAN_GO -d 240.0.0.0/4 -j RETURN
-	
 				iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
 				iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
 				iptables -t mangle -A TROJAN_GO -m set --match-set china dst -j RETURN
-				
-				iptables -t mangle -A TROJAN_GO -j TPROXY -p tcp --on-port 51837 --tproxy-mark 0x01/0x01
-				iptables -t mangle -A TROJAN_GO -j TPROXY -p udp --on-port 51837 --tproxy-mark 0x01/0x01
-
-				iptables -t mangle -A PREROUTING -p tcp -i $INTERFACE -j TROJAN_GO
-				iptables -t mangle -A PREROUTING -p udp -i $INTERFACE -j TROJAN_GO
-				#iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
-				#iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
+				iptables -t mangle -A TROJAN_GO -p udp --dport 53 -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+				iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+				iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
+				iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
 				
 	
 				
@@ -384,64 +326,52 @@ start_rules(){
 }	 
 
 redir(){
-	  local pid_file
-	  gen_config_file $GLOBAL_SERVER 0
-		
-	  if [ "$dns_mode" == "dnscrypt" ];then 
-		sh /usr/share/trojan/dnscrypt.sh >/dev/null 2>&1 &
-	  elif [ "$dns_mode" == "pdnsd" ];then
-		local dnsserver dnsport
-		dnsserver=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\1/'`
-		dnsport=`echo "$dnsstr"|sed 's/^\(.*\):\([^:]*\)$/\2/'`
-		pdnsd_dns $dnsserver $dnsport 
-		pdnsd_enable_flag=1
-	  fi
+		gen_config_file $GLOBAL_SERVER 0	
+		if [ "$dns_mode" == "dnscrypt" ];then 
+			sh /usr/share/trojan/dnscrypt.sh >/dev/null 2>&1 &
+		elif [ "$dns_mode" == "pdnsd" ];then
+			sh /usr/share/trojan/pdnsd.sh >/dev/null 2>&1 &
+		fi
 }
 
 rules() {
-	[ "$GLOBAL_SERVER" = "nil" ] && return 1
-	mkdir -p /var/run /var/etc
-	start_rules >/dev/null 2>&1
+		[ "$GLOBAL_SERVER" = "nil" ] && return 1
+		mkdir -p /var/run /var/etc
+		start_rules >/dev/null 2>&1
 }
 
 start(){
+		enable=$(uci_get_by_type global enable 2>/dev/null)
+		rm -rf $CONFIG_FILE
 
-enable=$(uci_get_by_type global enable 2>/dev/null)
-rm -rf $CONFIG_FILE
+		if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
 
-if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
-
-	local GLOBAL_SERVER 
-	local dns_mode dnsstr pdnsd dnsforward dnscrypt
-	
-	if [ -z "$switch_server" ] ;then
-		GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
-	else
-		GLOBAL_SERVER=$switch_server
-		switch_enable=1
-	fi
+			local GLOBAL_SERVER 
+			local dns_mode pdnsd  dnscrypt
 			
+			if [ -z "$switch_server" ] ;then
+				GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
+			else
+				GLOBAL_SERVER=$switch_server
+				switch_enable=1
+			fi
+					
+			rm -f /var/etc/trojan*
+			
+			if [ "$dns_mode" != "off" ];then
+			dns_change 2>/dev/null 2>&1
+			fi
+			
+			redir >/dev/null 2>&1
 
-	dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
-	dnsstr=$(uci get trojan.@settings[0].tunnel_forward 2>/dev/null)
-		
-	rm -f /var/etc/trojan*
-	
-	if [ "$dns_mode" != "off" ];then
-	dns_change 2>/dev/null 2>&1
-	fi
-	
-	redir >/dev/null 2>&1
+			rules >/dev/null 2>&1
 
-	rules >/dev/null 2>&1
+			add_cron >/dev/null 2>&1
+			
+			/etc/init.d/dnsmasq restart >/dev/null 2>&1
 
-	add_cron >/dev/null 2>&1
-	
-	/etc/init.d/dnsmasq restart >/dev/null 2>&1
-
-	$Trojan -config $CONFIG_FILE  >/dev/null 2>&1 &
-   
-fi
+			$Trojan -config $CONFIG_FILE  >/dev/null 2>&1 &
+		fi
 }
 
 
@@ -455,6 +385,9 @@ remove_mark(){
 		iptables -t mangle -F TROJAN_GO 2>/dev/null
 		iptables -t mangle -X TROJAN_GO 2>/dev/null
 		
+		iptables -t nat -F TROJAN_GO 2>/dev/null
+		iptables -t nat -X TROJAN_GO 2>/dev/null
+
 		
 		ipset -! flush proxy_lan >/dev/null 2>&1
 		ipset -! flush reject_lan >/dev/null 2>&1
@@ -490,6 +423,34 @@ remove_mark(){
 		for natx in $china_lan; do
 			iptables -t mangle -D PREROUTING $natx >/dev/null 2>&1
 		done
+
+
+	   
+		magg=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
+		for nat_indexv in $magg; do
+			iptables -t nat -D PREROUTING $nat_indexv >/dev/null 2>&1
+		done						
+			
+		
+		proxy_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/! match-set proxy_lan src/=' | sort -r)
+		for natx in $proxy_lann; do
+			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+		done
+		
+		reject_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set reject_lan src/=' | sort -r)
+		for natx in $reject_lann; do
+			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+		done		
+
+		china_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set china/=' | sort -r)
+		for natx in $china_lann; do
+			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+		done
+
+	   	pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/8\.8\./=' 2>/dev/null |sort -rn)
+	   	for pre_line in $pre_lines; do
+		  	iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
+	   	done
 
 
 		iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT
@@ -528,23 +489,21 @@ stop(){
 
 restart(){
 #=========================================================================================================================== 
-			stop  >/dev/null 2>&1
-            		sleep 2
-			start >/dev/null 2>&1
+		stop  >/dev/null 2>&1
+            sleep 2
+		start >/dev/null 2>&1
 #=========================================================================================================================== 
 }
 
 
 boot(){
-	restart >/dev/null 2>&1
+		restart >/dev/null 2>&1
 }
 
-reload()
-{
-if pidof trojan >/dev/null; then
-    remove_mark 2>/dev/null
-    dns_change 2>/dev/null 2>&1
-	rules >/dev/null 2>&1 
-	
-fi	  
+reload(){
+		if pidof trojan >/dev/null; then
+			remove_mark 2>/dev/null
+			dns_change 2>/dev/null 2>&1
+			rules >/dev/null 2>&1 
+		fi	  
 }
