@@ -29,8 +29,9 @@ uci_get_by_type() {
 revert_dns() {
 #=========================================================================================================================== 
 	dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
+	port=$(uci get trojan.@settings[0].port 2>/dev/null)
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#8888 >/dev/null 2>&1
+	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
 	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
 	uci set dhcp.@dnsmasq[0].noresolv=0
 	uci set dhcp.@dnsmasq[0].resolvfile=""
@@ -65,16 +66,19 @@ dns_change(){
 #=========================================================================================================================== 	
 			dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
 			dnscache=$(uci get trojan.@settings[0].dnscache 2>/dev/null)
-			uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#8888 >/dev/null 2>&1
+			port=$(uci get trojan.@settings[0].port 2>/dev/null)
+			uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
 			uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
-		    	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
+		    uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
 
 			if [ "$dns_mode" == "pdnsd" ];then
-	        	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
+	        uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
 			uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
+			uci set dhcp.@dnsmasq[0].noresolv=1
 			elif  [ "$dns_mode" == "dnscrypt" ];then
-			uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#8888
+			uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#$port
 			uci add_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8
+			uci set dhcp.@dnsmasq[0].noresolv=1
 			if [ ! -f "/etc/resolv-crypt.conf" ] || [ "$(ls -l /etc/resolv-crypt.conf |awk '{print int($5)}')" -eq 0 ]; then
 				uci set dhcp.@dnsmasq[0].resolvfile=/tmp/resolv.conf.auto
 			else
@@ -82,7 +86,7 @@ dns_change(){
 			fi
 				uci set dhcp.@dnsmasq[0].allservers=0	
 			fi	
-	       		uci set dhcp.@dnsmasq[0].noresolv=1 
+	       	 
 			uci commit dhcp 
 			 
 			
