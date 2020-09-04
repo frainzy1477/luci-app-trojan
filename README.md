@@ -80,7 +80,7 @@ trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@uk3.xxx.com:443/?sni=uk3.xxx.co
     "local_addr": "0.0.0.0",
     "local_port": 51837,
     "log_level": 1,
-	"log_file": "/usr/share/trojan/trojan.txt",
+    "log_file": "/usr/share/trojan/trojan.txt",
     "mux": {
         "concurrency": 8,
         "enabled": true,
