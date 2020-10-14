@@ -92,8 +92,8 @@ msgstr "不走代理的IP列表"
 msgid "Selected IPs will not be proxied"
 msgstr "选择LAN IP只不走代理"
 
-msgid "Upload Trogan-go"
-msgstr "上载Trojan"
+msgid "Upload"
+msgstr "上载"
 
 msgid "Download Trogan-go"
 msgstr "下载Trogan-go"
@@ -457,3 +457,21 @@ msgstr "刷新清单"
 
 msgid "DNS Query Mode"
 msgstr "DNS查询方式"
+
+msgid "Custom Proxy Client"
+msgstr "自定义代理客户端"
+
+msgid "UDP Ports"
+msgstr "UDP端口"
+
+msgid "Only On Port 53"
+msgstr "仅在端口53上"
+
+msgid "All Ports"
+msgstr "所有港口"
+
+msgid "UDP Destination Port(s)"
+msgstr "UDP目标端口"
+
+msgid "GEOLOCATION"
+msgstr "地理位置"
