@@ -5,8 +5,8 @@
 	Proxy Client for Openwrt Based On <a href="https://github.com/p4gefau1t/trojan-go" target="_blank">Trojan-GO</a>.
   </p>
   <p align="center">
-  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v1.1.2">
-    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v1.1.2-blue.svg"> 	  
+  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v2.0.0">
+    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v2.0.0-blue.svg"> 	  
   </a>
   <a href="https://github.com/frainzy1477/luci-app-trojan/releases" target="_blank">
         <img src="https://img.shields.io/github/downloads/frainzy1477/luci-app-trojan/total.svg?style=flat-square"/>
@@ -18,8 +18,8 @@
 - Upload ipk file to tmp folder
 - cd /tmp
 - opkg update
-- opkg install luci-app-trojan_v1.1.2_all.ipk  
-- opkg install luci-app-trojan_v1.1.2_all.ipk --force-depends
+- opkg install luci-app-trojan_v2.0.0_all.ipk  
+- opkg install luci-app-trojan_v2.0.0_all.ipk --force-depends
 
  ## Uninstall
 - opkg remove luci-app-trojan 
@@ -60,7 +60,7 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
 
 ### trojan-go uri
 ```
-trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@uk3.xxx.com:443/?sni=uk3.xxx.com&type=ws&host=uk3.xxx.com&path=/trojan&encryption=ss%3Baes-128-gcm%3BgAtla202#United%20States%7CB%7CNF%7C*TJ*
+trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@uk3.xxx.com:443/?sni=uk3.xxx.com&type=ws&host=uk3.xxx.com&path=/trojan&encryption=ss%3Baes-128-gcm%3AgAtla202#United%20Kingdom%7CB%7CNF%7C*TJ*
 ```
 
 ### Upload Config.json Sample
@@ -130,26 +130,6 @@ trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@uk3.xxx.com:443/?sni=uk3.xxx.co
         "enabled": false,
         "host": "",
         "path": ""
-    },	
-    "router":{
-        "enabled": true,
-        "bypass": [
-                    "geoip:cn",
-                    "geoip:private",
-                    "geosite:cn",
-                    "geosite:geolocation-cn"
-        ],
-        "block": [
-                    "geosite:category-ads"
-        ],
-        "proxy": [
-                    "geosite:geolocation-!cn"
-        ],
-        "default_policy": "proxy",
-        "domain_strategy": "as_is",
-        "geoip": "/etc/trojan/geoip.dat",
-        "geosite": "/etc/trojan/geosite.dat"
-		
     }
 }
 ```

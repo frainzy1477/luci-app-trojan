@@ -118,6 +118,7 @@ cat  >> /tmp/trojan.json <<-EOF
     "run_type": "nat",	
     "local_addr": "0.0.0.0",
     "local_port": 51837,
+    "buffer_size": 32,	
     "log_level": 1,	
 	"log_file": "$REAL_LOG",
     "password": ["$(uci_get_by_name $1 password)"],
@@ -148,20 +149,14 @@ cat  >> /tmp/trojan.json <<-EOF
         "sni": "$(uci_get_by_name $1 sni)",
         "verify": true,
         "verify_hostname": true
-    },	
-    "buffer_size": 32,
-    "forward_proxy": {
-        "enabled": false,
-        "proxy_addr": "127.0.0.1",
-        "proxy_port": 1086
     },
 EOF
 
 if [ "$(uci_get_by_name $1 mux)" == "true" ];then
 cat  >> /tmp/trojan.json <<-EOF
     "mux": {
+        "enabled": true,
         "concurrency": $(uci_get_by_name $1 concurrency),
-        "enabled": $(uci_get_by_name $1 mux),
         "idle_timeout": $(uci_get_by_name $1 idle_timeout)
     },
 EOF
@@ -170,7 +165,7 @@ fi
 if [ "$(uci_get_by_name $1 shadowdocks)" == "true" ];then
 cat  >> /tmp/trojan.json <<-EOF
     "shadowsocks": {
-        "enabled": $(uci_get_by_name $1 shadowdocks),
+        "enabled": true,
         "method": "$(uci_get_by_name $1 cipher)",
         "password": "$(uci_get_by_name $1 shadowsocks_passw)"
     },
@@ -180,7 +175,7 @@ fi
 if [ "$(uci_get_by_name $1 fast_open)" == "true" ];then
 cat  >> /tmp/trojan.json <<-EOF
     "tcp": {
-        "fast_open": $(uci_get_by_name $1 fast_open),
+        "fast_open": true,
         "fast_open_qlen": 20,
         "keep_alive": $(uci_get_by_name $1 keep_alive),
         "no_delay": $(uci_get_by_name $1 no_delay)
@@ -191,7 +186,7 @@ fi
 if [ "$(uci_get_by_name $1 plugin)" == "true" ];then
 cat  >> /tmp/trojan.json <<-EOF
     "transport_plugin": {
-        "enabled": $(uci_get_by_name $1 plugin),
+        "enabled": true,
         "type": "$(uci_get_by_name $1 plugin_type)",
         "command": "$(uci_get_by_name $1 plugin_command)",
         "arg": [$(uci_get_by_name $1 plugin_arg)],
@@ -205,7 +200,7 @@ fi
 if [ "$(uci_get_by_name $1 websocket)" == "true" ];then
 cat  >> /tmp/trojan.json <<-EOF
     "websocket": {
-        "enabled": $(uci_get_by_name $1 websocket),
+        "enabled": true,
         "host": "$(uci_get_by_name $1 websocket_host)",
         "path": "$(uci_get_by_name $1 path)"
     },	
@@ -229,8 +224,6 @@ if [ $local_port != "51837" ];then
   sed -i "s/$local_port/51837/g" $CONFIG_FILE  
 fi
 
-
-
 fi  
 }
 
@@ -239,7 +232,7 @@ start_rules(){
 #===========================================================================================================================
 
 				server=`awk '/remote_addr/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
-				
+				udp_allow=$(uci get trojan.@settings[0].udp 2>/dev/null)
 				
 				if echo $server | grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$">/dev/null; then         
 				    Trojan_Server=$server
@@ -319,7 +312,11 @@ start_rules(){
 				iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
 				iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
 				iptables -t mangle -A TROJAN_GO -m set --match-set china dst -j RETURN
+				if [ "$udp_allow" -eq 1 ];then
 				iptables -t mangle -A TROJAN_GO -p udp --dport 53 -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+				else
+				iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+				fi
 				iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
 				iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
 				iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
@@ -389,8 +386,8 @@ remove_mark(){
 		iptables -t mangle -F TROJAN_GO 2>/dev/null
 		iptables -t mangle -X TROJAN_GO 2>/dev/null
 		
-		iptables -t nat -F TROJAN_GO 2>/dev/null
-		iptables -t nat -X TROJAN_GO 2>/dev/null
+		#iptables -t nat -F TROJAN_GO 2>/dev/null
+		#iptables -t nat -X TROJAN_GO 2>/dev/null
 
 		
 		ipset -! flush proxy_lan >/dev/null 2>&1
@@ -430,31 +427,31 @@ remove_mark(){
 
 
 	   
-		magg=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
-		for nat_indexv in $magg; do
-			iptables -t nat -D PREROUTING $nat_indexv >/dev/null 2>&1
-		done						
-			
+		#magg=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
+		#for nat_indexv in $magg; do
+		#	iptables -t nat -D PREROUTING $nat_indexv >/dev/null 2>&1
+		#done						
 		
-		proxy_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/! match-set proxy_lan src/=' | sort -r)
-		for natx in $proxy_lann; do
-			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
-		done
 		
-		reject_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set reject_lan src/=' | sort -r)
-		for natx in $reject_lann; do
-			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
-		done		
+		#proxy_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/! match-set proxy_lan src/=' | sort -r)
+		#for natx in $proxy_lann; do
+		#	iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+		#done
+		
+		#reject_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set reject_lan src/=' | sort -r)
+		#for natx in $reject_lann; do
+		#	iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+		#done		
 
-		china_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set china/=' | sort -r)
-		for natx in $china_lann; do
-			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
-		done
+		#china_lann=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/match-set china/=' | sort -r)
+		#for natx in $china_lann; do
+		#	iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+		#done
 
-	   	pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/8\.8\./=' 2>/dev/null |sort -rn)
-	   	for pre_line in $pre_lines; do
-		  	iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
-	   	done
+	   	#pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/8\.8\./=' 2>/dev/null |sort -rn)
+	   	#for pre_line in $pre_lines; do
+		#  	iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
+	   	#done
 
 
 		iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT

@@ -98,13 +98,13 @@
 
 @media only screen and (min-width: 768px) {
   .siz {
-    width: 50%;
+    width: 100%;
   }
 }
 
 @media only screen and (min-width: 600px) {
   .siz {
-    width: 50%;
+    width: 100%;
   }
 }
 
@@ -118,7 +118,7 @@
 
 <fieldset class="cbi-section">
 	  <p width="100%" align="center"><font color="blue"><b id="_realtimelog">Trojan-GO for OpenWRT</b></font></p>
-	  <p width="100%" align="center"><%:Rule-based Custom Proxy Client%></p><br>
+	  <p width="100%" align="center"><%:Custom Proxy Client%></p><br>
 	  <p width="100%" align="center"><span id="_new_version"></span></p>
 	  
 </fieldset>
@@ -189,7 +189,7 @@
 
 	<div class="pure-g status">
 	
-		<div class="siz">
+		<!--<div class="siz">
 			<div class="block pure-g">
 				<div class="pure-u-8-24">
 					<div class="img-con">
@@ -200,7 +200,7 @@
 					<h4><%:GLOBAL IP%><br><br><span class="green" id="ip-ipify"><%:Checking...%></span> <span class="green" id="ip-ipify-ipip"></span></h4>
 				</div>
 			</div>
-		</div>
+		</div>-->
 		
 		
 		<div class="siz">
@@ -211,7 +211,7 @@
 					</div>
 				</div>
 				<div class="pure-u-16-24">
-					<h4 ><%:DOMESTIC IP%><br><br><span id="d-ip" class="green"><%:Checking...%></span><span class="green" id="ipify-ipip"></span></h4>
+					<h4 ><%:GEOLOCATION%><br><br><span id="d-ip" class="green"><%:Checking...%></span><span class="green" id="ipify-ipip"></span></h4>
 				</div>
 			</div>
 		</div>
@@ -226,7 +226,7 @@
 
 	<div class="pure-g status">
 	
-		<div class="siz">
+		<!--<div class="siz">
 			<div class="block pure-g">
 				<div class="pure-u-8-24">
 					<div class="img-con">
@@ -237,7 +237,7 @@
 					<h4><%:GLOBAL IP%><br><br><span id="d-ip-g" class="green"><%:Checking...%></span><span class="green" id="ipip-g"></span></h4>
 				</div>
 			</div>
-		</div>
+		</div>-->
 		
 		
 		<div class="siz">
@@ -248,7 +248,7 @@
 					</div>
 				</div>
 				<div class="pure-u-16-24">
-					<h4 ><%:DOMESTIC IP%><br><br><span id="d-ip" class="green"><%:Checking...%></span><span class="green" id="ipip"></span></h4>
+					<h4 ><%:GEOLOCATION%><br><br><span id="d-ip" class="green"><%:Checking...%></span><span class="green" id="ipip"></span></h4>
 				</div>
 			</div>
 		</div>
@@ -423,7 +423,7 @@ function download_conf(){
 						}).catch(error => {
 							throw error;
 						}),
-				  parseIPIpip: (ip, elID) => {
+				    parseIPIpip: (ip, elID) => {
 						IP.get(`https://geoip.gbxcloud.com/?geoip=${ip}`, 'text')
 							.then(resp => {
 								 document.getElementById(elID).innerHTML = "- " +  resp.data;
@@ -443,7 +443,7 @@ function download_conf(){
 							})
 					},
 					
-					
+					/*
 					getIpifyIP: () => {
 						IP.get(`https://ip4.seeip.org/json?z=${random}`, 'json')
 						.then(resp => {
@@ -454,7 +454,7 @@ function download_conf(){
 								IP. parseIPIpip(ip, 'ip-ipify-ipip');
 							})
 						
-					}
+					}*/
 
 		
 				   
@@ -509,7 +509,7 @@ function download_conf(){
 							})
 					},
 					
-					
+					/*
 					getIpifyIP: () => {
 						IP.get(`https://ip4.seeip.org/json?z=${random}`, 'json')
 						.then(resp => {
@@ -520,7 +520,7 @@ function download_conf(){
 								IP.Ipip(ip, 'ipip-g');
 							})
 						
-					}
+					}*/
 
 						
 				   
@@ -563,7 +563,7 @@ function download_conf(){
 						{
 						document.getElementById('_new_version').innerHTML ='<a href="https://github.com/frainzy1477/luci-app-trojan/releases/download/'+status.new_version+'/luci-app-trojan_'+status.new_version+'_all.ipk" class="btn" style="font-size:18px;margin-top:-20px;" target="_blank"><b><center><%:Download Latest Client%></center></b></a>';
 						}
-						IP.getIpifyIP();
+						//IP.getIpifyIP();
 						IP.getIpipnetIP();
 						
 				}
@@ -594,7 +594,7 @@ function download_conf(){
 			}
 		});
 
-		IP.getIpifyIP();
+		//IP.getIpifyIP();
 		IP.getIpipnetIP();
 		HTTP.checker('www.baidu.com', 'status_baidu');
 		HTTP.checker('www.google.com', 'status_google');

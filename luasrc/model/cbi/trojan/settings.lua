@@ -20,7 +20,10 @@ y:value("0", translate("disabled"))
 y:value("1", translate("enabled"))
 y.description = translate("Set to enable or disable dns cache")
 
-
+y = s:option(ListValue, "udp", translate("UDP Ports"))
+y:value("1", translate("Only On Port 53"))
+y:value("2", translate("All Ports"))
+y.description = translate("UDP Destination Port(s)")
 
 y = s:option(ListValue, "access_control", translate("Access Control"))
 y:value("0", translate("disabled"))

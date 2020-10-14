@@ -16,8 +16,8 @@ function index()
 	
     entry({"admin", "services", "trojan", "overview"},cbi("trojan/status"),_("Overview"), 10).leaf = true
 	entry({"admin", "services", "trojan", "client"},cbi("trojan/client"),_("Client"), 20).leaf = true
-	entry({"admin", "services", "trojan", "rules"},cbi("trojan/rules"), nil).leaf = true
-	entry({"admin", "services", "trojan", "rule"},cbi("trojan/add-rule"), nil).leaf = true
+	--entry({"admin", "services", "trojan", "rules"},cbi("trojan/rules"), nil).leaf = true
+	--entry({"admin", "services", "trojan", "rule"},cbi("trojan/add-rule"), nil).leaf = true
 
 	entry({"admin", "services", "trojan", "servers" },cbi("trojan/servers"),_("Servers"), 30).leaf = true
 	entry({"admin", "services", "trojan", "server"},cbi("trojan/add-server"), nil).leaf = true

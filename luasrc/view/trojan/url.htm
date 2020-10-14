@@ -102,19 +102,10 @@
 			
 			var shadowdocks = sha_p.split(";")[0];
 			
-			var cipher_chk = sha_p.split(";")[1].split(":")[0];
+			var cipher = sha_p.split(";")[1].split(";")[0];
 			
-			if (cipher_chk != undefined){
-				var cipher = sha_p.split(";")[1].split(";")[0];
-			}else{
-				var cipher = sha_p.split(";")[1].split(":")[0];
-			}
+			var shadowdocks_passw = sha_p.split(":")[1];
 			
-			if ( cipher_chk == undefined){
-				var shadowdocks_passw = sha_p.split(":")[1];
-			}else{
-				var shadowdocks_passw = sha_p.split(";")[2];
-			}
 
 			if (param != "undefined") {
 				document.getElementsByName('cbid.trojan.' + sid + '.name')[0].value = decodeURI(param);
@@ -161,9 +152,10 @@
 		var v_sni = document.getElementsByName('cbid.trojan.' + sid + '.sni')[0];
 				
 		var enc = encodeURIComponent(";")
+		var enc2 = encodeURIComponent(":")
 			
 		if (v_shadowdocks.value == "true"){
-			var ss = enc + v_cipher.value + enc + v_shadowdocks_passw.value;
+			var ss = enc + v_cipher.value + enc2 + v_shadowdocks_passw.value;
 		}
 		
 		if (v_shadowdocks.value == "true" && v_websocket.value == "true"){

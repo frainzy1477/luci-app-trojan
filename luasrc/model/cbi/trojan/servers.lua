@@ -199,8 +199,6 @@ http.setfilehandler(
 			fd:close()
 			fd = nil
 			um.value = translate("File saved to") .. ' "/usr/share/trojan/config/'..meta.file..'"'
-			
-			
 		end
 	end
 )

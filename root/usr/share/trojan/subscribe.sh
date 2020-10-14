@@ -63,7 +63,7 @@ do
    if $ss;then
    ss_type=$(echo "$ss" | grep ";" |awk -F ";" '{print $1}' >/dev/null 2>&1)
    ss_cipher=$(echo "$ss" | grep ";" |awk -F ";" '{print $2}' >/dev/null 2>&1)
-   ss_pass=$(echo "$ss" | grep ";" |awk -F ";" '{print $3}' >/dev/null 2>&1)
+   ss_pass=$(echo "$ss" | grep ";" |awk -F ":" '{print $3}' >/dev/null 2>&1)
    fi   
 	  
  	  	if [ $lang == "en" ] || [ $lang == "auto" ];then

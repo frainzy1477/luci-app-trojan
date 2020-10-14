@@ -7,11 +7,13 @@ local uci = require("luci.model.uci").cursor()
 local trojan = "trojan"
 local http = luci.http
 
+local version = luci.sys.exec("/etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P")
+
 font_red = [[<font color="red">]]
 font_green = [[<font color="green">]]
 font_off = [[</font>]]
-bold_on  = [[<strong>]]
-bold_off = [[</strong>]]
+bold_on  = [[<b>]]
+bold_off = [[</b>]]
 
 x = Map("trojan")
 s = x:section(TypedSection, "trojan")
@@ -19,14 +21,14 @@ s.anonymous = true
 s.addremove=false
 
 o = s:option(DummyValue, "_status", translate("Trojan-Go"))
-o.value = "<span id=\"_trojan\" style=\"line-height: 2.1em;\">%s</span> <span id=\"_trojan_new\" style=\"line-height: 2.1em;\"></span>" %{translate("【  】")}
+o.value = ''..font_green..bold_on..'【'..version..' 】'..bold_off..font_off.."<span id=\"_trojan_new\" style=\"line-height: 2.1em;\"></span>"
 o.rawhtml = true
 
 o = s:option(FileUpload, "")
 o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /etc/trojan/trojan")..bold_off..font_off..' '
 
 
-o.title = translate("Upload Trogan-go")
+o.title = translate("Upload")
 o.template = "trojan/upload"
 um = s:option(DummyValue, "", nil)
 um.template = "trojan/dvalue"
@@ -37,15 +39,13 @@ dir = "/etc/trojan/"
 
 http.setfilehandler(
 	function(meta, chunk, eof)
-		local fp = HTTP.formvalue("file_type")
+
 		if not fd then
 			if not meta then return end
-			
-			if fp == "trojango" then
-			   if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end
-			 
-			end
-
+			if luci.sys.call("pidof trojan >/dev/null") == 0 then
+				luci.sys.exec("/etc/init.d/trojan stop >/dev/null 2>&1 &")
+			end			
+			if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end			
 			if not fd then
 				um.value = translate("upload file error.")
 				return
@@ -57,14 +57,10 @@ http.setfilehandler(
 		if eof and fd then
 			fd:close()
 			fd = nil
-			
-			if fp == "trojango" then
-			    	SYS.exec("chmod 755 /etc/trojan/trojan 2>&1 &")
+			    SYS.exec("chmod 755 /etc/trojan/trojan 2>&1 &")
 				SYS.exec("rm -rf /usr/share/trojan/trojango_version 2>/dev/null && /etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P >> /usr/share/trojan/trojango_version 2>/dev/null")
 				um.value = translate("File saved to") .. ' "/etc/trojan/'..meta.file..'"' 
-			end
-			
-			
+				luci.sys.exec("/etc/init.d/trojan start >/dev/null 2>&1 &")
 		end
 	end
 )
@@ -76,10 +72,6 @@ if luci.http.formvalue("upload") then
 	end
 end
 
-
-o = s:option(ListValue, "download_source", translate("Download Trogan-go"))
-o.description = translate("Download Trogan-go")
-o:value("frainzy1477/trojan_go")
 
 
 local cpu_model=SYS.exec("opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' 2>/dev/null")
