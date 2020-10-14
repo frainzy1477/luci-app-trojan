@@ -173,7 +173,7 @@ sul.addremove=false
 o = sul:option(FileUpload, "")
 o.description = translate("NB: Only upload file with name .json")
 o.title = translate("  ")
-o.template = "trojan/uploadc"
+o.template = "trojan/upload"
 um = sul:option(DummyValue, "", nil)
 um.template = "trojan/dvalue"
 
