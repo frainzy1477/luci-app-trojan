@@ -90,10 +90,10 @@ dns_change(){
 			uci commit dhcp 
 			 
 			
-			if [ "$dnscache"  -eq 0 ];then
-				uci set dhcp.@dnsmasq[0].cachesize=0 
-				uci commit dhcp
-			fi	      
+			#if [ "$dnscache"  -eq 0 ];then
+			#	uci set dhcp.@dnsmasq[0].cachesize=0 
+			#	uci commit dhcp
+			#fi	      
 	   
 	
 #=========================================================================================================================== 	   
