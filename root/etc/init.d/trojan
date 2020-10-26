@@ -69,10 +69,10 @@ dns_change(){
 			port=$(uci get trojan.@settings[0].port 2>/dev/null)
 			uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
 			uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
-		    uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
+		    	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
 
 			if [ "$dns_mode" == "pdnsd" ];then
-	        uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
+	        	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
 			uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
 			uci set dhcp.@dnsmasq[0].noresolv=1
 			elif  [ "$dns_mode" == "dnscrypt" ];then
@@ -100,13 +100,12 @@ dns_change(){
 }
 
 
-
 gen_config_file() {
  
 global_config=$(uci_get_by_type global ctype 2>/dev/null)
 
 if [ "${global_config}" -eq 1 ];then
-sh /usr/share/trojan/rule.sh >/dev/null 2>&1
+#sh /usr/share/trojan/rule.sh >/dev/null 2>&1
 
 cat  >> /tmp/trojan.json <<-EOF
 {
@@ -120,7 +119,7 @@ cat  >> /tmp/trojan.json <<-EOF
     "local_port": 51837,
     "buffer_size": 32,	
     "log_level": 1,	
-	"log_file": "$REAL_LOG",
+    "log_file": "$REAL_LOG",
     "password": ["$(uci_get_by_name $1 password)"],
     "remote_addr": "$(uci_get_by_name $1 remote_addr)",
     "remote_port": $(uci_get_by_name $1 remote_port),	
@@ -203,12 +202,18 @@ cat  >> /tmp/trojan.json <<-EOF
         "enabled": true,
         "host": "$(uci_get_by_name $1 websocket_host)",
         "path": "$(uci_get_by_name $1 path)"
-    },	
+    }	
 EOF
 fi
+cat  >> /tmp/trojan.json <<-EOF	
+}
+EOF
+   
 
-cat  /tmp/trojan.json  /tmp/rules.json >>$CONFIG_FILE
-rm -rf /tmp/rules.json /tmp/trojan.json
+mv  /tmp/trojan.json $CONFIG_FILE
+
+#cat  /tmp/trojan.json  /tmp/rules.json >>$CONFIG_FILE
+#rm -rf /tmp/rules.json /tmp/trojan.json
 else
 
 cp /usr/share/trojan/config/"$(uci_get_by_type global global_config 2>/dev/null)" $CONFIG_FILE
@@ -294,7 +299,7 @@ start_rules(){
 				#iptables -t nat -A TROJAN_GO -p tcp -j REDIRECT --to-ports 51837
 				#iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 -j REDIRECT --to-ports 51837
 				#iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 -j REDIRECT --to-ports 51837			
-           		#iptables -t nat -A PREROUTING -p tcp -j TROJAN_GO
+           			#iptables -t nat -A PREROUTING -p tcp -j TROJAN_GO
 				
 				ip route add local default dev lo table 100
 				ip rule add fwmark 1 lookup 100	
@@ -364,7 +369,9 @@ start(){
 			fi
 			
 			redir >/dev/null 2>&1
-
+			
+			if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
+			
 			rules >/dev/null 2>&1
 
 			add_cron >/dev/null 2>&1
@@ -372,16 +379,19 @@ start(){
 			/etc/init.d/dnsmasq restart >/dev/null 2>&1
 
 			$Trojan -config $CONFIG_FILE  >/dev/null 2>&1 &
+			
+			fi
+			
 		fi
 }
 
 
 remove_mark(){
 
-	    rm -rf /var/etc/trojan.include 2>/dev/null
+	    	rm -rf /var/etc/trojan.include 2>/dev/null
 
-	    ip route del local default dev lo table 100
-	    ip rule del fwmark 1 lookup 100
+	    	ip route del local default dev lo table 100
+	    	ip rule del fwmark 1 lookup 100
 		
 		iptables -t mangle -F TROJAN_GO 2>/dev/null
 		iptables -t mangle -X TROJAN_GO 2>/dev/null
@@ -491,7 +501,7 @@ stop(){
 restart(){
 #=========================================================================================================================== 
 		stop  >/dev/null 2>&1
-            sleep 2
+            	sleep 2
 		start >/dev/null 2>&1
 #=========================================================================================================================== 
 }
