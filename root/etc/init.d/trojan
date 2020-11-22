@@ -109,48 +109,7 @@ if [ "${global_config}" -eq 1 ];then
 
 cat  >> /tmp/trojan.json <<-EOF
 {
-    "api": {
-        "api_addr": "127.0.0.1",
-        "api_port": 57721,
-        "enabled": true
-    },
-    "run_type": "nat",	
-    "local_addr": "0.0.0.0",
-    "local_port": 51837,
-    "buffer_size": 32,	
-    "log_level": 1,	
-    "log_file": "$REAL_LOG",
-    "password": ["$(uci_get_by_name $1 password)"],
-    "remote_addr": "$(uci_get_by_name $1 remote_addr)",
-    "remote_port": $(uci_get_by_name $1 remote_port),	
-    "ssl": {
-        "alpn": [
-            "h2",
-            "http/1.1"
-        ],
-        "cert": "",
-        "cipher": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-SHA:AES256-SHA:DES-CBC3-SHA",
-        "cipher_tls13": "TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384",
-        "curves": "",
-        "fingerprint": "$(uci_get_by_name $1 fingerprint)",
 EOF
-if [ "$(uci_get_by_name $1 reuse_session)" == "true" ];then
-cat  >> /tmp/trojan.json <<-EOF	
-        "reuse_session": $(uci_get_by_name $1 reuse_session),
-		EOF
-fi
-if [ "$(uci_get_by_name $1 session_ticket)" == "true" ];then
-cat  >> /tmp/trojan.json <<-EOF			
-        "session_ticket": $(uci_get_by_name $1 session_ticket),
-		EOF
-fi		
-cat  >> /tmp/trojan.json <<-EOF		
-        "sni": "$(uci_get_by_name $1 sni)",
-        "verify": true,
-        "verify_hostname": true
-    },
-EOF
-
 if [ "$(uci_get_by_name $1 mux)" == "true" ];then
 cat  >> /tmp/trojan.json <<-EOF
     "mux": {
@@ -202,9 +161,51 @@ cat  >> /tmp/trojan.json <<-EOF
         "enabled": true,
         "host": "$(uci_get_by_name $1 websocket_host)",
         "path": "$(uci_get_by_name $1 path)"
-    }	
+    },	
 EOF
 fi
+cat  >> /tmp/trojan.json <<-EOF
+    "api": {
+        "api_addr": "127.0.0.1",
+        "api_port": 57721,
+        "enabled": true
+    },
+    "run_type": "nat",	
+    "local_addr": "0.0.0.0",
+    "local_port": 51837,
+    "buffer_size": 32,	
+    "log_level": 1,	
+    "log_file": "$REAL_LOG",
+    "password": ["$(uci_get_by_name $1 password)"],
+    "remote_addr": "$(uci_get_by_name $1 remote_addr)",
+    "remote_port": $(uci_get_by_name $1 remote_port),	
+    "ssl": {
+        "alpn": [
+            "h2",
+            "http/1.1"
+        ],
+        "cert": "",
+        "cipher": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-SHA:AES256-SHA:DES-CBC3-SHA",
+        "cipher_tls13": "TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384",
+        "curves": "",
+        "fingerprint": "$(uci_get_by_name $1 fingerprint)",
+EOF
+if [ "$(uci_get_by_name $1 reuse_session)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF	
+        "reuse_session": $(uci_get_by_name $1 reuse_session),
+		EOF
+fi
+if [ "$(uci_get_by_name $1 session_ticket)" == "true" ];then
+cat  >> /tmp/trojan.json <<-EOF			
+        "session_ticket": $(uci_get_by_name $1 session_ticket),
+		EOF
+fi		
+cat  >> /tmp/trojan.json <<-EOF		
+        "sni": "$(uci_get_by_name $1 sni)",
+        "verify": true,
+        "verify_hostname": true
+    }
+EOF
 cat  >> /tmp/trojan.json <<-EOF	
 }
 EOF
