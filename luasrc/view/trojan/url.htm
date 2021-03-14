@@ -47,6 +47,7 @@
 	
 
 	
+
 	
 	function import_trojan_url(btn, urlname, sid) {
 		var s = document.getElementById(urlname + '-status');
@@ -84,35 +85,36 @@
 			var trosplit = trourl.split('?');
 			var others = serverPart[1].split('?');			
 			var port = others[0].replace("/", "");			
-			var trosplit = trourl.split('?');
-			var sni = trosplit[1].split('=')[1].split('&')[0];
-			var type = trosplit[1].split('=')[2].split('&')[0];
+			var tros = tro.split('/');
+			//var sni_chk = trosplit[1].split('=')[1].split('&')[0];
+			//var sni_chk = trosplit[1].split('=').length;
+			//if(sni_chk > 1){
+			//	var sni = trosplit[1].split('=')[1].split('&')[0];
+			//}else{
+			//	var sni = trosplit[1].split('=')[1].split('#')[0];
+			//}
+			var query_chk = new URLSearchParams(tros[1]);
+			var sni = query_chk.get("sni");
+			var sni = sni;
 			
-			if(trosplit[1].split('&')[4]){
-				var chk = trosplit[1].split('&')[4].split('=')[0];
-				if (chk  == "encryption"){
-					var path = trosplit[1].split('=')[4].split('&')[0];
-				}else{
-					var path = trosplit[1].split('=')[4].split('#')[0];
-				}
+			if(query_chk.get("type")=="ws"){
+				var type = query_chk.get("type");
+				var websocket_host = query_chk.get("host");
+				var path = query_chk.get("path");
 			}else{
-				var path = trosplit[1].split('=')[4].split('#')[0];
-			}
-			
-			
-			
-			var websocket_host = trosplit[1].split('=')[3].split('&')[0];
-			
-			if(trosplit[1].split('=')[5]){
+				var type = "";
+				var websocket_host = "";
+				var path = '';
+			}	
+			if(query_chk.get("encryption")){
 				var sha = trosplit[1].split('=')[5].split('#')[0];
 				var sha_p = decodeURIComponent(sha);
-				
-				var shadowdocks = sha_p.split(";")[0];
 				
 				var cipher = sha_p.split(";")[1].split(":")[0];
 				
 				var shadowdocks_passw = sha_p.split(":")[1];
 			}
+			
 
 			if (param != "undefined") {
 				document.getElementsByName('cbid.trojan.' + sid + '.name')[0].value = decodeURI(param);
@@ -127,7 +129,7 @@
 			document.getElementsByName('cbid.trojan.' + sid + '.path')[0].value = decodeURIComponent(path);
 			document.getElementsByName('cbid.trojan.' + sid + '.websocket_host')[0].value = websocket_host;
 			}
-			if (shadowdocks == "ss"){
+			if (query_chk.get("encryption")){
 			document.getElementsByName('cbid.trojan.' + sid + '.shadowdocks')[0].value = true;
 			document.getElementsByName('cbid.trojan.' + sid + '.shadowdocks')[0].dispatchEvent(event);
 			document.getElementsByName('cbid.trojan.' + sid + '.cipher')[0].value = cipher;

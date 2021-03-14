@@ -58,8 +58,12 @@ o = s:option(ListValue, "dns_mode", translate("DNS Query Mode"))
 --o.widget  = "radio"
 o.orientation = "horizontal"
 o:value("off", translate("Disabled"))
+if nixio.fs.access("/usr/sbin/dnscrypt-proxy") then
 o:value("dnscrypt", translate("DNSCrypt"))
+end
+if nixio.fs.access("/usr/sbin/pdnsd") then
 o:value("pdnsd", translate("Pdnsd"))
+end
 o.description = translate("DNS Query Mode")
 o.default = "dnscrypt"
 o.rmempty = false

@@ -74,6 +74,7 @@ update(){
 			  mv /tmp/trojan/trojan-go /etc/trojan/trojan >/dev/null 2>&1
 			  mv /tmp/trojan/geoip.dat /etc/trojan/ >/dev/null 2>&1
 			  mv /tmp/trojan/geosite.dat /etc/trojan/ >/dev/null 2>&1
+			  chmod -R 755 /etc/trojan
 			  rm -rf /tmp/trojan >/dev/null 2>&1
 			  rm -rf /usr/share/trojan/core_version >/dev/null 2>&1
 			  mv /usr/share/trojan/download_core_version /usr/share/trojan/core_version >/dev/null 2>&1
