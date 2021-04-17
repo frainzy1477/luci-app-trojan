@@ -7,7 +7,7 @@ SERVICE_DAEMONIZE=1
 NAME=trojan
 CONFIG_FILE=/etc/trojan/${NAME}.json
 Trojan=/etc/trojan/trojan
-#REAL_LOG="/usr/share/trojan/trojan.txt"
+LOG="/usr/share/trojan/trojan.txt"
 REAL_LOG="/usr/share/trojan/readlog.txt"
 redir_tcp=0
 pdnsd_enable_flag=0
@@ -179,7 +179,7 @@ cat  >> /tmp/trojan.json <<-EOF
     "local_port": 51837,
     "buffer_size": 64,	
     "log_level": 1,	
-    "log_file": "$REAL_LOG",
+    "log_file": "$LOG",
     "password": ["$(uci_get_by_name $1 password)"],
     "remote_addr": "$(uci_get_by_name $1 remote_addr)",
     "remote_port": $(uci_get_by_name $1 remote_port),	
