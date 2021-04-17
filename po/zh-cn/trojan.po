@@ -2,6 +2,8 @@
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 
+msgid "Download Trojan-go Core from Here"
+msgstr "点击下载Trojan-go内核"
 
 msgid "MODE"
 msgstr "模式"

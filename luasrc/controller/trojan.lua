@@ -31,7 +31,7 @@ function index()
 	entry({"admin", "services", "trojan", "corelog"},call("down_check")).leaf=true
 	entry({"admin", "services", "trojan", "logstatus"},call("logstatus_check")).leaf=true
 	entry({"admin", "services", "trojan", "readlog"},call("action_read")).leaf=true
-	entry({'admin', 'services', "trojan", 'ip'}, call('ip')).leaf=true
+	entry({'admin', 'services', "trojan", 'ip'}, call('checkip')).leaf=true
 	
 end
 
@@ -91,7 +91,7 @@ local function downcheck()
 		return "0"
 	elseif nixio.fs.access("/var/run/core_update") then
 		return "1"
-	elseif nixio.fs.access("/usr/share/trojan/core_download") then
+	elseif nixio.fs.access("/usr/share/trojan/core_down_complete") then
 		return "2"
 	end
 end
@@ -198,7 +198,7 @@ function check(host, port)
 end
 
 
-function ip()
+function checkip()
     local e = {}
     local d = {}
     local port = 80
@@ -217,10 +217,10 @@ function ip()
     end
     e.outboard = ip
     e.outboardip = d
-    e.baidu = check_site('www.baidu.com', port)
-    e.taobao = check_site('www.taobao.com', port)
-    e.google = check_site('www.google.com', port)
-    e.youtube = check_site('www.youtube.com', port)
+    e.baidu = check('www.baidu.com', port)
+    e.taobao = check('www.taobao.com', port)
+    e.google = check('www.google.com', port)
+    e.youtube = check('www.youtube.com', port)
     luci.http.prepare_content('application/json')
     luci.http.write_json(e)
 end

@@ -70,6 +70,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	rm -rf /tmp/luci*
 	mv /etc/config/trojan.bak /etc/config/trojan 2>/dev/null
 	/etc/init.d/trojan disable 2>/dev/null
+	chmod +x /etc/init.d/trojan 2>/dev/null
 fi
 
 exit 0

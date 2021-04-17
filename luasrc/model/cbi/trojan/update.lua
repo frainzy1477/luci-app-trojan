@@ -27,7 +27,7 @@ o.rawhtml = true
 o = s:option(FileUpload, "")
 o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /etc/trojan/trojan")..bold_off..font_off..' '
 .."<br />"
-..translatef("<a href=\"%s\" target=\"_blank\">" .. "Manually Download Trojan-go Core from Here</a>", translate("https://github.com/frainzy1477/trojan_go/releases/"))
+..translatef("<a href=\"%s\" target=\"_blank\">"..translate("Download Trojan-go Core from Here").."</a>", translate("https://github.com/frainzy1477/trojan_go/releases/"))
 
 
 o.title = translate("Upload")

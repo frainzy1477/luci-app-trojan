@@ -12,7 +12,7 @@ echo '' >/tmp/trojan_update.txt 2>/dev/null
   
 rm -rf /usr/share/trojan/core_down_complete 2>/dev/null
 
-rm -rf /usr/share/trojan/download_core_version
+rm -rf /usr/share/trojan/download_core_version 2>/dev/null
 
 if [ $lang == "zh_cn" ];then
          echo "  ${LOGTIME} - 正在检查最新版本。。" >$LOG_FILE

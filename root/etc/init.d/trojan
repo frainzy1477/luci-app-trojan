@@ -7,7 +7,8 @@ SERVICE_DAEMONIZE=1
 NAME=trojan
 CONFIG_FILE=/etc/trojan/${NAME}.json
 Trojan=/etc/trojan/trojan
-REAL_LOG="/usr/share/trojan/trojan.txt"
+#REAL_LOG="/usr/share/trojan/trojan.txt"
+REAL_LOG="/usr/share/trojan/readlog.txt"
 redir_tcp=0
 pdnsd_enable_flag=0
 switch_enable=0
@@ -307,21 +308,23 @@ start_rules(){
 				iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
 				
 				if [ "$proxy_mode" == "chnroute" ];then
-					iptables -t mangle -A TROJAN_GO -m set --match-set china_v4 dst -j RETURN
-					iptables -t mangle -A TROJAN_GO -m set --match-set china_v6 dst -j RETURN
-				fi
-
-				if [ "$udp_allow" -eq 1 ];then
-					iptables -t mangle -A TROJAN_GO -p udp --dport 53 -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+					if [ "$udp_allow" -eq 1 ];then
+					iptables -t mangle -A TROJAN_GO -p udp -m set ! --match-set china_v4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+					else
+					iptables -t mangle -A TROJAN_GO -p udp --dport 53 -m set ! --match-set china_v4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+					fi
+					iptables -t mangle -A TROJAN_GO -p tcp -m set ! --match-set china_v4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01				
 				else
-					iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-				fi
-
-				iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+					if [ "$udp_allow" -eq 1 ];then
+						iptables -t mangle -A TROJAN_GO -p udp --dport 53 -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+					else
+						iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+					fi
+					iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+				fi	
+				
 				iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
 				iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
-				
-	
 				
 #=========================================================================================================================== 
 }	 
