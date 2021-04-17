@@ -38,7 +38,11 @@ end
 
 
 local function trojan_running()
-   return luci.sys.call("pidof trojan >/dev/null") == 0
+	if nixio.fs.access("/usr/share/trojan/1") then
+		return "1"
+	else
+		return "0"
+	end	
 end
 
 local function dnscrypt_proxy()

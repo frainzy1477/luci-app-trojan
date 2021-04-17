@@ -7,7 +7,7 @@ SERVICE_DAEMONIZE=1
 NAME=trojan
 CONFIG_FILE=/etc/trojan/${NAME}.json
 Trojan=/etc/trojan/trojan
-#REAL_LOG="/usr/share/trojan/trojan.txt"
+LOG="/usr/share/trojan/trojan.txt"
 REAL_LOG="/usr/share/trojan/readlog.txt"
 redir_tcp=0
 pdnsd_enable_flag=0
@@ -106,7 +106,7 @@ dns_change(){
 gen_config_file() {
  
 global_config=$(uci_get_by_type global ctype 2>/dev/null)
-local proxy_mode=$(uci_get_by_type global proxy_mode 2>/dev/null)
+
 
 if [ "${global_config}" -eq 1 ];then
 #sh /usr/share/trojan/rule.sh >/dev/null 2>&1
@@ -179,7 +179,7 @@ cat  >> /tmp/trojan.json <<-EOF
     "local_port": 51837,
     "buffer_size": 64,	
     "log_level": 1,	
-    "log_file": "$REAL_LOG",
+    "log_file": "$LOG",
     "password": ["$(uci_get_by_name $1 password)"],
     "remote_addr": "$(uci_get_by_name $1 remote_addr)",
     "remote_port": $(uci_get_by_name $1 remote_port),	
@@ -265,9 +265,11 @@ start_rules(){
 					EOF
 				
 				fi
+				proxy_mode=$(uci get trojan.@global[0].proxy_mode 2>/dev/null)
+
 				if [ "$proxy_mode" == "chnroute" ];then
 					sh /usr/share/trojan/cnroute.sh >/dev/null 2>&1
-					sleep 5
+					sleep 3
 					sh /usr/share/trojan/chinaipset.sh >/dev/null 2>&1
 				fi
 		
@@ -308,20 +310,17 @@ start_rules(){
 				iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
 				
 				if [ "$proxy_mode" == "chnroute" ];then
-					if [ "$udp_allow" -eq 1 ];then
-					iptables -t mangle -A TROJAN_GO -p udp -m set ! --match-set china_v4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-					else
-					iptables -t mangle -A TROJAN_GO -p udp --dport 53 -m set ! --match-set china_v4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-					fi
-					iptables -t mangle -A TROJAN_GO -p tcp -m set ! --match-set china_v4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01				
+					//iptables -t mangle -A TROJAN_GO -m set --match-set china src -j RETURN
+					iptables -t mangle -A TROJAN_GO -m set --match-set china dst -j RETURN				
+				fi
+
+				if [ "$udp_allow" -eq 1 ];then
+					iptables -t mangle -A TROJAN_GO -p udp --dport 53 -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
 				else
-					if [ "$udp_allow" -eq 1 ];then
-						iptables -t mangle -A TROJAN_GO -p udp --dport 53 -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-					else
-						iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-					fi
-					iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-				fi	
+					iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+				fi
+				iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+					
 				
 				iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
 				iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
@@ -357,6 +356,7 @@ start(){
 			elif [ "${lang}" == "zh_cn" ];then
 				 echo "启动客户端" >$REAL_LOG
 			fi
+			sleep 2
 			local GLOBAL_SERVER 
 			local dns_mode pdnsd  dnscrypt
 			
@@ -377,17 +377,19 @@ start(){
 				fi
 				dns_change 2>/dev/null 2>&1
 			fi
-			
+			sleep 1
 			redir >/dev/null 2>&1
 			
 			if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
 			
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-					echo "Setting up clash iptables rules" >$REAL_LOG 
+					echo "Setting up  iptables rules" >$REAL_LOG 
 			elif [ "${lang}" == "zh_cn" ];then
-					echo "设置 Clash iptables" >$REAL_LOG
+					echo "设置 iptables" >$REAL_LOG
 			fi
 			rules >/dev/null 2>&1
+
+			sleep 2
 
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 					echo "Setting Cron Job" >$REAL_LOG 
@@ -397,7 +399,7 @@ start(){
 			fi	
 			add_cron >/dev/null 2>&1
 			
-			
+			sleep 1
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Restarting Dnsmasq " >$REAL_LOG 
 			elif [ "${lang}" == "zh_cn" ];then
@@ -406,8 +408,7 @@ start(){
 			
 			/etc/init.d/dnsmasq restart >/dev/null 2>&1
 			
-			
-
+			sleep 1
 			$Trojan -config $CONFIG_FILE  >/dev/null 2>&1 &
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 					echo "Trojan-GO Core Started Successfully " >$REAL_LOG 
@@ -415,7 +416,7 @@ start(){
 					echo "Trojan-GO计划任务,启动进程守护程序" >$REAL_LOG
 				fi
 			fi
-			
+			echo "1" > /usr/share/trojan/1 >/dev/null 2>&1 &
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Trojan-GO Started Successfully " >$REAL_LOG
 				sleep 1
@@ -434,9 +435,8 @@ start(){
 
 
 remove_mark(){
-
 	    rm -rf /var/etc/trojan.include 2>/dev/null
-
+		rm -rf  /usr/share/trojan/1  >/dev/null
 	    ip route del local default dev lo table 100
 	    ip rule del fwmark 1 lookup 100
 		
