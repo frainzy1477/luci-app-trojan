@@ -346,17 +346,17 @@ rules() {
 
 start(){
 		lang=$(uci get luci.main.lang 2>/dev/null)
-		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-			echo "Starting Client" >$REAL_LOG 
-		elif [ "${lang}" == "zh_cn" ];then
-			 echo "启动客户端" >$REAL_LOG
-		fi
+
 		
 		enable=$(uci_get_by_type global enable 2>/dev/null)
 		rm -rf $CONFIG_FILE
 
 		if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
-
+			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+				echo "Starting Client" >$REAL_LOG 
+			elif [ "${lang}" == "zh_cn" ];then
+				 echo "启动客户端" >$REAL_LOG
+			fi
 			local GLOBAL_SERVER 
 			local dns_mode pdnsd  dnscrypt
 			

@@ -26,6 +26,7 @@ function index()
 	
 	entry({"admin", "services", "trojan", "ping"}, call("act_ping")).leaf=true
 	entry({"admin", "services", "trojan", "status"},call("action_status")).leaf=true
+	entry({"admin", "services", "trojan", "run"},call("action_run")).leaf=true
 	entry({"admin", "services", "trojan", "check_update_log"}, call("check_update_log")).leaf=true
 	entry({"admin", "services", "trojan", "do_update"}, call("do_update")).leaf=true
 	entry({"admin", "services", "trojan", "corelog"},call("down_check")).leaf=true
@@ -116,6 +117,15 @@ function action_status()
 		current_version = current_version(),
 		new_version = new_version(),
 		traffic = trojan_traffic(),		
+		client = trojan_running()
+	})
+end
+
+function action_run()
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		pdnsd = pdnsd_running(),
+		dnscrypt = dnscrypt_proxy(),	
 		client = trojan_running()
 	})
 end
