@@ -2,6 +2,10 @@
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 
+
+msgid "MODE"
+msgstr "模式"
+
 msgid "Client"
 msgstr "客户端"
 

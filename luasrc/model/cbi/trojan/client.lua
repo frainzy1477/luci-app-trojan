@@ -87,6 +87,11 @@ o.default = "nil"
 o.rmempty = true
 o:depends("ctype", "1")
 
+o = s:option(ListValue, "proxy_mode", translate("MODE"))
+o:value("global", translate("Global"))
+o:value("chnroute", translate("Bypass CN"))
+o.default = "chnroute"
+
 --o = s:option(ListValue, "router", translate("RULES"))
 --o.default = "0"
 --o:value("false", translate("Disable"))

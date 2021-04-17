@@ -24,54 +24,55 @@ o = s:option(DummyValue, "_status", translate("Trojan-Go"))
 o.value = ''..font_green..bold_on..'【'..version..' 】'..bold_off..font_off.."<span id=\"_trojan_new\" style=\"line-height: 2.1em;\"></span>"
 o.rawhtml = true
 
---o = s:option(FileUpload, "")
---o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /etc/trojan/trojan")..bold_off..font_off..' '
+o = s:option(FileUpload, "")
+o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /etc/trojan/trojan")..bold_off..font_off..' '
+.."<br />"
+..translatef("<a href=\"%s\" target=\"_blank\">" .. "Manually Download Trojan-go Core from Here</a>", translate("https://github.com/frainzy1477/trojan_go/releases/"))
 
 
---o.title = translate("Upload")
---o.template = "trojan/upload"
---um = s:option(DummyValue, "", nil)
---um.template = "trojan/dvalue"
+o.title = translate("Upload")
+o.template = "trojan/upload"
+um = s:option(DummyValue, "", nil)
+um.template = "trojan/dvalue"
 
---local dir, fd
---dir = "/etc/trojan/"
+local dir, fd
+dir = "/etc/trojan/"
 
 
---http.setfilehandler(
---	function(meta, chunk, eof)
---
---		if not fd then
---			if not meta then return end
---			if luci.sys.call("pidof trojan >/dev/null") == 0 then
---				luci.sys.exec("/etc/init.d/trojan stop >/dev/null 2>&1 &")
---			end			
---			if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end			
---			if not fd then
---				um.value = translate("upload file error.")
---				return
---			end
---		end
---		if chunk and fd then
---			fd:write(chunk)
---		end
---		if eof and fd then
---			fd:close()
---			fd = nil
---			    SYS.exec("chmod 755 /etc/trojan/trojan 2>&1 &")
---				SYS.exec("rm -rf /usr/share/trojan/trojango_version 2>/dev/null && /etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P >> /usr/share/trojan/trojango_version 2>/dev/null")
---				um.value = translate("File saved to") .. ' "/etc/trojan/'..meta.file..'"' 
---				luci.sys.exec("/etc/init.d/trojan start >/dev/null 2>&1 &")
---		end
---	end
---)
+http.setfilehandler(
+	function(meta, chunk, eof)
 
---if luci.http.formvalue("upload") then
---	local f = luci.http.formvalue("ulfile")
---	if #f <= 0 then
---		um.value = translate("No specify upload file.")
---	end
---end
+		if not fd then
+			if not meta then return end
+			if luci.sys.call("pidof trojan >/dev/null") == 0 then
+				luci.sys.exec("/etc/init.d/trojan stop >/dev/null 2>&1 &")
+			end			
+			if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end			
+			if not fd then
+				um.value = translate("upload file error.")
+				return
+			end
+		end
+		if chunk and fd then
+			fd:write(chunk)
+		end
+		if eof and fd then
+			fd:close()
+			fd = nil
+			    SYS.exec("chmod 755 /etc/trojan/trojan 2>&1 &")
+				SYS.exec("rm -rf /usr/share/trojan/trojango_version 2>/dev/null && /etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P >> /usr/share/trojan/trojango_version 2>/dev/null")
+				um.value = translate("File saved to") .. ' "/etc/trojan/'..meta.file..'"' 
+				luci.sys.exec("/etc/init.d/trojan start >/dev/null 2>&1 &")
+		end
+	end
+)
 
+if luci.http.formvalue("upload") then
+	local f = luci.http.formvalue("ulfile")
+	if #f <= 0 then
+		um.value = translate("No specify upload file.")
+	end
+end
 
 
 local cpu_model=SYS.exec("opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' 2>/dev/null")

@@ -18,22 +18,20 @@ function index()
 	entry({"admin", "services", "trojan", "client"},cbi("trojan/client"),_("Client"), 20).leaf = true
 	--entry({"admin", "services", "trojan", "rules"},cbi("trojan/rules"), nil).leaf = true
 	--entry({"admin", "services", "trojan", "rule"},cbi("trojan/add-rule"), nil).leaf = true
-
 	entry({"admin", "services", "trojan", "servers" },cbi("trojan/servers"),_("Servers"), 30).leaf = true
 	entry({"admin", "services", "trojan", "server"},cbi("trojan/add-server"), nil).leaf = true
 	entry({"admin", "services", "trojan", "settings"},cbi("trojan/settings"),_("Settings"), 50).leaf = true
 	entry({"admin", "services", "trojan", "update"},cbi("trojan/update"),_("Update"), 60).leaf = true
 	entry({"admin", "services", "trojan", "logs"},cbi("trojan/logs"),_("Logs"), 70).leaf = true
 	
-
 	entry({"admin", "services", "trojan", "ping"}, call("act_ping")).leaf=true
 	entry({"admin", "services", "trojan", "status"},call("action_status")).leaf=true
 	entry({"admin", "services", "trojan", "check_update_log"}, call("check_update_log")).leaf=true
 	entry({"admin", "services", "trojan", "do_update"}, call("do_update")).leaf=true
-
 	entry({"admin", "services", "trojan", "corelog"},call("down_check")).leaf=true
 	entry({"admin", "services", "trojan", "logstatus"},call("logstatus_check")).leaf=true
 	entry({"admin", "services", "trojan", "readlog"},call("action_read")).leaf=true
+	entry({'admin', 'services', "trojan", 'ip'}, call('ip')).leaf=true
 	
 end
 
@@ -76,7 +74,6 @@ local function trojan_core_new()
 	return luci.sys.exec("sed -n 1p /usr/share/trojan/trojan_core_new")
 end
 
-
 local function current_version()
 	return luci.sys.exec("sed -n 1p /usr/share/trojan/luci_version")
 end
@@ -106,7 +103,6 @@ function down_check()
 	 downcheck = downcheck();
 	})
 end
-
 
 function action_status()
 	luci.http.prepare_content("application/json")
@@ -177,6 +173,7 @@ else
 end
 end
 
+
 local function readlog()
 	return luci.sys.exec("sed -n '$p' /usr/share/trojan/readlog.txt 2>/dev/null")
 end
@@ -187,4 +184,43 @@ function action_read()
 	luci.http.write_json({
 	readlog = readlog();
 	})
+end
+
+
+function check(host, port)
+    local nixio = require "nixio"
+    local socket = nixio.socket("inet", "stream")
+    socket:setopt("socket", "rcvtimeo", 2)
+    socket:setopt("socket", "sndtimeo", 2)
+    local ret = socket:connect(host, port)
+    socket:close()
+    return ret
+end
+
+
+function ip()
+    local e = {}
+    local d = {}
+    local port = 80
+    local ip = luci.sys.exec('curl --retry 3 -m 10 -LfsA "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36" http://api.ipify.org/')
+    d.flag = 'un'
+    d.country = 'Unknown'
+    if (ip ~= '') then
+        local status, code = pcall(get_iso, ip)
+        if (status) then
+            d.flag = code
+        end
+        local status1, country = pcall(get_cname, ip)
+        if (status1) then
+            d.country = country
+        end
+    end
+    e.outboard = ip
+    e.outboardip = d
+    e.baidu = check_site('www.baidu.com', port)
+    e.taobao = check_site('www.taobao.com', port)
+    e.google = check_site('www.google.com', port)
+    e.youtube = check_site('www.youtube.com', port)
+    luci.http.prepare_content('application/json')
+    luci.http.write_json(e)
 end

@@ -183,7 +183,8 @@
 				"&path=" + v_path.value +			
 				"#" + encodeURI(v_name.value);		
 		}else{
-			var trojan_str = v_password.value + "@" + v_remote_addr.value + ":" + v_remote_port.value + "/?" + 
+			var trojan_str = v_password.value + "@" + v_remote_addr.value + ":" + v_remote_port.value + "/?" +
+				"sni=" + v_sni.value + 
 				"#" + encodeURI(v_name.value);
 		}
 		
