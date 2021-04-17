@@ -76,39 +76,11 @@ exit 0
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi/trojan
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/trojan
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DIR) $(1)/etc/trojan
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci
-	$(INSTALL_DIR) $(1)/usr/share/
-	$(INSTALL_DIR) $(1)/usr/share/trojan
-	$(INSTALL_DIR) $(1)/usr/share/trojan/config/
-	$(INSTALL_DIR) $(1)/usr/share/rpcd	
-	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
-	$(INSTALL_DIR) $(1)/www	
-	
-
-	$(INSTALL_BIN) 	./root/etc/init.d/trojan $(1)/etc/init.d/trojan
-	$(INSTALL_CONF) ./root/etc/config/trojan $(1)/etc/config/trojan
-	$(INSTALL_CONF) ./root/etc/trojan/geosite.dat $(1)/etc/trojan
-	$(INSTALL_CONF) ./root/etc/trojan/geoip.dat $(1)/etc/trojan
-
-	$(INSTALL_BIN) ./root/usr/share/rpcd/acl.d/luci-app-trojan.json $(1)/usr/share/rpcd/acl.d
-	$(INSTALL_BIN) ./root/usr/share/trojan/luci_version $(1)/usr/share/trojan
-	$(INSTALL_BIN) ./root/usr/share/trojan/logstatus_check $(1)/usr/share/trojan
-	$(INSTALL_BIN) ./root/usr/share/trojan/*.txt $(1)/usr/share/trojan
-	$(INSTALL_BIN) ./root/usr/share/trojan/*.sh $(1)/usr/share/trojan
-	$(INSTALL_BIN) ./root/usr/share/trojan/*.csv $(1)/usr/share/trojan
-	$(INSTALL_BIN) ./root/www $(1)/www
-
-	$(INSTALL_DATA) ./luasrc/trojan.lua $(1)/usr/lib/lua/luci
-	$(INSTALL_DATA) ./luasrc/controller/*.lua $(1)/usr/lib/lua/luci/controller
-	$(INSTALL_DATA) ./luasrc/model/cbi/trojan/*.lua $(1)/usr/lib/lua/luci/model/cbi/trojan
-	$(INSTALL_DATA) ./luasrc/view/trojan/* $(1)/usr/lib/lua/luci/view/trojan
+	cp -pR ./luasrc/* $(1)/usr/lib/lua/luci
+	$(INSTALL_DIR) $(1)/
+	cp -pR ./root/* $(1)/
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
 	$(INSTALL_DATA) ./po/zh-cn/trojan.zh-cn.lmo $(1)/usr/lib/lua/luci/i18n
 endef
 
