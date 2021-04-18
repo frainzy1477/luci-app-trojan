@@ -41,7 +41,7 @@ end
 local function trojan_running()
 	if nixio.fs.access("/usr/share/trojan/enable.lock") then
 		return "1"
-	else if nixio.fs.access("/usr/share/trojan/diable.lock") then
+	else
 		return "0"	
 	end	
 end
