@@ -349,7 +349,7 @@ start(){
 		enable=$(uci_get_by_type global enable 2>/dev/null)
 		rm -rf $CONFIG_FILE
 
-		if [ "${enable}" -eq 1 ] && [ -f "/etc/trojan/trojan" ] && [ -f  "/usr/share/trojan/diable.lock" ]; then
+		if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ] && [ -f  /usr/share/trojan/disable.lock ]; then
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Starting Client" >$REAL_LOG 
 			elif [ "${lang}" == "zh_cn" ];then
@@ -369,18 +369,20 @@ start(){
 					
 			rm -f /var/etc/trojan*
 			
-			sleep 1
-			redir >/dev/null 2>&1
-			
-			if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
-				if [ "$dns_mode" != "off" ];then
+			if [ "$dns_mode" != "off" ];then
 					if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 						echo "Enabling Dns" >$REAL_LOG 
 					elif [ "${lang}" == "zh_cn" ];then
 						echo "启用DNS" >$REAL_LOG
 					fi
 					dns_change 2>/dev/null 2>&1
-				fi
+			fi
+				
+			sleep 1
+			redir >/dev/null 2>&1
+			
+			if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
+				
 			
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 						echo "Setting up  iptables rules" >$REAL_LOG 
@@ -418,7 +420,7 @@ start(){
 						echo "Trojan-GO计划任务,启动进程守护程序" >$REAL_LOG
 				fi
 				
-				mv /usr/share/trojan/diable.lock /usr/share/trojan/enable.lock
+				mv /usr/share/trojan/disable.lock /usr/share/trojan/enable.lock
 			
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 					echo "Trojan-GO Started Successfully " >$REAL_LOG
@@ -437,9 +439,10 @@ start(){
 				stop >/dev/null 2>&1 &
 			fi
 		else 
-			if [ ! -f  "/usr/share/trojan/diable.lock" ]; then	
-				echo " " /usr/share/trojan/diable.lock 2>/dev/null
+			if [ ! -f  /usr/share/trojan/disable.lock ]; then	
+				touch /usr/share/trojan/disable.lock 2>/dev/null
 				rm rf /usr/share/trojan/enable.lock 2>/dev/null	
+				start >/dev/null 2>&1 &
 			fi
 		fi
 }
@@ -511,9 +514,9 @@ stop(){
 
 		remove_mark >/dev/null 2>&1
 
-		rm -rf /var/etc/dnscrypt-proxy-ns1.conf
+		rm -rf /var/etc/dnscrypt-proxy-ns1.conf >/dev/null 2>&1
 
-		rm -rf /var/etc/pdnsd.conf
+		rm -rf /var/etc/pdnsd.conf >/dev/null 2>&1
 
 		kill -9 `pidof trojan|sed "s/$//g"` 2>/dev/null
 		
@@ -534,7 +537,7 @@ stop(){
 		echo "Trojan-GO for OpenWRT" >$REAL_LOG
 		
 		rm rf /usr/share/trojan/enable.lock >/dev/null 2>&1
-		echo " " /usr/share/trojan/diable.lock >/dev/null 2>&1
+		touch /usr/share/trojan/disable.lock 2>/dev/null
 		
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 			echo "" $LOG >/dev/null 2>&1
