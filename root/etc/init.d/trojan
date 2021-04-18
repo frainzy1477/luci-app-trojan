@@ -355,6 +355,7 @@ start(){
 			elif [ "${lang}" == "zh_cn" ];then
 				 echo "启动客户端" >$REAL_LOG
 			fi
+			
 			sleep 1
 			local GLOBAL_SERVER 
 			local dns_mode pdnsd  dnscrypt
@@ -368,72 +369,78 @@ start(){
 					
 			rm -f /var/etc/trojan*
 			
-			if [ "$dns_mode" != "off" ];then
-				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-					echo "Enabling Dns" >$REAL_LOG 
-				elif [ "${lang}" == "zh_cn" ];then
-					echo "启用DNS" >$REAL_LOG
-				fi
-				dns_change 2>/dev/null 2>&1
-			fi
 			sleep 1
 			redir >/dev/null 2>&1
 			
 			if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
-			
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-					echo "Setting up  iptables rules" >$REAL_LOG 
-			elif [ "${lang}" == "zh_cn" ];then
-					echo "设置 iptables" >$REAL_LOG
-			fi
-			rules >/dev/null 2>&1
-
-			sleep 2
-
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-					echo "Setting Cron Job" >$REAL_LOG 
-				elif [ "${lang}" == "zh_cn" ];then
-					echo "设置Cron" >$REAL_LOG
-							
-			fi	
-			add_cron >/dev/null 2>&1
-			
-			sleep 1
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Restarting Dnsmasq " >$REAL_LOG 
-			elif [ "${lang}" == "zh_cn" ];then
-				echo "重启 Dnsmasq 程序" >$REAL_LOG
-			fi
-			
-			/etc/init.d/dnsmasq restart >/dev/null 2>&1
-			
-			sleep 1
-			$Trojan -config $CONFIG_FILE  >/dev/null 2>&1 &
-				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-					echo "Trojan-GO Core Started Successfully " >$REAL_LOG 
-				elif [ "${lang}" == "zh_cn" ];then
-					echo "Trojan-GO计划任务,启动进程守护程序" >$REAL_LOG
+				if [ "$dns_mode" != "off" ];then
+					if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+						echo "Enabling Dns" >$REAL_LOG 
+					elif [ "${lang}" == "zh_cn" ];then
+						echo "启用DNS" >$REAL_LOG
+					fi
+					dns_change 2>/dev/null 2>&1
 				fi
-			fi
 			
-			mv /usr/share/trojan/diable.lock /usr/share/trojan/enable.lock
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+						echo "Setting up  iptables rules" >$REAL_LOG 
+				elif [ "${lang}" == "zh_cn" ];then
+						echo "设置 iptables" >$REAL_LOG
+				fi
+				rules >/dev/null 2>&1
+
+				sleep 2
+
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+						echo "Setting Cron Job" >$REAL_LOG 
+					elif [ "${lang}" == "zh_cn" ];then
+						echo "设置Cron" >$REAL_LOG
+								
+				fi	
+				add_cron >/dev/null 2>&1
+				
+				sleep 1
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+					echo "Restarting Dnsmasq " >$REAL_LOG 
+				elif [ "${lang}" == "zh_cn" ];then
+					echo "重启 Dnsmasq 程序" >$REAL_LOG
+				fi
+				
+				/etc/init.d/dnsmasq restart >/dev/null 2>&1
+				
+				sleep 1
+				
+				$Trojan -config $CONFIG_FILE  >/dev/null 2>&1 &
+				
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+						echo "Trojan-GO Core Started Successfully " >$REAL_LOG 
+				elif [ "${lang}" == "zh_cn" ];then
+						echo "Trojan-GO计划任务,启动进程守护程序" >$REAL_LOG
+				fi
+				
+				mv /usr/share/trojan/diable.lock /usr/share/trojan/enable.lock
 			
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Trojan-GO Started Successfully " >$REAL_LOG
-				sleep 1
-				echo "Trojan-GO is Running " >$REAL_LOG
-				sleep 1
-				echo "Trojan-GO for OpenWRT" >$REAL_LOG
-			elif [ "${lang}" == "zh_cn" ];then
-				echo "Trojan-GO启动成功，请等待服务器上线！" >$REAL_LOG
-				sleep 1
-				echo "Trojan-GO运行中" >$REAL_LOG
-				sleep 1
-				echo "Trojan-GO for OpenWRT" >$REAL_LOG
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+					echo "Trojan-GO Started Successfully " >$REAL_LOG
+					sleep 1
+					echo "Trojan-GO is Running " >$REAL_LOG
+					sleep 1
+					echo "Trojan-GO for OpenWRT" >$REAL_LOG
+				elif [ "${lang}" == "zh_cn" ];then
+					echo "Trojan-GO启动成功，请等待服务器上线！" >$REAL_LOG
+					sleep 1
+					echo "Trojan-GO运行中" >$REAL_LOG
+					sleep 1
+					echo "Trojan-GO for OpenWRT" >$REAL_LOG
+				fi
+			else
+				stop >/dev/null 2>&1 &
 			fi
-		else if [ ! -f  "/usr/share/trojan/diable.lock" ]; then	
-			echo " " /usr/share/trojan/diable.lock 2>/dev/null
-			rm rf /usr/share/trojan/enable.lock 2>/dev/null
+		else 
+			if [ ! -f  "/usr/share/trojan/diable.lock" ]; then	
+				echo " " /usr/share/trojan/diable.lock 2>/dev/null
+				rm rf /usr/share/trojan/enable.lock 2>/dev/null	
+			fi
 		fi
 }
 
