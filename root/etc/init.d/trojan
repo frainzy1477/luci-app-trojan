@@ -346,11 +346,10 @@ rules() {
 start(){
 		lang=$(uci get luci.main.lang 2>/dev/null)
 
-		
 		enable=$(uci_get_by_type global enable 2>/dev/null)
 		rm -rf $CONFIG_FILE
 
-		if [ "${enable}" -eq 1 ] && [ -f /etc/trojan/trojan ]; then
+		if [ "${enable}" -eq 1 ] && [ -f "/etc/trojan/trojan" ] && [ -f  "/usr/share/trojan/diable.lock" ]; then
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Starting Client" >$REAL_LOG 
 			elif [ "${lang}" == "zh_cn" ];then
@@ -416,7 +415,9 @@ start(){
 					echo "Trojan-GO计划任务,启动进程守护程序" >$REAL_LOG
 				fi
 			fi
-			echo "1" > /usr/share/trojan/1 >/dev/null 2>&1 &
+			
+			mv /usr/share/trojan/diable.lock /usr/share/trojan/enable.lock
+			
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Trojan-GO Started Successfully " >$REAL_LOG
 				sleep 1
@@ -429,7 +430,10 @@ start(){
 				echo "Trojan-GO运行中" >$REAL_LOG
 				sleep 1
 				echo "Trojan-GO for OpenWRT" >$REAL_LOG
-			fi			
+			fi
+		else if [ ! -f  "/usr/share/trojan/diable.lock" ]; then	
+			echo " " /usr/share/trojan/diable.lock 2>/dev/null
+			rm rf /usr/share/trojan/enable.lock 2>/dev/null
 		fi
 }
 
@@ -482,10 +486,7 @@ remove_mark(){
 		iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT
 		
 		revert_dns >/dev/null 2>&1
-		
-		
-		
-		
+	
 }
 
 stop(){
@@ -524,7 +525,7 @@ stop(){
 		fi
 		sleep 1
 		echo "Trojan-GO for OpenWRT" >$REAL_LOG
-		
+		mv /usr/share/trojan/enable.lock /usr/share/trojan/diable.lock
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 			echo "" $LOG >/dev/null 2>&1
 			echo "Client Stopped" >$LOG 
