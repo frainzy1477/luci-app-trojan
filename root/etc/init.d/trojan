@@ -269,7 +269,7 @@ start_rules(){
 
 				if [ "$proxy_mode" == "chnroute" ];then
 					sh /usr/share/trojan/cnroute.sh >/dev/null 2>&1
-					sleep 3
+					sleep 1
 					sh /usr/share/trojan/chinaipset.sh >/dev/null 2>&1
 				fi
 		
@@ -356,7 +356,7 @@ start(){
 			elif [ "${lang}" == "zh_cn" ];then
 				 echo "启动客户端" >$REAL_LOG
 			fi
-			sleep 2
+			sleep 1
 			local GLOBAL_SERVER 
 			local dns_mode pdnsd  dnscrypt
 			
@@ -531,9 +531,12 @@ stop(){
 
 restart(){
 #=========================================================================================================================== 
-		stop  >/dev/null 2>&1
-        sleep 2
-		start >/dev/null 2>&1
+		if pidof trojan >/dev/null; then
+			stop  >/dev/null 2>&1
+			start >/dev/null 2>&1		
+		else
+		    start >/dev/null 2>&1
+		fi		
 #=========================================================================================================================== 
 }
 

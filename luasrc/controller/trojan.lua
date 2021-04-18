@@ -214,23 +214,7 @@ end
 
 function checkip()
     local e = {}
-    local d = {}
     local port = 80
-    local ip = luci.sys.exec('curl --retry 3 -m 10 -LfsA "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36" http://api.ipify.org/')
-    d.flag = 'un'
-    d.country = 'Unknown'
-    if (ip ~= '') then
-        local status, code = pcall(get_iso, ip)
-        if (status) then
-            d.flag = code
-        end
-        local status1, country = pcall(get_cname, ip)
-        if (status1) then
-            d.country = country
-        end
-    end
-    e.outboard = ip
-    e.outboardip = d
     e.baidu = check('www.baidu.com', port)
     e.taobao = check('www.taobao.com', port)
     e.google = check('www.google.com', port)
