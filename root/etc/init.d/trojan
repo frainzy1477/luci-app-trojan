@@ -48,7 +48,7 @@ add_cron(){
 	[ -z "$(grep -w "/usr/share/trojan/cnroute.sh" $CRON_FILE)" ] && echo "59 23 * * * /usr/share/trojan/cnroute.sh" >> $CRON_FILE
 	auto=$(uci get trojan.@server_subscribe[0].auto_update 2>/dev/null)
 	if [ "${auto}" -eq 1 ]; then
-	[ -z "$(grep -w "/usr/share/trojan/subscribe.sh" $CRON_FILE)" ] && echo "0 */$(uci get trojan.@server_subscribe[0].auto_update_time 2>/dev/null) * * * bash /usr/share/trojan/subscribe.sh >/usr/share/trojan/trojan.txt 2>&1 &" >> $CRON_FILE
+	[ -z "$(grep -w "/usr/share/trojan/subscribe.sh" $CRON_FILE)" ] && echo "0 */$(uci get trojan.@server_subscribe[0].auto_update_time 2>/dev/null) * * * bash /usr/share/trojan/subscribe.sh >/usr/share/trojan/trojan.txt" >> $CRON_FILE
 	fi
 	crontab $CRON_FILE
 #=========================================================================================================================== 	
@@ -483,6 +483,9 @@ remove_mark(){
 		
 		revert_dns >/dev/null 2>&1
 		
+		
+		
+		
 }
 
 stop(){
@@ -510,23 +513,27 @@ stop(){
 
 		kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
 		
-  	  	del_cron >/dev/null 2>&1
-		
-	 	echo "" >/usr/share/trojan/trojan.txt >/dev/null 2>&1
+  	  	del_cron >/dev/null 2>&1		
 
 		echo "0" > /usr/share/trojan/logstatus_check >/dev/null 2>&1
 		
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-			echo "Trojan-GO Core Stoped Successfully " >$REAL_LOG 
+			echo "Trojan-GO Core Stopped Successfully " >$REAL_LOG 
 		elif [ "${lang}" == "zh_cn" ];then
 			echo "Trojan-GO停止进程守护程序" >$REAL_LOG
 		fi
 		sleep 1
 		echo "Trojan-GO for OpenWRT" >$REAL_LOG
-			
+		
+		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+			echo "" $LOG >/dev/null 2>&1
+			echo "Client Stopped" >$LOG 
+		elif [ "${lang}" == "zh_cn" ];then
+			echo "" $LOG >/dev/null 2>&1
+			echo "客户端停止" >$LOG
+		fi		
 #=========================================================================================================================== 	
 }
-
 
 
 restart(){
