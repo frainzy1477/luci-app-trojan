@@ -8,6 +8,9 @@ msgstr "点击下载Trojan-go内核"
 msgid "MODE"
 msgstr "模式"
 
+msgid "Taobao"
+msgstr "淘宝网"
+
 msgid "Client"
 msgstr "客户端"
 

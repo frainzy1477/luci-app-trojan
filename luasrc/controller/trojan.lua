@@ -32,7 +32,8 @@ function index()
 	entry({"admin", "services", "trojan", "corelog"},call("down_check")).leaf=true
 	entry({"admin", "services", "trojan", "logstatus"},call("logstatus_check")).leaf=true
 	entry({"admin", "services", "trojan", "readlog"},call("action_read")).leaf=true
-	entry({'admin', 'services', "trojan", 'ip'}, call('checkip')).leaf=true
+	entry({'admin', 'services', "trojan", 'web'}, call('web_check')).leaf=true
+	entry({'admin', 'services', "trojan", 'traffic'}, call('action_traffic')).leaf=true
 	
 end
 
@@ -45,17 +46,21 @@ local function trojan_running()
 	end	
 end
 
+
 local function dnscrypt_proxy()
  return luci.sys.call("pidof dnscrypt-proxy >/dev/null") == 0                   
 end	
+
 
 local function pdnsd_running()
  return luci.sys.call("pidof pdnsd >/dev/null") == 0                   
 end	
 
+
 local function trojan_traffic()
 	return luci.sys.exec("sh /usr/share/trojan/traffic.sh")
 end
+
 
 local function trojan_core()
 	if nixio.fs.access("/etc/trojan/trojan") then
@@ -70,8 +75,9 @@ local function trojan_core()
 	end
 end
 
+
 local function check_core_new()
-	return luci.sys.exec("sh /usr/share/trojan/trojan_core_new.sh")
+	return luci.sys.exec("sh /usr/share/trojan/latest_core.sh")
 end
 
 
@@ -79,17 +85,21 @@ local function trojan_core_new()
 	return luci.sys.exec("sed -n 1p /usr/share/trojan/trojan_core_new")
 end
 
+
 local function current_version()
 	return luci.sys.exec("sed -n 1p /usr/share/trojan/luci_version")
 end
+
 
 local function new_version()
 	return luci.sys.exec("sed -n 1p /usr/share/trojan/new_luci_version")
 end
 
+
 local function check_version()
-	return luci.sys.exec("sh /usr/share/trojan/check_luci_version.sh")
+	return luci.sys.exec("sh /usr/share/trojan/luci_version.sh")
 end
+
 
 local function downcheck()
 	if nixio.fs.access("/var/run/core_update_error") then
@@ -102,6 +112,7 @@ local function downcheck()
 end
 
 
+
 function down_check()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
@@ -109,21 +120,27 @@ function down_check()
 	})
 end
 
+
 function action_status()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
 		trojan_core = trojan_core(),
 		trojan_core_new = trojan_core_new(),
 		check_core_new = check_core_new(),
-		pdnsd = pdnsd_running(),
-		dnscrypt = dnscrypt_proxy(),
 		check_version = check_version(),
 		current_version = current_version(),
 		new_version = new_version(),
-		traffic = trojan_traffic(),		
-		client = trojan_running()
 	})
 end
+
+
+function action_traffic()
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		traffic = trojan_traffic(),		
+	})
+end
+
 
 function action_run()
 	luci.http.prepare_content("application/json")
@@ -133,6 +150,7 @@ function action_run()
 		client = trojan_running()
 	})
 end
+
 
 function act_ping()
 	local e={}
@@ -149,10 +167,12 @@ function act_ping()
 	luci.http.write_json(e)
 end
 
+
 function do_update()
 	fs.writefile("/var/run/trojanlog","0")
 	luci.sys.exec("(rm /var/run/core_update_error ;  touch /var/run/core_update ; sh /usr/share/trojan/core_download.sh >/tmp/trojan_update.txt 2>&1  || touch /var/run/core_update_error ;rm /var/run/core_update) &")
 end
+
 
 function check_update_log()
 	luci.http.prepare_content("text/plain; charset=utf-8")
@@ -196,7 +216,7 @@ end
 function action_read()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
-	readlog = readlog();
+		readlog = readlog();
 	})
 end
 
@@ -212,7 +232,7 @@ function check(host, port)
 end
 
 
-function checkip()
+function web_check()
     local e = {}
     local port = 80
     e.baidu = check('www.baidu.com', port)

@@ -21,13 +21,12 @@ urldecode(){
   echo -e "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"
 }
 
-
 num=$(grep -c "password=" $server_file 2>/dev/null)
 count=1
 
 while [[ "$( grep -c "config servers" $CFG_FILE )" -ne 0 ]] 
 do
-    uci delete trojan.@servers[0] && uci commit trojan >/dev/null 2>&1
+  uci delete trojan.@servers[0] && uci commit trojan >/dev/null 2>&1
 done
 
 cfg_get()
@@ -35,74 +34,73 @@ cfg_get()
  echo "$(grep "$1" $2 2>/dev/null |awk -v tag=$1 'BEGIN{FS=tag} {print $2}' 2>/dev/null |sed 's/,.*//' 2>/dev/null |sed 's/^ \{0,\}//g' 2>/dev/null |sed 's/ \{0,\}$//g' 2>/dev/null |sed 's/ \{0,\}\}\{0,\}$//g' 2>/dev/null)"
 }
 
-
 while [[ $count -le $num ]]
 do
-	
-   sed -n "${count}"p $server_file |sed 's/&/\n/g' >/dev/null  >>$single_server
+  sed -n "${count}"p $server_file |sed 's/&/\n/g' >/dev/null  >>$single_server
 
-   server_passwd="$(cfg_get "password=" "$single_server")"
+  server_passwd="$(cfg_get "password=" "$single_server")"
   
-   name="$(cfg_get "remarks=" "$single_server")"
+  name="$(cfg_get "remarks=" "$single_server")"
   
-   server="$(cfg_get "server=" "$single_server")"
+  server="$(cfg_get "server=" "$single_server")"
   
-   port="$(cfg_get "port=" "$single_server")"
+  port="$(cfg_get "port=" "$single_server")"
 
-   sni="$(cfg_get "sni=" "$single_server")"
+  sni="$(cfg_get "sni=" "$single_server")"
   
-   ws_type="$(cfg_get "type=" "$single_server")"
+  ws_type="$(cfg_get "type=" "$single_server")"
 
-   ws_host="$(cfg_get "host=" "$single_server")"
+  ws_host="$(cfg_get "host=" "$single_server")"
    
-   ws_path="$(cfg_get "path=" "$single_server")"
+  ws_path="$(cfg_get "path=" "$single_server")"
  
-   ss="$(cfg_get "encryption=" "$single_server")"
+  ss="$(cfg_get "encryption=" "$single_server")"
    
-   sever_name=$(echo $name | urldecode )
-   if $ss;then
+  sever_name=$(echo $name | urldecode )
+  if $ss;then
    ss_type=$(echo "$ss" | grep ";" |awk -F ";" '{print $1}' >/dev/null 2>&1)
    ss_cipher=$(echo "$ss" | grep ";" |awk -F ";" '{print $2}' >/dev/null 2>&1)
    ss_pass=$(echo "$ss" | grep ";" |awk -F ":" '{print $3}' >/dev/null 2>&1)
-   fi   
+  fi   
 	  
- 	  	if [ $lang == "en" ] || [ $lang == "auto" ];then
-			echo "Now Reading 【Trojan-Go】 - 【$sever_name】 Servers..." >$REAL_LOG
-		elif [ $lang == "zh_cn" ];then
-			echo "正在读取 【Trojan-Go】 - 【$sever_name】 代理..." >$REAL_LOG
-		fi 
-		
-		
-   name=trojan
-   uci_name_tmp=$(uci add $name servers)
+ 	if [ $lang == "en" ] || [ $lang == "auto" ];then
+		echo "Now Reading 【Trojan-Go】 - 【$sever_name】 Servers..." >$REAL_LOG
+	elif [ $lang == "zh_cn" ];then
+		echo "正在读取 【Trojan-Go】 - 【$sever_name】 代理..." >$REAL_LOG
+	fi 
+				
+  name=trojan
+  uci_name_tmp=$(uci add $name servers)
 
-   uci_set="uci -q set $name.$uci_name_tmp."
-   uci_add="uci -q add_list $name.$uci_name_tmp."
+  uci_set="uci -q set $name.$uci_name_tmp."
+  uci_add="uci -q add_list $name.$uci_name_tmp."
    
+  ${uci_set}name="$sever_name" 
+  ${uci_set}remote_addr="$server" >/dev/null 2>&1
+  ${uci_set}remote_port="$port" >/dev/null 2>&1
+  ${uci_set}password="$server_passwd"  >/dev/null 2>&1
+  ${uci_set}sni="$sni" >/dev/null 2>&1
+  ${uci_set}fingerprint="firefox" >/dev/null 2>&1
    
-   ${uci_set}name="$sever_name" 
-   ${uci_set}remote_addr="$server" >/dev/null 2>&1
-   ${uci_set}remote_port="$port" >/dev/null 2>&1
-   ${uci_set}password="$server_passwd"  >/dev/null 2>&1
-   ${uci_set}sni="$sni" >/dev/null 2>&1
-   ${uci_set}fingerprint="firefox" >/dev/null 2>&1
-   if [ $ws_type == "ws" ];then >/dev/null 2>&1
-   ${uci_set}websocket="true" >/dev/null 2>&1
-   ${uci_set}path="$ws_path" >/dev/null 2>&1
-   ${uci_set}websocket_host="$ws_host" >/dev/null 2>&1
-   fi >/dev/null 2>&1
-   if [ $ss_type == "ss" ];then  >/dev/null 2>&1
-   ${uci_set}shadowdocks="true"  >/dev/null 2>&1
-   ${uci_set}cipher="$ss_cipher" >/dev/null 2>&1
-   ${uci_set}shadowdocks_passw="$ss_pass" >/dev/null 2>&1   
-   fi >/dev/null 2>&1
-   count=$(( $count + 1))
-   uci commit trojan
-   rm -rf  $single_server >/dev/null 2>&1
+  if [ $ws_type == "ws" ];then >/dev/null 2>&1
+    ${uci_set}websocket="true" >/dev/null 2>&1
+    ${uci_set}path="$ws_path" >/dev/null 2>&1
+    ${uci_set}websocket_host="$ws_host" >/dev/null 2>&1
+  fi >/dev/null 2>&1
+
+  if [ $ss_type == "ss" ];then  >/dev/null 2>&1
+    ${uci_set}shadowdocks="true"  >/dev/null 2>&1
+    ${uci_set}cipher="$ss_cipher" >/dev/null 2>&1
+    ${uci_set}shadowdocks_passw="$ss_pass" >/dev/null 2>&1   
+  fi >/dev/null 2>&1
+
+  count=$(( $count + 1))
+  uci commit trojan
+  rm -rf  $single_server >/dev/null 2>&1
 done
 rm -rf  $single_server $server_file >/dev/null 2>&1
-		sleep 3
-		echo "Trojan-GO for OpenWRT" >$REAL_LOG
-		exit 0
+	sleep 3
+	echo "Trojan-GO for OpenWRT" >$REAL_LOG
+	exit 0
 done
 /etc/init.d/trojan restart >/dev/null 2>&1
