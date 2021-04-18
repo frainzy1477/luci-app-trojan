@@ -532,7 +532,10 @@ stop(){
 		fi
 		sleep 1
 		echo "Trojan-GO for OpenWRT" >$REAL_LOG
-		mv /usr/share/trojan/enable.lock /usr/share/trojan/diable.lock
+		
+		rm rf /usr/share/trojan/enable.lock >/dev/null 2>&1
+		echo " " /usr/share/trojan/diable.lock >/dev/null 2>&1
+		
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 			echo "" $LOG >/dev/null 2>&1
 			echo "Client Stopped" >$LOG 
