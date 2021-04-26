@@ -1,4 +1,4 @@
-local trojan = "trojan"
+local trojan = "trojan-"
 local uci = require "luci.model.uci".cursor()
 local s, o, m
 local fs = require "luci.trojan"

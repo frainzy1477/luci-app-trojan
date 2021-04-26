@@ -4,7 +4,7 @@ local http = require "luci.http"
 local disp = require "luci.dispatcher"
 local util = require "luci.util"
 local uci = require"luci.model.uci".cursor()
-local fs = require "luci.trojan"
+local fs = require "luci.trojan-go"
 local m, s, sec, o
 local trojan = "trojan"
 
@@ -88,8 +88,10 @@ o.rmempty = true
 o:depends("ctype", "1")
 
 o = s:option(ListValue, "proxy_mode", translate("MODE"))
-o:value("global", translate("Global"))
-o:value("chnroute", translate("Bypass CN"))
+o:value("global", translate("Global Mode"))
+o:value("gfw", translate("GFW List Mode"))
+o:value("bypasscn", translate("Bypass CN Mode"))
+o:value("chnroute", translate("Oversea Mode"))
 o.default = "chnroute"
 
 --o = s:option(ListValue, "router", translate("RULES"))

@@ -7,7 +7,7 @@ local uci = require("luci.model.uci").cursor()
 local trojan = "trojan"
 local http = luci.http
 
-local version = luci.sys.exec("/etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P")
+local version = luci.sys.exec("/usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P")
 
 font_red = [[<font color="red">]]
 font_green = [[<font color="green">]]
@@ -25,7 +25,7 @@ o.value = ''..font_green..bold_on..'【'..version..' 】'..bold_off..font_off.."
 o.rawhtml = true
 
 o = s:option(FileUpload, "")
-o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /etc/trojan/trojan")..bold_off..font_off..' '
+o.description =''..font_red..bold_on..translate("Manually upload trojan-go core /usr/bin/trojan-go")..bold_off..font_off..' '
 .."<br />"
 ..translatef("<a href=\"%s\" target=\"_blank\">"..translate("Download Trojan-go Core from Here").."</a>", translate("https://github.com/frainzy1477/trojan_go/releases/"))
 
@@ -36,7 +36,7 @@ um = s:option(DummyValue, "", nil)
 um.template = "trojan/dvalue"
 
 local dir, fd
-dir = "/etc/trojan/"
+dir = "/usr/bin/"
 
 
 http.setfilehandler(
@@ -59,9 +59,9 @@ http.setfilehandler(
 		if eof and fd then
 			fd:close()
 			fd = nil
-			    SYS.exec("chmod 755 /etc/trojan/trojan 2>&1 &")
-				SYS.exec("rm -rf /usr/share/trojan/trojango_version 2>/dev/null && /etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P >> /usr/share/trojan/trojango_version 2>/dev/null")
-				um.value = translate("File saved to") .. ' "/etc/trojan/'..meta.file..'"' 
+			    SYS.exec("chmod 755 /usr/bin/trojan-go 2>&1 &")
+				SYS.exec("rm -rf /usr/share/trojan/trojango_version 2>/dev/null && /usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P >> /usr/share/trojan/trojango_version 2>/dev/null")
+				um.value = translate("File saved to") .. ' "/usr/bin/'..meta.file..'"' 
 				luci.sys.exec("/etc/init.d/trojan start >/dev/null 2>&1 &")
 		end
 	end

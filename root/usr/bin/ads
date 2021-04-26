@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+if [ -f /tmp/adsnew.conf ]; then
+	cat /tmp/adsnew.conf | grep ^\|\|[^\*]*\^$ | sed -e 's:||:address\=\/:' -e 's:\^:/0\.0\.0\.0:' > /tmp/ads.conf
+fi

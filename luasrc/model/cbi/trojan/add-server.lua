@@ -27,13 +27,13 @@ s = m:section(NamedSection, sid, "servers")
 s.anonymous = true
 s.addremove   = false
 
-o = s:option(DummyValue,"trojan_url","Trojan URL") 
+o = s:option(DummyValue,"trojan_url","trojan-go URL") 
 o.rawhtml  = true
 o.template = "trojan/url"
 o.value =sid
 
 o = s:option(Value, "name", translate("Alias"))
-o.default = "Trojan - Server"
+o.default = "Trojan"
 o.rmempty = false
 
 o = s:option(Value, "remote_addr", translate("Server Address"))

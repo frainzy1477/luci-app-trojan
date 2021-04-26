@@ -2,6 +2,48 @@
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 
+msgid "Global Mode"
+msgstr "全局代理模式"
+
+msgid "Bypass CN Mode"
+msgstr "绕过中国大陆模式"
+
+msgid "GFW List Mode"
+msgstr "启用 GFW 模式"
+
+msgid "Oversea Mode"
+msgstr "海外用户回国IP路由模式"
+
+msgid "GFW List Data"
+msgstr "【GFW列表】数据库"
+
+msgid "China IP Data"
+msgstr "【国内IP段】数据库"
+
+msgid "Records"
+msgstr "条记录"
+
+msgid "Refresh Data"
+msgstr "更新数据库"
+
+msgid "Refresh..."
+msgstr "正在更新，请稍候.."
+
+msgid "Refresh OK!"
+msgstr "更新成功！"
+
+msgid "Refresh Error!"
+msgstr "更新失败！"
+
+msgid "No new data!"
+msgstr "你已经是最新数据，无需更新！"
+
+msgid "Total Records:"
+msgstr "新的总纪录数："
+
+msgid "Advertising Data"
+msgstr "【广告屏蔽】数据库"
+
 msgid "Download Trojan-go Core from Here"
 msgstr "点击下载Trojan-go内核"
 
@@ -91,6 +133,9 @@ msgstr "返回检查"
 
 msgid "Proxy Lan List"
 msgstr "走代理的IP列表"
+
+msgid "Proxy or Bypass Lan IPs When Trojan-GO is Running"
+msgstr "选择Trojan-GO运行时IP列表走不走代理的"
 
 msgid "Only selected IPs will be proxied"
 msgstr "选择IP只走代理"

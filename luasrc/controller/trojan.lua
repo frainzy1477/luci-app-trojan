@@ -10,14 +10,14 @@ function index()
 		return
 	end
 
-	local page = entry({"admin", "services", "trojan"},alias("admin", "services", "trojan", "overview"), _("TrojanGO"), 2)
+	local page = entry({"admin", "services", "trojan"},alias("admin", "services", "trojan", "overview"), _("Trojan-GO"), 2)
 	page.dependent = true
 	page.acl_depends = {"luci-app-trojan"}
 	
     entry({"admin", "services", "trojan", "overview"},cbi("trojan/status"),_("Overview"), 10).leaf = true
 	entry({"admin", "services", "trojan", "client"},cbi("trojan/client"),_("Client"), 20).leaf = true
-	--entry({"admin", "services", "trojan", "rules"},cbi("trojan/rules"), nil).leaf = true
-	--entry({"admin", "services", "trojan", "rule"},cbi("trojan/add-rule"), nil).leaf = true
+	--entry({"admin", "services", "trojan", "rules"},cbi("trojan-go/rules"), nil).leaf = true
+	--entry({"admin", "services", "trojan", "rule"},cbi("trojan-go/add-rule"), nil).leaf = true
 	entry({"admin", "services", "trojan", "servers" },cbi("trojan/servers"),_("Servers"), 30).leaf = true
 	entry({"admin", "services", "trojan", "server"},cbi("trojan/add-server"), nil).leaf = true
 	entry({"admin", "services", "trojan", "settings"},cbi("trojan/settings"),_("Settings"), 50).leaf = true
@@ -34,6 +34,7 @@ function index()
 	entry({"admin", "services", "trojan", "readlog"},call("action_read")).leaf=true
 	entry({'admin', 'services', "trojan", 'web'}, call('web_check')).leaf=true
 	entry({'admin', 'services', "trojan", 'traffic'}, call('action_traffic')).leaf=true
+	entry({"admin", "services", "trojan", "refresh"}, call("refresh_data")).leaf=true
 	
 end
 
@@ -63,10 +64,10 @@ end
 
 
 local function trojan_core()
-	if nixio.fs.access("/etc/trojan/trojan") then
-		local core=luci.sys.exec("/etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P")		
+	if nixio.fs.access("/usr/bin/trojan-go") then
+		local core=luci.sys.exec("/usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P")		
 		if core ~= "" then
-			return luci.sys.exec("/etc/trojan/trojan -version | awk '{print $2}' | sed -n 1P")
+			return luci.sys.exec("/usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P")
 		else
 			return luci.sys.exec("sed -n 1p /usr/share/trojan/core_version")
 		end
@@ -103,8 +104,6 @@ end
 
 local function downcheck()
 	if nixio.fs.access("/var/run/core_update_error") then
-		return "0"
-	elseif nixio.fs.access("/var/run/core_update") then
 		return "1"
 	elseif nixio.fs.access("/usr/share/trojan/core_down_complete") then
 		return "2"
@@ -234,11 +233,114 @@ end
 
 function web_check()
     local e = {}
-    local port = 80
+    local port = 443
     e.baidu = check('www.baidu.com', port)
     e.taobao = check('www.taobao.com', port)
     e.google = check('www.google.com', port)
     e.youtube = check('www.youtube.com', port)
     luci.http.prepare_content('application/json')
     luci.http.write_json(e)
+end
+
+function refresh_data()
+	local set =luci.http.formvalue("set")
+	local icount =0
+
+	if set == "gfw_data" then
+		if nixio.fs.access("/usr/bin/wget-ssl") then
+			refresh_cmd="wget-ssl --no-check-certificate https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt -O /tmp/gfw.b64"
+		else
+			refresh_cmd="wget -O /tmp/gfw.b64 http://iytc.net/tools/list.b64"
+		end
+		sret=luci.sys.call(refresh_cmd .. " 2>/dev/null")
+		if sret== 0 then
+			luci.sys.call("/usr/bin/gfw")
+			icount = luci.sys.exec("cat /tmp/gfwnew.txt | wc -l")
+				if tonumber(icount)>1000 then
+					oldcount=luci.sys.exec("cat /etc/trojan/gfw_list.conf | wc -l")
+					if tonumber(icount) ~= tonumber(oldcount) then
+						luci.sys.exec("cp -f /tmp/gfwnew.txt /etc/trojan/gfw_list.conf")
+						retstring=tostring(math.ceil(tonumber(icount)/2))
+					else
+						retstring ="0"
+					end
+				else
+					retstring ="-1"  
+				end
+			luci.sys.exec("rm -f /tmp/gfwnew.txt ")
+		else
+			retstring ="-1"
+		end
+	elseif set == "ipv4_data" then
+		refresh_cmd="wget -O- 'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'  2>/dev/null| awk -F\\| '/CN\\|ipv4/ { printf(\"%s/%d\\n\", $4, 32-log($5)/log(2)) }' > /tmp/china_v4.txt"
+		sret=luci.sys.call(refresh_cmd)
+		icount = luci.sys.exec("cat /tmp/china_v4.txt | wc -l")
+		if  sret== 0 and tonumber(icount)>1000 then
+			oldcount=luci.sys.exec("cat /etc/trojan/china_v4.txt | wc -l")
+			if tonumber(icount) ~= tonumber(oldcount) then
+				luci.sys.exec("cp -f /tmp/china_v4.txt /etc/trojan/china_v4.txt")
+				retstring=tostring(tonumber(icount))
+			else
+				retstring ="0"
+			end
+		else
+			retstring ="-1"
+		end
+		luci.sys.exec("rm -f /tmp/china_v4.txt ")
+	elseif set == "ipv6_data" then
+		refresh_cmd="wget -O- 'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'  2>/dev/null| awk -F\\| '/CN\\|ipv6/ { printf(\"%s/%d\\n\", $4, 32-log($5)/log(2)) }' > /tmp/china_v6.txt"
+		sret=luci.sys.call(refresh_cmd)
+		icount = luci.sys.exec("cat /tmp/china_v6.txt | wc -l")
+		if  sret== 0 and tonumber(icount)>1000 then
+			oldcount=luci.sys.exec("cat /etc/trojan/china_v6.txt | wc -l")
+			if tonumber(icount) ~= tonumber(oldcount) then
+				luci.sys.exec("cp -f /tmp/china_v6.txt /etc/trojan/china_v6.txt")
+				retstring=tostring(tonumber(icount))
+			else
+				retstring ="0"
+			end
+		else
+			retstring ="-1"
+		end
+		luci.sys.exec("rm -f /tmp/china_v6.txt ")	
+	else
+		local need_process = 0
+		if nixio.fs.access("/usr/bin/wget-ssl") then
+			refresh_cmd="wget-ssl --no-check-certificate -O - https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt > /tmp/adsnew.conf"
+			need_process = 1
+		else
+			refresh_cmd="wget -O /tmp/ads.conf http://iytc.net/tools/ad.conf"
+		end
+		sret=luci.sys.call(refresh_cmd .. " 2>/dev/null")
+		if sret== 0 then
+			if need_process == 1 then
+				luci.sys.call("/usr/bin/ads")
+			end
+			icount = luci.sys.exec("cat /tmp/ads.conf | wc -l")
+			if tonumber(icount)>1000 then
+				if nixio.fs.access("/etc/trojan/ads.conf") then
+					oldcount=luci.sys.exec("cat /etc/trojan/ads.conf | wc -l")
+				else
+					oldcount=0
+				end
+   
+				if tonumber(icount) ~= tonumber(oldcount) then
+					luci.sys.exec("cp -f /tmp/ads.conf /etc/trojan/ads.conf")
+					retstring=tostring(math.ceil(tonumber(icount)))
+					if oldcount==0 then
+						luci.sys.call("/etc/init.d/dnsmasq restart")
+					end
+				else
+					retstring ="0"
+				end
+			else
+				retstring ="-1"  
+			end
+			luci.sys.exec("rm -f /tmp/ads.conf ")
+		else
+			retstring ="-1"
+		end
+	end	
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({ ret=retstring ,retcount=icount})
 end
