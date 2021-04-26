@@ -33,7 +33,7 @@ local nutil = require "nixio.util"
 local type  = type
 
 --- LuCI filesystem library.
-module "luci.trojan-go"
+module "luci.trojan"
 
 --- Test for file access permission on given path.
 -- @class		function
