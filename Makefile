@@ -85,7 +85,6 @@ define Package/$(PKG_NAME)/install
 	cp -pR ./root/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
 	$(INSTALL_DATA) ./po/zh-cn/trojan.zh-cn.lmo $(1)/usr/lib/lua/luci/i18n
-	$(INSTALL_DIR) $(1)/etc/trojan
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
