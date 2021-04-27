@@ -83,7 +83,7 @@ end
 
 
 local function trojan_core_new()
-	return luci.sys.exec("sed -n 1p /usr/share/trojan/trojan_core_new")
+	return luci.sys.exec("sed -n 1p /usr/share/trojan/new_core")
 end
 
 
