@@ -65,7 +65,7 @@ msgstr "客户端"
 msgid "Status"
 msgstr "状态"
 
-msgid "Type"
+msgid "Config"
 msgstr "选择类型"
 
 msgid "Server"
@@ -380,7 +380,7 @@ msgstr "启用"
 msgid "False"
 msgstr "禁用"
 
-msgid "Config"
+msgid "CONFIG"
 msgstr "配置"
 
 msgid "DNS Servers"
