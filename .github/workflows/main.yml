@@ -1,7 +1,7 @@
 on:
   push:
     branches: 
-      - new
+      - master
 
 name: luci-app-trojan
 jobs:
