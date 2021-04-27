@@ -1,0 +1,67 @@
+#!/usr/bin/lua
+local ucursor = require "luci.model.uci".cursor()
+local json = require "luci.jsonc"
+local node_section = arg[1]
+
+local node = ucursor:get_all("trojan", node_section)
+local cipher = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
+local cipher13 = "TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384"
+local trojan = {
+    run_type = "nat",
+    local_addr = "0.0.0.0",
+    local_port = 51837,
+    buffer_size = 64,
+    remote_addr = node.remote_addr,
+    remote_port = tonumber(node.remote_port),
+    password = {node.password},
+    log_level = 1,
+    log_file = "/usr/share/trojan/trojan.txt",
+    ssl = {
+        cert = "",
+        cipher = cipher,
+        cipher_tls13 = cipher13,
+        verify = true,
+        verify_hostname = true,
+        sni = node.sni or node.remote_addr,
+        alpn = {"h2", "http/1.1"},
+        reuse_session = (node.reuse_session == "true") and true or false,
+	fingerprint = node.fingerprint,
+        session_ticket = (node.session_ticket == "true") and true or false,
+        curves = ""
+    },
+    mux = (node.mux == "true") and {
+        enabled = true,
+        concurrency = tonumber(node.concurrency),
+        idle_timeout = tonumber(node.idle_timeout),
+    } or nil,
+    tcp = (node.fast_open == "true") and {
+        no_delay = node.no_delay,
+        keep_alive = node.keep_alive,
+        fast_open = (node.fast_open == "true") and true or false,
+        fast_open_qlen = 20
+    } or nil,
+    transport_plugin = (node.plugin == "1") and {
+        enabled = true,
+        type = node.plugin_type or "plaintext",
+        command = node.plugin_type ~= "plaintext" and node.plugin_command or nil,
+        option = node.plugin_type ~= "plaintext" and node.plugin_option or nil,
+        arg = node.plugin_type ~= "plaintext" and { node.plugin_arg } or nil,
+        env = {node.plugin_env}
+    } or nil,
+    shadowsocks = (node.shadowdocks == "true") and {
+        enabled = true,
+        method = node.cipher or "aead_aes_128_gcm",
+        password = node.shadowsocks_passw or ""
+    } or nil,	
+    websocket = (node.websocket == "true") and {
+        enabled = true,
+        path = node.path or "/",
+        host = node.websocket_host or ""
+    } or nil,
+    api= {
+        api_addr = "127.0.0.1",
+        api_port = 57721,
+        enabled = true
+    }	
+}
+print(json.stringify(trojan, 1))

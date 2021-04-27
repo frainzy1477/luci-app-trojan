@@ -3,19 +3,23 @@
 	function padright(str, cnt, pad) {
 		return str + Array(cnt + 1).join(pad);
 	}
+	
 	function b64EncodeUnicode(str) {
 		return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
 			return String.fromCharCode('0x' + p1);
 		}));
 	}
+	
 	function b64encutf8safe(str) {
 		return b64EncodeUnicode(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, '');
 	}
+	
 	function b64DecodeUnicode(str) {
 		return decodeURIComponent(Array.prototype.map.call(atob(str), function (c) {
 			return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
 		}).join(''));
 	}
+	
 	function b64decutf8safe(str) {
 		var l;
 		str = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -25,9 +29,11 @@
 			str = padright(str, l, "=");
 		return b64DecodeUnicode(str);
 	}
+	
 	function b64encsafe(str) {
 		return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, '')
 	}
+	
 	function b64decsafe(str) {
 		var l;
 		str = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -37,17 +43,13 @@
 			str = padright(str, l, "=");
 		return atob(str);
 	}
+	
 	function dictvalue(d, key) {
 		var v = d[key];
 		if (typeof (v) == 'undefined' || v == '')
 			return '';
 		return b64decsafe(v);
-	}
-	
-	
-
-	
-
+	}		
 	
 	function import_trojan_url(btn, urlname, sid) {
 		var s = document.getElementById(urlname + '-status');
@@ -67,87 +69,67 @@
 		}
 		var event = document.createEvent("HTMLEvents");
 		event.initEvent("change", true, true);
-		
-		
-			var url0, param = "";
-			var ploc = trou[1].indexOf("#");
-			if (ploc > 0) {
-				url0 = trou[1].substr(0, ploc);
-				param = trou[1].substr(ploc + 1);
-			} else {
-				url0 = trou[1]
-			}
-			var tro = url0;
-
-			var team = tro.split('@');
-			var password = team[0]
-			var serverPart = team[1].split(':');
-			var trosplit = trourl.split('?');
-			var others = serverPart[1].split('?');			
-			var port = others[0].replace("/", "");			
-			var tros = tro.split('/');
-			//var sni_chk = trosplit[1].split('=')[1].split('&')[0];
-			//var sni_chk = trosplit[1].split('=').length;
-			//if(sni_chk > 1){
-			//	var sni = trosplit[1].split('=')[1].split('&')[0];
-			//}else{
-			//	var sni = trosplit[1].split('=')[1].split('#')[0];
-			//}
-			var query_chk = new URLSearchParams(tros[1]);
-			var sni = query_chk.get("sni");
-			var sni = sni;
-			
-			if(query_chk.get("type")=="ws"){
-				var type = query_chk.get("type");
-				var websocket_host = query_chk.get("host");
-				var path = query_chk.get("path");
-			}else{
-				var type = "";
-				var websocket_host = "";
-				var path = '';
-			}	
-			if(query_chk.get("encryption")){
-				var sha = trosplit[1].split('=')[5].split('#')[0];
-				var sha_p = decodeURIComponent(sha);
-				
-				var cipher = sha_p.split(";")[1].split(":")[0];
-				
-				var shadowdocks_passw = sha_p.split(":")[1];
-			}
-			
-
-			if (param != "undefined") {
-				document.getElementsByName('cbid.trojan.' + sid + '.name')[0].value = decodeURI(param);
-			}
-			document.getElementsByName('cbid.trojan.' + sid + '.remote_addr')[0].value = serverPart[0];
-			document.getElementsByName('cbid.trojan.' + sid + '.remote_port')[0].value = port;
-			document.getElementsByName('cbid.trojan.' + sid + '.password')[0].value = password;
-			document.getElementsByName('cbid.trojan.' + sid + '.sni')[0].value = sni;
-			if (type == "ws"){
+		var url0, param = "";
+		var ploc = trou[1].indexOf("#");
+		if (ploc > 0) {
+			url0 = trou[1].substr(0, ploc);
+			param = trou[1].substr(ploc + 1);
+		} else {
+			url0 = trou[1]
+		}
+		var tro = url0;
+		var team = tro.split('@');
+		var password = team[0]
+		var serverPart = team[1].split(':');
+		var trosplit = trourl.split('?');
+		var others = serverPart[1].split('?');			
+		var port = others[0].replace("/", "");			
+		var tros = tro.split('/');
+		var query_chk = new URLSearchParams(tros[1]);
+		var sni = query_chk.get("sni");
+		var sni = sni;			
+		if(query_chk.get("type")=="ws"){
+			var type = query_chk.get("type");
+			var websocket_host = query_chk.get("host");
+			var path = query_chk.get("path");
+		}else{
+			var type = "";
+			var websocket_host = "";
+			var path = '';
+		}	
+		if(query_chk.get("encryption")){
+			var sha = trosplit[1].split('=')[5].split('#')[0];
+			var sha_p = decodeURIComponent(sha);			
+			var cipher = sha_p.split(";")[1].split(":")[0];				
+			var shadowdocks_passw = sha_p.split(":")[1];
+		}			
+		if (param != "undefined") {
+			document.getElementsByName('cbid.trojan.' + sid + '.name')[0].value = decodeURI(param);
+		}
+		document.getElementsByName('cbid.trojan.' + sid + '.remote_addr')[0].value = serverPart[0];
+		document.getElementsByName('cbid.trojan.' + sid + '.remote_port')[0].value = port;
+		document.getElementsByName('cbid.trojan.' + sid + '.password')[0].value = password;
+		document.getElementsByName('cbid.trojan.' + sid + '.sni')[0].value = sni;
+		if (type == "ws"){
 			document.getElementsByName('cbid.trojan.' + sid + '.websocket')[0].value = true;
 			document.getElementsByName('cbid.trojan.' + sid + '.websocket')[0].dispatchEvent(event);
 			document.getElementsByName('cbid.trojan.' + sid + '.path')[0].value = decodeURIComponent(path);
 			document.getElementsByName('cbid.trojan.' + sid + '.websocket_host')[0].value = websocket_host;
-			}
-			if (query_chk.get("encryption")){
+		}
+		if (query_chk.get("encryption")){
 			document.getElementsByName('cbid.trojan.' + sid + '.shadowdocks')[0].value = true;
 			document.getElementsByName('cbid.trojan.' + sid + '.shadowdocks')[0].dispatchEvent(event);
 			document.getElementsByName('cbid.trojan.' + sid + '.cipher')[0].value = cipher;
 			document.getElementsByName('cbid.trojan.' + sid + '.shadowdocks_passw')[0].value = shadowdocks_passw;
-			}
-			s.innerHTML = "<font color='green'><%:Import Successful%></font>";
-
-			return false;
-		
-		
-		
+		}
+		s.innerHTML = "<font color='green'><%:Import Successful%></font>";
+		return false;
 	}
 	
 	function export_trojan_url(btn, urlname, sid) {
 		var s = document.getElementById(urlname + '-status');
 		if (!s)
-			return false;
-			
+			return false;			
 		var v_remote_addr = document.getElementsByName('cbid.trojan.' + sid + '.remote_addr')[0];
 		var v_remote_port = document.getElementsByName('cbid.trojan.' + sid + '.remote_port')[0];
 		var v_password = document.getElementsByName('cbid.trojan.' + sid + '.password')[0];
@@ -158,15 +140,12 @@
 		var v_cipher = document.getElementsByName('cbid.trojan.' + sid + '.cipher')[0];
 		var v_shadowdocks_passw = document.getElementsByName('cbid.trojan.' + sid + '.shadowdocks_passw')[0];
 		var v_name = document.getElementsByName('cbid.trojan.' + sid + '.name')[0];
-		var v_sni = document.getElementsByName('cbid.trojan.' + sid + '.sni')[0];
-				
+		var v_sni = document.getElementsByName('cbid.trojan.' + sid + '.sni')[0];				
 		var enc = encodeURIComponent(";")
-		var enc2 = encodeURIComponent(":")
-			
+		var enc2 = encodeURIComponent(":")			
 		if (v_shadowdocks.value == "true"){
 			var ss = enc + v_cipher.value + enc2 + v_shadowdocks_passw.value;
-		}
-		
+		}		
 		if (v_shadowdocks.value == "true" && v_websocket.value == "true"){
 			var trojan_str = v_password.value + "@" + v_remote_addr.value + ":" + v_remote_port.value + "/?" + 
 				"sni=" + v_sni.value + 
@@ -186,18 +165,15 @@
 			var trojan_str = v_password.value + "@" + v_remote_addr.value + ":" + v_remote_port.value + "/?" +
 				"sni=" + v_sni.value + 
 				"#" + encodeURI(v_name.value);
-		}
-		
+		}		
 		var textarea = document.createElement("textarea");
 		textarea.textContent = "trojan-go://" + trojan_str;
 		textarea.style.position = "fixed";
-		document.body.appendChild(textarea);
-		
+		document.body.appendChild(textarea);		
 		textarea.select();
 		try {
 			document.execCommand("copy");  
-			s.innerHTML = "<font color='green'><%:Copy Config Successfully%></font>";
-			
+			s.innerHTML = "<font color='green'><%:Copy Config Successfully%></font>";			
 		} catch (ex) {
 			s.innerHTML = "<font color='red'><%:Unable To Copy Config%></font>";
 		} finally {

@@ -2,11 +2,56 @@
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 
+msgid "Global Mode"
+msgstr "全局代理模式"
+
+msgid "Bypass CN Mode"
+msgstr "绕过中国大陆模式"
+
+msgid "GFW List Mode"
+msgstr "启用 GFW 模式"
+
+msgid "Oversea Mode"
+msgstr "海外用户回国IP路由模式"
+
+msgid "GFW List Data"
+msgstr "【GFW列表】数据库"
+
+msgid "China IPv4 Data"
+msgstr "【国内IPv4段】数据库"
+
+msgid "China IPv6 Data"
+msgstr "【国内IPv6段】数据库"
+
+msgid "Records"
+msgstr "条记录"
+
+msgid "Refresh Data"
+msgstr "更新数据库"
+
+msgid "Refresh..."
+msgstr "正在更新，请稍候.."
+
+msgid "Refresh OK!"
+msgstr "更新成功！"
+
+msgid "Refresh Error!"
+msgstr "更新失败！"
+
+msgid "No new data!"
+msgstr "你已经是最新数据，无需更新！"
+
+msgid "Total Records:"
+msgstr "新的总纪录数："
+
+msgid "Advertising Data"
+msgstr "【广告屏蔽】数据库"
+
 msgid "Download Trojan-go Core from Here"
 msgstr "点击下载Trojan-go内核"
 
-msgid "MODE"
-msgstr "模式"
+msgid "Mode"
+msgstr "选择模式"
 
 msgid "Taobao"
 msgstr "淘宝网"
@@ -17,14 +62,14 @@ msgstr "客户端"
 msgid "CLIENT"
 msgstr "客户端"
 
-msgid "STATUS"
+msgid "Status"
 msgstr "状态"
 
-msgid "TYPE"
-msgstr "配置类型"
+msgid "Config"
+msgstr "选择类型"
 
-msgid "SERVER"
-msgstr "器配置"
+msgid "Server"
+msgstr "主服务器"
 
 msgid "Server List"
 msgstr "自定义配置"
@@ -91,6 +136,9 @@ msgstr "返回检查"
 
 msgid "Proxy Lan List"
 msgstr "走代理的IP列表"
+
+msgid "Proxy or Bypass Lan IPs When Trojan-GO is Running"
+msgstr "选择Trojan-GO运行时IP列表走不走代理的"
 
 msgid "Only selected IPs will be proxied"
 msgstr "选择IP只走代理"
@@ -180,13 +228,13 @@ msgid "Architecture"
 msgstr "CPU架构"
 
 msgid "Select Arch"
-msgstr "选择CPU架构"
+msgstr "选择架构"
 
 msgid "No specify upload file."
 msgstr "没有指定上传文件。"
 
-msgid "Manually upload trojan-go core /etc/trojan/trojan"
-msgstr "手动上传trojan-go到 /etc/trojan/ trojan"
+msgid "Manually upload trojan-go core /usr/bin/trojan-go"
+msgstr "手动上传trojan-go到 /usr/bin/trojan-go"
 
 msgid "Whitelist or Blacklist IPs to use Trojan"
 msgstr "将白名单或黑名单IP"
@@ -350,7 +398,7 @@ msgstr "下载最新客户端"
 msgid "START & RESTART & STOP"
 msgstr "启动&重启&停止"
 
-msgid "OPERATION"
+msgid "Operation"
 msgstr "操作"
 
 msgid "Installed Version"

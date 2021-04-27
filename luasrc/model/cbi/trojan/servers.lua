@@ -21,7 +21,7 @@ b = Map(trojan)
 
 s = b:section(TypedSection, "server_subscribe", translate("Subscription Update"))
 s.anonymous = true
-
+ 
 o = s:option(Flag, "auto_update", translate("Auto Update"))
 o.description = translate("Auto Update Server Subscription")
 

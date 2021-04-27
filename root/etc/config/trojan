@@ -19,7 +19,7 @@ config server_subscribe
 
 config trojan 'config'
 	option download_core 'linux-amd64'
-	option download_source 'frainzy1477/trojan_go'
+	option download_source 'frainzy1477/trojan-go'
 
 
 

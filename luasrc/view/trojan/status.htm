@@ -231,7 +231,7 @@
 					</div>
 				</div>
 				<div class="pure-u-16-24">
-					<h4><%:Baidu%><br><br><span id="status_baidu" class="red"><em><%:Collecting data...%></em></span></h4>
+					<h4><%:Baidu%><br><br><span id="status_baidu" class="red"><em><%:Checking...%></em></span></h4>
 				</div>
 			</div>
 		</div>
@@ -244,7 +244,7 @@
 					</div>
 				</div>
 				<div class="pure-u-14-24">
-					<h4 ><%:Taobao%><br><br><span id="status_taobao" class="red"><em><%:Collecting data...%></em></span></h4>
+					<h4 ><%:Taobao%><br><br><span id="status_taobao" class="red"><em><%:Checking...%></em></span></h4>
 				</div>
 			</div>
 		</div>
@@ -258,7 +258,7 @@
 					</div>
 				</div>
 				<div class="pure-u-14-24">
-					<h4><%:Google%><br><br><span id="status_google" class="red"><em><%:Collecting data...%></em></span></h4>
+					<h4><%:Google%><br><br><span id="status_google" class="red"><em><%:Checking...%></em></span></h4>
 				</div>
 			</div>
 		</div>
@@ -271,7 +271,7 @@
 					</div>
 				</div>
 				<div class="pure-u-14-24">
-					<h4 ><%:Youtube%><br><br><span id="status_youtube" class="red"><em><%:Collecting data...%></em></span></h4>
+					<h4 ><%:Youtube%><br><br><span id="status_youtube" class="red"><em><%:Checking...%></em></span></h4>
 				</div>
 			</div>
 		</div>			
@@ -374,7 +374,7 @@
     <div class="modals">
 	<span><input type="button" class="cbi-button cbi-button-apply" value="<%:Download%>" style=" display:inline;" onclick=" return download_conf()" /></span><br /><span class="close">&times;</span>
 	<br /><h3 style="margin-left:0;"><%:If config does not show refresh page%></h3><br />
-	 <span><textarea id="cbid.logview.1.conf" style="width:100%;height:80%; font-family:'Lucida Console'; font-size:12px;padding-left:3px;padding-right:22px;" readonly="readonly" wrap="off" rows="25"><%=pcdata(nixio.fs.readfile("/etc/trojan/trojan.json"))%></textarea></span>
+	 <span><textarea id="cbid.logview.1.conf" style="width:100%;height:80%; font-family:'Lucida Console'; font-size:12px;padding-left:3px;padding-right:22px;" readonly="readonly" wrap="off" rows="25"><%=pcdata(nixio.fs.readfile("/etc/trojan/config.json"))%></textarea></span>
    </div>
 </div>
 
@@ -401,15 +401,14 @@
 	function download_conf(){
 		var lv = document.getElementById('cbid.logview.1.conf');
 		var dt = new Date();
-		createAndDownloadFile("trojan.json",lv.innerHTML)
+		createAndDownloadFile("config.json",lv.innerHTML)
 		return
 	}
 </script>
 
 
 <script type="text/javascript">//<![CDATA[	
-		const _IMG = '/luci-static/trojan/';
-		
+		const _IMG = '/luci-static/trojan/';		
 		<% if luci.i18n.context.lang == "zh-cn" then %>
 			let random = parseInt(Math.random() * 100000000);
 			let IP = {
@@ -420,7 +419,7 @@
 								else {
 									return Promise.all([resp.ok, resp.status, resp.json(), resp.headers]);
 								}
-							}).then(([ok, status, data, headers]) => {
+						}).then(([ok, status, data, headers]) => {
 								if (ok) {
 									let json = {
 										ok,
@@ -432,23 +431,21 @@
 								} else {
 									throw new Error(JSON.stringify(json.error));
 								}
-							}).catch(error => {
+						}).catch(error => {
 								throw error;
-							}),
+						}),
 						parseIPIpip: (ip, elID) => {
 							IP.get(`https://geoip.gbxcloud.com/?geoip=${ip}`, 'text')
 								.then(resp => {
 									 document.getElementById(elID).innerHTML = resp.data;
 								})
-						},
-						
+						},						
 						Ipip: (ip, elID) => {
 								IP.get(`https://api.ip.sb/geoip/${ip}`, 'json')
 									.then(resp => {
 										 $("#flag").attr("src", _IMG + "flags/" + resp.data.country +".png");
 									})
-						},
-							
+						},							
 						getIpipnetIP: () => {
 							IP.get(`https://ip4.seeip.org/json?z=${random}`, 'json')
 								.then((resp) => {
@@ -474,7 +471,7 @@
 									else {
 										return Promise.all([resp.ok, resp.status, resp.json(), resp.headers]);
 									}
-								}).then(([ok, status, data, headers]) => {
+							}).then(([ok, status, data, headers]) => {
 									if (ok) {
 										let json = {
 											ok,
@@ -486,17 +483,16 @@
 									} else {
 										throw new Error(JSON.stringify(json.error));
 									}
-								}).catch(error => {
+							}).catch(error => {
 									throw error;
-								}),
+							}),
 							Ipip: (ip, elID) => {
 								IP.get(`https://api.ip.sb/geoip/${ip}`, 'json')
 									.then(resp => {
 										 document.getElementById(elID).innerHTML = `${resp.data.country} ${resp.data.isp} ${resp.data.asn_organization}`;
 										 $("#flag").attr("src", _IMG + "flags/" + resp.data.country +".png");
 									})
-							},
-							
+							},							
 							getIpipnetIP: () => {
 								IP.get(`https://ip4.seeip.org/json?z=${random}`, 'json')
 									.then((resp) => {
@@ -511,36 +507,7 @@
 				}
 		<%end%>	
 
-
-		function wirte(data) {
-			if(data.baidu){
-				data.baidu ? $(".baidu").attr("src", _IMG + "img/site_icon_01.png") : $(".baidu").attr("src", _IMG + "img/site_icon1_01.png");
-				data.baidu ? document.getElementById('status_baidu').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_baidu').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
-			}			
-			if(data.taobao){
-				data.taobao ? $(".taobao").attr("src", _IMG + "img/site_icon_02.png") : $(".taobao").attr("src", _IMG + "img/site_icon1_02.png");
-				data.taobao ? document.getElementById('status_taobao').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_taobao').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
-			}
-			if(data.google){
-				data.google ? $(".google").attr("src", _IMG + "img/site_icon_03.png") : $(".google").attr("src", _IMG + "img/site_icon1_03.png");
-				data.google ? document.getElementById('status_google').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_google').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
-			}
-			if(data.youtube){
-				data.youtube ? $(".youtube").attr("src", _IMG + "img/site_icon_04.png") : $(".youtube").attr("src", _IMG + "img/site_icon1_04.png");
-				data.youtube ? document.getElementById('status_youtube').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_youtube').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
-			}
-		}
-		XHR.poll(3, '<%=luci.dispatcher.build_url("admin", "services", "trojan", "web")%>', null, function(x, data)  {
-				wirte(data);
-			}
-		);
-
-		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "trojan", "web")%>', null, function(x, data) {
-				wirte(data);
-			}
-		);
-		
-		
+	
 		var trojan = document.getElementById('_trojan');	   
 		var dns = document.getElementById('_dns');
 		var config = document.getElementById('_config');
@@ -649,6 +616,33 @@
 			}
 		}
 
+		function wirte(data) {
+			if(data.baidu){
+				data.baidu ? $(".baidu").attr("src", _IMG + "img/site_icon_01.png") : $(".baidu").attr("src", _IMG + "img/site_icon1_01.png");
+				data.baidu ? document.getElementById('status_baidu').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_baidu').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
+			}			
+			if(data.taobao){
+				data.taobao ? $(".taobao").attr("src", _IMG + "img/site_icon_02.png") : $(".taobao").attr("src", _IMG + "img/site_icon1_02.png");
+				data.taobao ? document.getElementById('status_taobao').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_taobao').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
+			}
+			if(data.google){
+				data.google ? $(".google").attr("src", _IMG + "img/site_icon_03.png") : $(".google").attr("src", _IMG + "img/site_icon1_03.png");
+				data.google ? document.getElementById('status_google').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_google').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
+			}
+			if(data.youtube){
+				data.youtube ? $(".youtube").attr("src", _IMG + "img/site_icon_04.png") : $(".youtube").attr("src", _IMG + "img/site_icon1_04.png");
+				data.youtube ? document.getElementById('status_youtube').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_youtube').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
+			}
+		}
+		XHR.poll(3, '<%=luci.dispatcher.build_url("admin", "services", "trojan", "web")%>', null, function(x, data)  {
+				wirte(data);
+			}
+		);
+
+		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "trojan", "web")%>', null, function(x, data) {
+				wirte(data);
+			}
+		);
 		
 //]]></script>
 

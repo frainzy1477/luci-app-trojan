@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v2.0.4
+PKG_VERSION:=v2.0.5
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -71,6 +71,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	mv /etc/config/trojan.bak /etc/config/trojan 2>/dev/null
 	/etc/init.d/trojan disable 2>/dev/null
 	chmod +x /etc/init.d/trojan 2>/dev/null
+	chmod +x /usr/bin/cnipset 2>/dev/null
 	/etc/init.d/trojan disable 2>/dev/null
 fi
 
