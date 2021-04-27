@@ -132,7 +132,8 @@ start(){
 		fi			
 		sleep 1
 		local GLOBAL_SERVER 
-		local dns_mode pdnsd  dnscrypt			
+		local dns_mode pdnsd  dnscrypt
+		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)			
 		if [ -z "$switch_server" ] ;then
 			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
 		else
@@ -222,7 +223,14 @@ remove_mark(){
 	ipset destroy gfw >/dev/null 2>&1
 	ipset destroy proxy_lan >/dev/null 2>&1
 	ipset destroy chinav4 >/dev/null 2>&1 
-	ipset destroy chinav6 >/dev/null 2>&1 	
+	ipset destroy chinav6 >/dev/null 2>&1 
+	ipset destroy localnetwork >/dev/null 2>&1
+
+	nat=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/tcp dpt:53/=' | sort -r)
+	for natx in $nat; do
+			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
+	done
+	
 	mag=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
 	for nat_indexv in $mag; do
 		iptables -t mangle -D PREROUTING $nat_indexv >/dev/null 2>&1
@@ -247,6 +255,12 @@ remove_mark(){
 	for gfwlist in $gfw; do
 		ip6tables -t mangle -D PREROUTING $gfwlist >/dev/null 2>&1
 	done
+
+	pre=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/localnetwork/=' | sort -r)
+	for prer in $pre; do
+		iptables -t mangle -D PREROUTING $prer 2>/dev/null
+	done
+
 	iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT		
 	revert_dns >/dev/null 2>&1	
 }
@@ -258,11 +272,11 @@ stop(){
 	elif [ "${lang}" == "zh_cn" ];then
 		echo "正在停止客户端..." >$REAL_LOG
 	fi				
-	rm -rf $CONFIG_FILE
+	rm -rf $CONFIG_FILE /var/etc/dnsmasq.$NAME /var/dnsmasq.d/$NAME.conf
 	remove_mark >/dev/null 2>&1
 	rm -rf /var/etc/dnscrypt-proxy-ns1.conf >/dev/null 2>&1
 	rm -rf /var/etc/pdnsd.conf >/dev/null 2>&1
-	kill -9 `pidof $NAME|sed "s/$//g"` 2>/dev/null		
+	kill -9 `pidof $NAME-go|sed "s/$//g"` 2>/dev/null		
 	kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
 	kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1 	
   	del_cron >/dev/null 2>&1		
@@ -287,7 +301,7 @@ stop(){
 
 
 restart(){
-	if pidof $NAME >/dev/null; then
+	if pidof $NAME-go >/dev/null; then
 		stop  >/dev/null 2>&1
 		start >/dev/null 2>&1		
 	else
@@ -301,7 +315,7 @@ boot(){
 }
 
 reload(){
-	if pidof $NAME >/dev/null; then
+	if pidof $NAME-go >/dev/null; then
 		remove_mark 2>/dev/null
 		dns_change 2>/dev/null 2>&1
 		rules >/dev/null 2>&1 

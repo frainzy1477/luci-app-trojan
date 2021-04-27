@@ -6,57 +6,35 @@ local res_input = "/usr/share/trojan/dnscrypt-resolvers.csv"
 local res_dir   = fs.dirname(res_input)
 local res_list  = {}
 local url       = "https://raw.githubusercontent.com/dyne/dnscrypt-proxy/master/dnscrypt-resolvers.csv"
-local gfw_count=0
+
 local ads_count=0
 local ipv4_count=0
 local ipv6_count=0
-local gfwmode=0
-if nixio.fs.access("/etc/trojan/gfw_list.conf") then
-gfwmode=1		
-end
 
 m = Map("trojan")
 s = m:section(TypedSection, "settings")
 s.anonymous = true
 s.addremove=false
 
-if gfwmode==1 then 
- gfw_count = tonumber(sys.exec("cat /etc/trojan/gfw_list.conf | wc -l"))/2
- if nixio.fs.access("/etc/trojan/ads.conf") then
-  ads_count=tonumber(sys.exec("cat /etc/trojan/ads.conf | wc -l"))
- end
-end
 
 if nixio.fs.access("/etc/trojan/china_v4.txt") then 
- ipv4_count = sys.exec("cat /etc/trojan/china_v4.txt | wc -l")
+ ipv4_count = luci.sys.exec("cat /etc/trojan/china_v4.txt | wc -l")
 end
 
 if nixio.fs.access("/etc/trojan/china_v6.txt") then 
- ipv6_count = sys.exec("cat /etc/trojan/china_v6.txt | wc -l")
+ ipv6_count = luci.sys.exec("cat /etc/trojan/china_v6.txt | wc -l")
 end
 
-if gfwmode==1 then 
-s=s:option(DummyValue,"gfw_data",translate("GFW List Data")) 
-s.rawhtml  = true
-s.template = "trojan/update"
-s.value =tostring(math.ceil(gfw_count)) .. " " .. translate("Records")
 
+y=s:option(DummyValue,"ipv4_data",translate("China IPv4 Data")) 
+y.rawhtml  = true
+y.template = "trojan/update"
+y.value =ipv4_count .. " " .. translate("Records")
 
-s=s:option(DummyValue,"ad_data",translate("Advertising Data")) 
-s.rawhtml  = true
-s.template = "trojan/update"
-s.value =tostring(math.ceil(ads_count)) .. " " .. translate("Records")
-end
-
-s=s:option(DummyValue,"ipv4_data",translate("China IPv4 Data")) 
-s.rawhtml  = true
-s.template = "trojan/update"
-s.value =ipv4_count .. " " .. translate("Records")
-
-s=s:option(DummyValue,"ipv6_data",translate("China IPv6 Data")) 
-s.rawhtml  = true
-s.template = "trojan/update"
-s.value =ipv6_count .. " " .. translate("Records")
+y=s:option(DummyValue,"ipv6_data",translate("China IPv6 Data")) 
+y.rawhtml  = true
+y.template = "trojan/update"
+y.value =ipv6_count .. " " .. translate("Records")
 
 --y = s:option(ListValue, "dnscache", translate("DNS Cache"))
 --y:value("0", translate("disabled"))
@@ -191,7 +169,7 @@ m.uci:commit("trojan")
 if not fs.access("/etc/resolv-crypt.conf") or fs.stat("/etc/resolv-crypt.conf").size == 0 then
 luci.sys.call("env -i echo 'options timeout:1' > '/etc/resolv-crypt.conf'")
 end
-if luci.sys.call("pidof trojan >/dev/null") == 0 then
+if luci.sys.call("pidof trojan-go >/dev/null") == 0 then
 	luci.sys.call("/etc/init.d/trojan restart >/dev/null 2>&1 &")
         luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan"))
 end

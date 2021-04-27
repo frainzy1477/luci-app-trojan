@@ -4,7 +4,7 @@ local http = require "luci.http"
 local disp = require "luci.dispatcher"
 local util = require "luci.util"
 local uci = require"luci.model.uci".cursor()
-local fs = require "luci.trojan-go"
+local fs = require "luci.trojan"
 local m, s, sec, o
 local trojan = "trojan"
 
@@ -56,17 +56,17 @@ s = m:section(TypedSection, "global")
 s.anonymous = true
 
 
-o = s:option(ListValue, "enable", translate("STATUS"))
+o = s:option(ListValue, "enable", translate("Client"))
 o.default = "0"
 o:value("0", translate("Disable"))
 o:value("1", translate("Enable"))
 
-o = s:option(ListValue, "ctype", translate("TYPE"))
+o = s:option(ListValue, "ctype", translate("Type"))
 o.default = "1"
 o:value("1", translate("Server List"))
 o:value("2", translate("Upload Config"))
 
-o = s:option(ListValue, "global_config", translate("CONFIG"))
+o = s:option(ListValue, "global_config", translate("Config"))
 local p,h={}
 for t,f in ipairs(fs.glob("/usr/share/trojan/config/*.json"))do
 	h=fs.stat(f)
@@ -81,18 +81,17 @@ end
 o.rmempty = true
 o:depends("ctype", "2")
 
-o = s:option(ListValue, "global_server", translate("SERVER"))
+o = s:option(ListValue, "global_server", translate("Server"))
 for _,key in pairs(key_table) do o:value(key,server_table[key]) end
 o.default = "nil"
 o.rmempty = true
 o:depends("ctype", "1")
 
-o = s:option(ListValue, "proxy_mode", translate("MODE"))
+o = s:option(ListValue, "proxy_mode", translate("Mode"))
 o:value("global", translate("Global Mode"))
-o:value("gfw", translate("GFW List Mode"))
 o:value("bypasscn", translate("Bypass CN Mode"))
 o:value("chnroute", translate("Oversea Mode"))
-o.default = "chnroute"
+o.default = "global"
 
 --o = s:option(ListValue, "router", translate("RULES"))
 --o.default = "0"
@@ -110,7 +109,7 @@ o.default = "chnroute"
 --o:depends("router", "true")
 
 o = s:option(Button,"start")
-o.title = translate("OPERATION")
+o.title = translate("Operation")
 o.inputtitle = translate("START & RESTART & STOP")
 o.inputstyle = "reload"
 o.write = function()

@@ -374,7 +374,7 @@
     <div class="modals">
 	<span><input type="button" class="cbi-button cbi-button-apply" value="<%:Download%>" style=" display:inline;" onclick=" return download_conf()" /></span><br /><span class="close">&times;</span>
 	<br /><h3 style="margin-left:0;"><%:If config does not show refresh page%></h3><br />
-	 <span><textarea id="cbid.logview.1.conf" style="width:100%;height:80%; font-family:'Lucida Console'; font-size:12px;padding-left:3px;padding-right:22px;" readonly="readonly" wrap="off" rows="25"><%=pcdata(nixio.fs.readfile("/etc/trojan-go/trojan-go.json"))%></textarea></span>
+	 <span><textarea id="cbid.logview.1.conf" style="width:100%;height:80%; font-family:'Lucida Console'; font-size:12px;padding-left:3px;padding-right:22px;" readonly="readonly" wrap="off" rows="25"><%=pcdata(nixio.fs.readfile("/etc/trojan/config.json"))%></textarea></span>
    </div>
 </div>
 
