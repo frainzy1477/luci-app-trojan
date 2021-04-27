@@ -21,7 +21,7 @@ if [ "${enable}" -eq 1 ];then
 		sh /usr/share/trojan/dnscrypt.sh >/dev/null 2>&1 &
 	fi
 	fi	
-	if ! pidof trojan >/dev/null; then
+	if ! pidof trojan-go >/dev/null; then
 		/etc/init.d/trojan restart 2>&1 &
 	fi
 fi
