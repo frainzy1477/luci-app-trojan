@@ -66,7 +66,7 @@ update(){
 			elif [ $lang == "en" ] || [ $lang == "auto" ];then
 			   echo "  ${LOGTIME} - Successfully downloaded core, updating now..." >$LOG_FILE
 			fi			  
-			mv /tmp/trojan-go/trojan-go /usr/bin/trojan-go >/dev/null 2>&1
+			mv /tmp/trojan-go/trojan-go-$MODELTYPE/trojan-go /usr/bin/trojan-go >/dev/null 2>&1
 			chmod -R 755 /usr/bin
 			rm -rf /tmp/trojan-go >/dev/null 2>&1
 			rm -rf $TSHARE/core_version >/dev/null 2>&1
