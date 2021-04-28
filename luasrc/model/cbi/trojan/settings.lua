@@ -36,15 +36,15 @@ y.rawhtml  = true
 y.template = "trojan/update"
 y.value =ipv6_count .. " " .. translate("Records")
 
---y = s:option(ListValue, "dnscache", translate("DNS Cache"))
---y:value("0", translate("disabled"))
---y:value("1", translate("enabled"))
---y.description = translate("Set to enable or disable dns cache")
-
---y = s:option(ListValue, "udp", translate("UDP Ports"))
---y:value("1", translate("Only On Port 53"))
---y:value("2", translate("All Ports"))
---y.description = translate("UDP Destination Port(s)")
+y = s:option(ListValue, "log_level", translate("Trojan Log Level"))
+y:value("0", translate("Output Debug logs(All logs)"))
+y:value("1", translate("Output Info log"))
+y:value("2", translate("Output Warning logs"))
+y:value("3", translate("Output Error logs"))
+y:value("4", translate("Output Fatal logs"))
+y:value("5", translate("No log output"))
+y.default = "1"
+y.description = translate("Specify the log level. The higher the level, the less information is output")
 
 y = s:option(ListValue, "access_control", translate("Access Control"))
 y:value("0", translate("disabled"))
