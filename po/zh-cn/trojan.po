@@ -529,3 +529,27 @@ msgstr "UDP目标端口"
 
 msgid "GEOLOCATION"
 msgstr "地理位置"
+
+msgid "Trojan Log Level"
+msgstr "Trojan-go输出日志"
+
+msgid "Output Debug logs(All logs)"
+msgstr "输出Debug以上日志（所有日志）"
+
+msgid "Output Info log"
+msgstr "输出Info及以上日志"
+
+msgid "Output Warning logs"
+msgstr "输出Warning及以上日志"
+
+msgid "Output Error logs"
+msgstr "输出Error及以上日志"
+
+msgid "Output Fatal logs"
+msgstr "输出Fatal及以上日志"
+
+msgid "No log output"
+msgstr "完全不输出日志"
+
+msgid "Specify the log level. The higher the level, the less information is output"
+msgstr "指定日志等级。等级越高，输出的信息越少"
