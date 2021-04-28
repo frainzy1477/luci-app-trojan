@@ -55,6 +55,7 @@ o.rmempty = true
 -- fingerPrint --
 o = s:option(ListValue, "fingerprint", translate("FingerPrint"))
 o.default = "firefox"
+o:value("", translate("None"))
 o:value("firefox", translate("firefox"))
 o:value("chrome", translate("chrome"))
 o:value("ios", translate("ios"))
@@ -165,7 +166,7 @@ o.rmempty = true
 o:depends("websocket", "true")
 o:depends("shadowdocks", "true")
 
-o = s:option(Value, "websocket_host", translate("Websockrt Host"))
+o = s:option(Value, "websocket_host", translate("Websocket Host"))
 o.placeholder = translate("example.com")
 o.rmempty = true
 o:depends("websocket", "true")
