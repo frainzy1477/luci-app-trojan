@@ -6,6 +6,7 @@ config settings
 	option address '127.0.0.1'
 	option port '8888'
 	option access_control '0'
+	option log_level '1'	
 	option udp '2'
 	option dns_mode 'pdnsd'
 	option tunnel_forward '8.8.4.4:53'
