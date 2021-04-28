@@ -116,7 +116,7 @@ trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@abc.xxx.com:443/?sni=abc.xxx.co
         "option": ""
         
     },	
-	"shadowsocks": {
+    "shadowsocks": {
         "enabled": false,
         "method": "",
         "password": ""
