@@ -79,7 +79,7 @@ trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@abc.xxx.com:443/?sni=abc.xxx.co
     "remote_addr": "your_hostname",
     "remote_port": your_server_port,
     "run_type": "nat",
-	"buffer_size": 32,
+    "buffer_size": 32,
     "ssl": {
         "alpn": [
             "h2",
