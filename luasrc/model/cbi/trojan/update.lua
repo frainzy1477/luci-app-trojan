@@ -44,7 +44,7 @@ http.setfilehandler(
 
 		if not fd then
 			if not meta then return end
-			if luci.sys.call("pidof trojan >/dev/null") == 0 then
+			if luci.sys.call("pidof trojan-go >/dev/null") == 0 then
 				luci.sys.exec("/etc/init.d/trojan stop >/dev/null 2>&1 &")
 			end			
 			if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end			
@@ -59,7 +59,7 @@ http.setfilehandler(
 		if eof and fd then
 			fd:close()
 			fd = nil
-			    SYS.exec("chmod 755 /usr/bin/trojan-go 2>&1 &")
+			    	SYS.exec("chmod 755 /usr/bin/trojan-go 2>&1 &")
 				SYS.exec("rm -rf /usr/share/trojan/trojango_version 2>/dev/null && /usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P >> /usr/share/trojan/trojango_version 2>/dev/null")
 				um.value = translate("File saved to") .. ' "/usr/bin/'..meta.file..'"' 
 				luci.sys.exec("/etc/init.d/trojan start >/dev/null 2>&1 &")
