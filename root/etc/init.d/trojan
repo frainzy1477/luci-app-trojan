@@ -86,8 +86,8 @@ remove_forward_dnsmasq() {
 gen_config_file() {
 	global_config=$(uci_get_by_type global ctype 2>/dev/null)
 	if [ "${global_config}" -eq 1 ];then
-		#sh $TSHARE/rule.sh >/dev/null 2>&1
-		lua $TSHARE/gen_trojan_go $1  >$CONFIG_FILE
+		log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
+		lua $TSHARE/gen_trojan_go $1 $log_level >$CONFIG_FILE
 		sed -i 's/\\//g' $CONFIG_FILE
 	else
 		cp $TSHARE/config/"$(uci_get_by_type global global_config 2>/dev/null)" $CONFIG_FILE
