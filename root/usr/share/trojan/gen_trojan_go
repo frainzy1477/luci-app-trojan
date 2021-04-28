@@ -40,7 +40,7 @@ local trojan = {
         fast_open = (node.fast_open == "true") and true or false,
         fast_open_qlen = 20
     } or nil,
-    transport_plugin = (node.plugin == "1") and {
+    transport_plugin = (node.plugin == "true") and {
         enabled = true,
         type = node.plugin_type or "plaintext",
         command = node.plugin_type ~= "plaintext" and node.plugin_command or nil,
