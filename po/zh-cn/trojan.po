@@ -65,7 +65,7 @@ msgstr "客户端"
 msgid "Status"
 msgstr "状态"
 
-msgid "Config"
+msgid "Type"
 msgstr "选择类型"
 
 msgid "Server"
@@ -200,9 +200,6 @@ msgstr "添加/编辑规则"
 msgid "Add/Edit Server"
 msgstr "添加/编辑服务器"
 
-msgid "Type"
-msgstr "类型"
-
 msgid "Format"
 msgstr "格式"
 
@@ -265,9 +262,6 @@ msgstr "启用"
 
 msgid "Disabled"
 msgstr "禁用"
-
-msgid "Type"
-msgstr "节点类型"
 
 msgid "Alias"
 msgstr "节点别名"
@@ -347,7 +341,7 @@ msgstr "启用Websocket"
 msgid "Websocket Path"
 msgstr "Websocket路径"
 
-msgid "Websockrt Host"
+msgid "Websocket Host"
 msgstr "Websocket主机"
 
 msgid "Enable Shadowdocks"
@@ -380,7 +374,7 @@ msgstr "启用"
 msgid "False"
 msgstr "禁用"
 
-msgid "Config "
+msgid "Config"
 msgstr "配置"
 
 msgid "DNS Servers"
