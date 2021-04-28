@@ -61,7 +61,7 @@ o.default = "0"
 o:value("0", translate("Disable"))
 o:value("1", translate("Enable"))
 
-o = s:option(ListValue, "ctype", translate("Config"))
+o = s:option(ListValue, "ctype", translate("Type"))
 o.default = "1"
 o:value("1", translate("Server List"))
 o:value("2", translate("Upload Config"))
