@@ -2,6 +2,9 @@
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 
+msgid "None"
+msgstr "无"
+
 msgid "Global Mode"
 msgstr "全局代理模式"
 
