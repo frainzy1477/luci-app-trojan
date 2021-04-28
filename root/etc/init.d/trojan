@@ -29,19 +29,6 @@ uci_get_by_type() {
 	echo ${ret:=$3}
 }
 
-revert_dns() {
-	dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
-	port=$(uci get $NAME.@settings[0].port 2>/dev/null)
-	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
-	uci set dhcp.@dnsmasq[0].noresolv=0
-	uci set dhcp.@dnsmasq[0].resolvfile="${RESOLVFILE}"
-	uci delete dhcp.@dnsmasq[0].cachesize
-	uci commit dhcp	
-	/etc/init.d/dnsmasq restart >/dev/null 2>&1 	 
-}
-
 add_cron(){
 
 	[ -z "$(grep -w "$TSHARE/watchdog.sh" $CRON_FILE)" ] && echo "*/1 * * * * $TSHARE/watchdog.sh" >> $CRON_FILE
@@ -58,9 +45,7 @@ del_cron(){
 	/etc/init.d/cron restart 	
 }
 
-
-
-dns_change(){ 	
+set_forward_dnsmasq(){ 	
 	dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
 	dnscache=$(uci get $NAME.@settings[0].dnscache 2>/dev/null)
 	port=$(uci get $NAME.@settings[0].port 2>/dev/null)
@@ -68,9 +53,9 @@ dns_change(){
 	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
 	if [ "$dns_mode" == "pdnsd" ];then
-	    uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
-		uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
-		uci set dhcp.@dnsmasq[0].noresolv=1
+	    	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
+	    	uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
+	    	uci set dhcp.@dnsmasq[0].noresolv=1
 	elif  [ "$dns_mode" == "dnscrypt" ];then
 		uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#$port
 		uci add_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8
@@ -85,6 +70,18 @@ dns_change(){
 	uci commit dhcp 	   
 }
 
+remove_forward_dnsmasq() {
+	dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
+	port=$(uci get $NAME.@settings[0].port 2>/dev/null)
+	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 >/dev/null 2>&1
+	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
+	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
+	uci set dhcp.@dnsmasq[0].noresolv=0
+	uci set dhcp.@dnsmasq[0].resolvfile="${RESOLVFILE}"
+	uci delete dhcp.@dnsmasq[0].cachesize
+	uci commit dhcp	
+	/etc/init.d/dnsmasq restart >/dev/null 2>&1 	 
+}
 
 gen_config_file() {
 	global_config=$(uci_get_by_type global ctype 2>/dev/null)
@@ -117,9 +114,9 @@ redir(){
 rules() {
 	[ "$GLOBAL_SERVER" = "nil" ] && return 1
 	mkdir -p /var/run /var/etc
-	sh $TSHARE/iptables.sh >/dev/null 2>&1
+	sh $TSHARE/iptables.sh start >/dev/null 2>&1 &
 }
-
+ 
 start(){
 	lang=$(uci get luci.main.lang 2>/dev/null)
 	enable=$(uci_get_by_type global enable 2>/dev/null)
@@ -138,7 +135,6 @@ start(){
 			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
 		else
 			GLOBAL_SERVER=$switch_server
-			switch_enable=1
 		fi					
 		rm -f /var/etc/$NAME*				
 		sleep 1	
@@ -149,13 +145,13 @@ start(){
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "启用DNS" >$REAL_LOG
 			fi
-			dns_change 2>/dev/null 2>&1
+			set_forward_dnsmasq 2>/dev/null 2>&1
 		fi	
 		if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then	
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-						echo "Setting up  iptables rules" >$REAL_LOG 
+				echo "Setting up  iptables rules" >$REAL_LOG 
 			elif [ "${lang}" == "zh_cn" ];then
-						echo "设置 iptables" >$REAL_LOG
+				echo "设置 iptables" >$REAL_LOG
 			fi
 			rules >/dev/null 2>&1
 			sleep 2
@@ -199,71 +195,13 @@ start(){
 		fi
 	else 
 		if [ ! -f  $TSHARE/disable.lock ]; then	
-				touch /usr/share/$NAME/disable.lock 2>/dev/null
-				rm rf /usr/share/$NAME/enable.lock 2>/dev/null	
-				start >/dev/null 2>&1 &
+			touch /usr/share/$NAME/disable.lock 2>/dev/null
+			rm rf /usr/share/$NAME/enable.lock 2>/dev/null	
+			start >/dev/null 2>&1 &
 		fi
 	fi
 }
 
-
-remove_mark(){
-	rm -rf /var/etc/$NAME.include 2>/dev/null
-	rm -rf  $TSHARE/1  >/dev/null
-	ip route del local default dev lo table 100
-	ip rule del fwmark 1 lookup 100		
-	iptables -t mangle -F TROJAN_GO 2>/dev/null
-	iptables -t mangle -X TROJAN_GO 2>/dev/null			
-	ipset -! flush proxy_lan >/dev/null 2>&1
-	ipset -! flush reject_lan >/dev/null 2>&1
-	ipset -! flush gfw >/dev/null 2>&1
-	ipset -! flush chinav4 >/dev/null 2>&1
-	ipset -! flush chinav6 >/dev/null 2>&1
-	ipset destroy reject_lan >/dev/null 2>&1
-	ipset destroy gfw >/dev/null 2>&1
-	ipset destroy proxy_lan >/dev/null 2>&1
-	ipset destroy chinav4 >/dev/null 2>&1 
-	ipset destroy chinav6 >/dev/null 2>&1 
-	ipset destroy localnetwork >/dev/null 2>&1
-
-	nat=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/tcp dpt:53/=' | sort -r)
-	for natx in $nat; do
-			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
-	done
-	
-	mag=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
-	for nat_indexv in $mag; do
-		iptables -t mangle -D PREROUTING $nat_indexv >/dev/null 2>&1
-	done									
-	proxy_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/proxy_lan src/=' | sort -r)
-	for natx in $proxy_lan; do
-		iptables -t mangle -D PREROUTING $natx >/dev/null 2>&1
-	done		
-	reject_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/reject_lan src/=' | sort -r)
-	for natx in $reject_lan; do
-		iptables -t mangle -D PREROUTING $natx >/dev/null 2>&1
-	done		
-	chinav4_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/chinav4/=' | sort -r)
-	for natv4 in $chinav4_lan; do
-		iptables -t mangle -D PREROUTING $natv4 >/dev/null 2>&1
-	done
-	chinav6_lan=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/chinav6/=' | sort -r)
-	for natv6 in $chinav6_lan; do
-		ip6tables -t mangle -D PREROUTING $natv6 >/dev/null 2>&1
-	done
-	gfw=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/gfw/=' | sort -r)
-	for gfwlist in $gfw; do
-		ip6tables -t mangle -D PREROUTING $gfwlist >/dev/null 2>&1
-	done
-
-	pre=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/localnetwork/=' | sort -r)
-	for prer in $pre; do
-		iptables -t mangle -D PREROUTING $prer 2>/dev/null
-	done
-
-	iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT		
-	revert_dns >/dev/null 2>&1	
-}
 
 stop(){ 
 	lang=$(uci get luci.main.lang 2>/dev/null)
@@ -273,7 +211,8 @@ stop(){
 		echo "正在停止客户端..." >$REAL_LOG
 	fi				
 	rm -rf $CONFIG_FILE /var/etc/dnsmasq.$NAME /var/dnsmasq.d/$NAME.conf
-	remove_mark >/dev/null 2>&1
+	sh $TSHARE/iptables.sh stop  >/dev/null 2>&1 &
+	remove_forward_dnsmasq >/dev/null 2>&1
 	rm -rf /var/etc/dnscrypt-proxy-ns1.conf >/dev/null 2>&1
 	rm -rf /var/etc/pdnsd.conf >/dev/null 2>&1
 	kill -9 `pidof $NAME-go|sed "s/$//g"` 2>/dev/null		
@@ -301,7 +240,7 @@ stop(){
 
 
 restart(){
-	if pidof $NAME-go >/dev/null; then
+	if pidof trojan-go >/dev/null; then
 		stop  >/dev/null 2>&1
 		start >/dev/null 2>&1		
 	else
@@ -309,13 +248,12 @@ restart(){
 	fi		
 }
 
-
 boot(){
 	restart >/dev/null 2>&1
 }
 
 reload(){
-	if pidof $NAME-go >/dev/null; then
+	if pidof trojan-go >/dev/null; then
 		remove_mark 2>/dev/null
 		dns_change 2>/dev/null 2>&1
 		rules >/dev/null 2>&1 
