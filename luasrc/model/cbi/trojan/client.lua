@@ -66,7 +66,7 @@ o.default = "1"
 o:value("1", translate("Server List"))
 o:value("2", translate("Upload Config"))
 
-o = s:option(ListValue, "global_config", translate("Upload Config"))
+o = s:option(ListValue, "global_config", translate("Server"))
 local p,h={}
 for t,f in ipairs(fs.glob("/usr/share/trojan/config/*.json"))do
 	h=fs.stat(f)
