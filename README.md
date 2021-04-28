@@ -13,6 +13,7 @@
    </a>
   </p>
 
+  ![](https://raw.githubusercontent.com/frainzy1477/luci-app-trojan/master/client.png)
   
  ## Install
 - Upload ipk file to tmp folder
