@@ -380,7 +380,7 @@ msgstr "启用"
 msgid "False"
 msgstr "禁用"
 
-msgid "CONFIG"
+msgid "Config "
 msgstr "配置"
 
 msgid "DNS Servers"
