@@ -61,7 +61,7 @@ Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see deta
 
 ### trojan-go uri
 ```
-trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@abc.xxx.com:443/?sni=abc.xxx.com&type=ws&host=cdn.xxx.com&path=/trojan&encryption=ss%3Baes-128-gcm%3123456#ABC
+trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@abc.xxx.com:443/?sni=abc.xxx.com&type=ws&host=cdn.xxx.com&path=/trojan&encryption=ss%3Baes-128-gcm%3A123456#ABC
 ```
 
 ### Upload xx.json Sample
