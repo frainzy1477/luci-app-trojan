@@ -60,7 +60,7 @@ do
   sever_name=$(echo $name | urldecode )
   if [ $ss ];then
    ss_type=$(echo "$ss" | grep ";" |awk -F ";" '{print $1}' )
-   ss_cipher=$(echo "$ss" | grep ";" | awk -F ";" '{print $2}' |  grep ":" |awk -F ":" '{print $1}')
+   ss_cipher=$(echo "$ss" | grep ";" | awk -F ";" '{print $2}' |  grep ":" |awk -F ":" '{print tolower($1)}')
    ss_pass=$(echo "$ss" | grep ";" |awk -F ":" '{print $2}' )
   fi   
 	  
