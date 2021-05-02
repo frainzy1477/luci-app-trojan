@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v2.0.5
+PKG_VERSION:=v2.0.6
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -11,7 +11,7 @@ define Package/luci-app-trojan
 	CATEGORY:=LuCI
 	SUBMENU:=2. Trojan
 	TITLE:=LuCI app for Trojan
-	DEPENDS:=+luci-base +wget +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl +dnscrypt-proxy
+	DEPENDS:=+luci-base +wget +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl +dnscrypt-proxy +coreutils-base64 +luci-compat
 	PKGARCH:=all
 	MAINTAINER:=frainzy1477
 endef
@@ -22,6 +22,7 @@ endef
 
 define Build/Prepare
 	po2lmo ${CURDIR}/po/zh-cn/trojan.po ${CURDIR}/po/zh-cn/trojan.zh-cn.lmo
+	#chmod +x root/etc/init.d/trojan root/usr/share/trojan/* >/dev/null 2>&1
 endef
 
 define Build/Configure
@@ -80,11 +81,38 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci
-	cp -pR ./luasrc/* $(1)/usr/lib/lua/luci
-	$(INSTALL_DIR) $(1)/
-	cp -pR ./root/* $(1)/
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi/trojan
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/trojan
+	$(INSTALL_DATA) ./luasrc/trojan.lua $(1)/usr/lib/lua/luci
+	$(INSTALL_DATA) ./luasrc/controller/* $(1)/usr/lib/lua/luci/controller
+	$(INSTALL_DATA) ./luasrc/model/cbi/trojan/* $(1)/usr/lib/lua/luci/model/cbi/trojan
+	$(INSTALL_DATA) ./luasrc/view/trojan/* $(1)/usr/lib/lua/luci/view/trojan
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/trojan	
+	$(INSTALL_BIN) 	./root/etc/init.d/trojan $(1)/etc/init.d/trojan
+	$(INSTALL_CONF) ./root/etc/config/trojan $(1)/etc/config/trojan
+	$(INSTALL_CONF) ./root/etc/trojan/* $(1)/etc/trojan
+	
+	$(INSTALL_DIR) $(1)/usr/bin	
+	$(INSTALL_DIR) $(1)/usr/share/trojan
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
+	$(INSTALL_DATA) ./root/usr/bin/* $(1)/usr/bin
+	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
+	$(INSTALL_DATA) ./root/usr/share/trojan/* $(1)/usr/share/trojan
+	
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
 	$(INSTALL_DATA) ./po/zh-cn/trojan.zh-cn.lmo $(1)/usr/lib/lua/luci/i18n
+	
+	$(INSTALL_DIR) $(1)/www/luci-static/trojan
+	$(INSTALL_DIR) $(1)/www/luci-static/trojan/img
+	$(INSTALL_DIR) $(1)/www/luci-static/trojan/js
+	$(INSTALL_DIR) $(1)/www/luci-static/trojan/flags
+	$(INSTALL_DATA)./www/luci-static/trojan/img/* $(1)/www/luci-static/trojan/img
+	$(INSTALL_DATA)./www/luci-static/trojan/js/* $(1)/www/luci-static/trojan/js
+	$(INSTALL_DATA)./www/luci-static/trojan/flags/* $(1)/www/luci-static/trojan/flags
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
