@@ -87,13 +87,13 @@ msgid "MANAGER"
 msgstr "规则经理"
 
 msgid "SERVER"
-msgstr "器配置"
+msgstr "服务器配置"
 
 msgid "PDNSD"
 msgstr "PDNSD"
 
 msgid "Servers"
-msgstr "器配置"
+msgstr "服务器配置"
 
 msgid "Settings"
 msgstr "设置"
