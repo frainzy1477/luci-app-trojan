@@ -106,6 +106,8 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
 	$(INSTALL_DATA) ./po/zh-cn/trojan.zh-cn.lmo $(1)/usr/lib/lua/luci/i18n
 	
+	$(INSTALL_DIR) $(1)/www
+	$(INSTALL_DIR) $(1)/www/luci-static
 	$(INSTALL_DIR) $(1)/www/luci-static/trojan
 	$(INSTALL_DIR) $(1)/www/luci-static/trojan/img
 	$(INSTALL_DIR) $(1)/www/luci-static/trojan/js
