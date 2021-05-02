@@ -110,9 +110,10 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/www/luci-static/trojan/img
 	$(INSTALL_DIR) $(1)/www/luci-static/trojan/js
 	$(INSTALL_DIR) $(1)/www/luci-static/trojan/flags
-	$(INSTALL_DATA)./www/luci-static/trojan/img/* $(1)/www/luci-static/trojan/img
-	$(INSTALL_DATA)./www/luci-static/trojan/js/* $(1)/www/luci-static/trojan/js
-	$(INSTALL_DATA)./www/luci-static/trojan/flags/* $(1)/www/luci-static/trojan/flags
+	$(INSTALL_DATA)./root/www/luci-static/trojan/img/*.png $(1)/www/luci-static/trojan/img
+	$(INSTALL_DATA)./root/www/luci-static/trojan/img/*.svg $(1)/www/luci-static/trojan/img
+	$(INSTALL_DATA)./root/www/luci-static/trojan/js/*.js $(1)/www/luci-static/trojan/js
+	$(INSTALL_DATA)./root/www/luci-static/trojan/flags/*.png $(1)/www/luci-static/trojan/flags
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
