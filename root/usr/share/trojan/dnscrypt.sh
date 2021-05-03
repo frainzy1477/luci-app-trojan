@@ -1,7 +1,7 @@
 #!/bin/bash /etc/rc.common
 . /lib/functions.sh
 
- 
+
 USE_PROCD=1
 CONFIG_DIR=/var/etc
 USER=nobody
@@ -11,14 +11,14 @@ dnscrypt_instance() {
     local config_path="$CONFIG_DIR/dnscrypt-proxy-ns1.conf"
     create_config_file $1 "$config_path"
     $PROG "$config_path" >/dev/null 2>&1 &
- 
+
 }
 
 create_config_file() {
 
     local address port resolver resolvers_list ephemeral_keys client_key log_level syslog syslog_prefix local_cache query_log_file provider_name provider_key resolver_address
     local config_path="$2"
-    
+
 
     [ ! -d "$CONFIG_DIR" ] && mkdir -p "$CONFIG_DIR"
     [ -f "$config_path" ] && rm "$config_path"
@@ -80,7 +80,7 @@ append_param() {
     local param_name=$1
     local param_value=$2
     local config_path=$3
-	
+
     echo "$param_name $param_value" >> $config_path
 }
 

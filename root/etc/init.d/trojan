@@ -1,8 +1,8 @@
 #!/bin/sh /etc/rc.common
- 
+
 START=93
 STOP=15
-   
+
 SERVICE_DAEMONIZE=1
 NAME=trojan
 CONFIG_FILE=/etc/$NAME/config.json
@@ -36,16 +36,16 @@ add_cron(){
 	if [ "${auto}" -eq 1 ]; then
 	[ -z "$(grep -w "$TSHARE/subscribe.sh" $CRON_FILE)" ] && echo "0 */$(uci get $NAME.@server_subscribe[0].auto_update_time 2>/dev/null) * * * bash $TSHARE/subscribe.sh >$TSHARE/$NAME.txt" >> $CRON_FILE
 	fi
-	crontab $CRON_FILE 	
+	crontab $CRON_FILE
 }
 
 del_cron(){
 	sed -i '/watchdog.sh/d' $CRON_FILE
 	sed -i '/subscribe.sh/d' $CRON_FILE
-	/etc/init.d/cron restart 	
+	/etc/init.d/cron restart
 }
 
-set_forward_dnsmasq(){ 	
+set_forward_dnsmasq(){
 	dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
 	dnscache=$(uci get $NAME.@settings[0].dnscache 2>/dev/null)
 	port=$(uci get $NAME.@settings[0].port 2>/dev/null)
@@ -53,7 +53,7 @@ set_forward_dnsmasq(){
 	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
 	if [ "$dns_mode" == "pdnsd" ];then
-	    	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335 
+	    	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335
 	    	uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
 	    	uci set dhcp.@dnsmasq[0].noresolv=1
 	elif  [ "$dns_mode" == "dnscrypt" ];then
@@ -65,9 +65,9 @@ set_forward_dnsmasq(){
 		else
 			uci set dhcp.@dnsmasq[0].resolvfile=/etc/resolv-crypt.conf
 		fi
-		uci set dhcp.@dnsmasq[0].allservers=0	
-	fi		       	 
-	uci commit dhcp 	   
+		uci set dhcp.@dnsmasq[0].allservers=0
+	fi
+	uci commit dhcp
 }
 
 remove_forward_dnsmasq() {
@@ -79,8 +79,8 @@ remove_forward_dnsmasq() {
 	uci set dhcp.@dnsmasq[0].noresolv=0
 	uci set dhcp.@dnsmasq[0].resolvfile="${RESOLVFILE}"
 	uci delete dhcp.@dnsmasq[0].cachesize
-	uci commit dhcp	
-	/etc/init.d/dnsmasq restart >/dev/null 2>&1 	 
+	uci commit dhcp
+	/etc/init.d/dnsmasq restart >/dev/null 2>&1	 
 }
 
 gen_config_file() {
@@ -97,14 +97,14 @@ gen_config_file() {
 		  sed -i "s/$run_type/nat/g" $CONFIG_FILE
 		fi
 		if [ $local_port != "51837" ];then
-		  sed -i "s/$local_port/51837/g" $CONFIG_FILE  
+		  sed -i "s/$local_port/51837/g" $CONFIG_FILE
 		fi
-	fi  
+	fi
 }
 
 redir(){
 	gen_config_file $GLOBAL_SERVER 0	
-	if [ "$dns_mode" == "dnscrypt" ];then 
+	if [ "$dns_mode" == "dnscrypt" ];then
 		sh $TSHARE/dnscrypt.sh >/dev/null 2>&1 &
 	elif [ "$dns_mode" == "pdnsd" ];then
 		sh $TSHARE/pdnsd.sh >/dev/null 2>&1 &
@@ -116,67 +116,67 @@ rules() {
 	mkdir -p /var/run /var/etc
 	sh $TSHARE/iptables.sh start >/dev/null 2>&1 &
 }
- 
+
 start(){
 	lang=$(uci get luci.main.lang 2>/dev/null)
 	enable=$(uci_get_by_type global enable 2>/dev/null)
 	rm -rf $CONFIG_FILE
 	if [ "${enable}" -eq 1 ] && [ -f $Core ] && [ -f  $TSHARE/disable.lock ]; then
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-			echo "Starting Client" >$REAL_LOG 
+			echo "Starting Client" >$REAL_LOG
 		elif [ "${lang}" == "zh_cn" ];then
 			echo "启动客户端" >$REAL_LOG
-		fi			
+		fi
 		sleep 1
-		local GLOBAL_SERVER 
+		local GLOBAL_SERVER
 		local dns_mode pdnsd  dnscrypt
-		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)			
+		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
 		if [ -z "$switch_server" ] ;then
 			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
 		else
 			GLOBAL_SERVER=$switch_server
-		fi					
-		rm -f /var/etc/$NAME*				
-		sleep 1	
+		fi
+		rm -f /var/etc/$NAME*
+		sleep 1
 		redir >/dev/null 2>&1
 		if [ "$dns_mode" != "off" ];then
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Enabling Dns" >$REAL_LOG 
+				echo "Enabling Dns" >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "启用DNS" >$REAL_LOG
 			fi
 			set_forward_dnsmasq 2>/dev/null 2>&1
-		fi	
-		if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then	
+		fi
+		if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Setting up  iptables rules" >$REAL_LOG 
+				echo "Setting up  iptables rules" >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "设置 iptables" >$REAL_LOG
 			fi
 			rules >/dev/null 2>&1
 			sleep 2
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Setting Cron Job" >$REAL_LOG 
+				echo "Setting Cron Job" >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "设置Cron" >$REAL_LOG
-								
-			fi	
+
+			fi
 			add_cron >/dev/null 2>&1
 			sleep 1
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Restarting Dnsmasq " >$REAL_LOG 
+				echo "Restarting Dnsmasq " >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "重启 Dnsmasq 程序" >$REAL_LOG
-			fi				
-			/etc/init.d/dnsmasq restart >/dev/null 2>&1				
-			sleep 1				
-			$Core -config $CONFIG_FILE  >/dev/null 2>&1 &		
+			fi
+			/etc/init.d/dnsmasq restart >/dev/null 2>&1
+			sleep 1
+			$Core -config $CONFIG_FILE  >/dev/null 2>&1 &
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Trojan-GO Core Started Successfully " >$REAL_LOG 
+				echo "Trojan-GO Core Started Successfully " >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "Trojan-GO计划任务,启动进程守护程序" >$REAL_LOG
-			fi	
-			mv $TSHARE/disable.lock $TSHARE/enable.lock			
+			fi
+			mv $TSHARE/disable.lock $TSHARE/enable.lock
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Trojan-GO Started Successfully " >$REAL_LOG
 				sleep 1
@@ -193,10 +193,10 @@ start(){
 		else
 			stop >/dev/null 2>&1 &
 		fi
-	else 
-		if [ ! -f  $TSHARE/disable.lock ]; then	
+	else
+		if [ ! -f  $TSHARE/disable.lock ]; then
 			touch /usr/share/$NAME/disable.lock 2>/dev/null
-			rm rf /usr/share/$NAME/enable.lock 2>/dev/null	
+			rm rf /usr/share/$NAME/enable.lock 2>/dev/null
 			start >/dev/null 2>&1 &
 		fi
 	fi
@@ -215,37 +215,37 @@ stop(){
 	remove_forward_dnsmasq >/dev/null 2>&1
 	rm -rf /var/etc/dnscrypt-proxy-ns1.conf >/dev/null 2>&1
 	rm -rf /var/etc/pdnsd.conf >/dev/null 2>&1
-	kill -9 `pidof $NAME-go|sed "s/$//g"` 2>/dev/null		
-	kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1 
-	kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1 	
-  	del_cron >/dev/null 2>&1		
-	echo "0" > /usr/share/$NAME/logstatus_check >/dev/null 2>&1		
+	kill -9 `pidof $NAME-go|sed "s/$//g"` 2>/dev/null
+	kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+	kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+  	del_cron >/dev/null 2>&1
+	echo "0" > /usr/share/$NAME/logstatus_check >/dev/null 2>&1
 	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-		echo "Trojan-GO Core Stopped Successfully " >$REAL_LOG 
+		echo "Trojan-GO Core Stopped Successfully " >$REAL_LOG
 	elif [ "${lang}" == "zh_cn" ];then
 		echo "Trojan-GO停止进程守护程序" >$REAL_LOG
 	fi
 	sleep 1
-	echo "Trojan-GO for OpenWRT" >$REAL_LOG		
+	echo "Trojan-GO for OpenWRT" >$REAL_LOG
 	rm rf $TSHARE/enable.lock >/dev/null 2>&1
-	touch $TSHARE/disable.lock 2>/dev/null		
+	touch $TSHARE/disable.lock 2>/dev/null
 	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 		echo "" $LOG >/dev/null 2>&1
-		echo "Client Stopped" >$LOG 
+		echo "Client Stopped" >$LOG
 	elif [ "${lang}" == "zh_cn" ];then
 		echo "" $LOG >/dev/null 2>&1
 		echo "客户端停止" >$LOG
-	fi		 	
+	fi
 }
 
 
 restart(){
 	if pidof trojan-go >/dev/null; then
 		stop  >/dev/null 2>&1
-		start >/dev/null 2>&1		
+		start >/dev/null 2>&1
 	else
 		start >/dev/null 2>&1
-	fi		
+	fi
 }
 
 boot(){
@@ -256,6 +256,6 @@ reload(){
 	if pidof trojan-go >/dev/null; then
 		remove_mark 2>/dev/null
 		dns_change 2>/dev/null 2>&1
-		rules >/dev/null 2>&1 
-	fi	  
+		rules >/dev/null 2>&1
+	fi
 }

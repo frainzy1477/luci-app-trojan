@@ -52,7 +52,7 @@ local trojan = {
         enabled = true,
         method = node.cipher or "aead_aes_128_gcm",
         password = node.shadowdocks_passw
-    } or nil,	
+    } or nil,
     websocket = (node.websocket == "true") and {
         enabled = true,
         path = node.path or "/",
@@ -62,6 +62,6 @@ local trojan = {
         api_addr = "127.0.0.1",
         api_port = 57721,
         enabled = true
-    }	
+    }
 }
 print(json.stringify(trojan, 1))

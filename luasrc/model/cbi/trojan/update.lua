@@ -47,7 +47,7 @@ http.setfilehandler(
 			if luci.sys.call("pidof trojan-go >/dev/null") == 0 then
 				luci.sys.exec("/etc/init.d/trojan stop >/dev/null 2>&1 &")
 			end			
-			if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end			
+			if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end
 			if not fd then
 				um.value = translate("upload file error.")
 				return
@@ -61,7 +61,7 @@ http.setfilehandler(
 			fd = nil
 			    	SYS.exec("chmod 755 /usr/bin/trojan-go 2>&1 &")
 				SYS.exec("rm -rf /usr/share/trojan/trojango_version 2>/dev/null && /usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P >> /usr/share/trojan/trojango_version 2>/dev/null")
-				um.value = translate("File saved to") .. ' "/usr/bin/'..meta.file..'"' 
+				um.value = translate("File saved to") .. ' "/usr/bin/'..meta.file..'"'
 				luci.sys.exec("/etc/init.d/trojan start >/dev/null 2>&1 &")
 		end
 	end

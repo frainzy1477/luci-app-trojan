@@ -28,8 +28,8 @@ local dsp = require "luci.dispatcher"
 					} else {
 					ports[result.index].innerHTML = '<b><font color="#ee1010"><%:Connect Error%></font></b>'
 					}
-					
-					
+
+
 			}
 		);
 		XHR.poll(20,'<%=dsp.build_url("admin", "services", "trojan", "ping")%>',{
@@ -52,7 +52,7 @@ local dsp = require "luci.dispatcher"
 					} else {
 					ports[result.index].innerHTML = '<b><font color="#ee1010"><%:Connect Error%></font></b>'
 					}
-					
+
 			}
 		);
 	}

@@ -17,21 +17,21 @@ s.anonymous = true
 s.addremove=false
 
 
-if nixio.fs.access("/etc/trojan/china_v4.txt") then 
+if nixio.fs.access("/etc/trojan/china_v4.txt") then
  ipv4_count = luci.sys.exec("cat /etc/trojan/china_v4.txt | wc -l")
 end
 
-if nixio.fs.access("/etc/trojan/china_v6.txt") then 
+if nixio.fs.access("/etc/trojan/china_v6.txt") then
  ipv6_count = luci.sys.exec("cat /etc/trojan/china_v6.txt | wc -l")
 end
 
 
-y=s:option(DummyValue,"ipv4_data",translate("China IPv4 Data")) 
+y=s:option(DummyValue,"ipv4_data",translate("China IPv4 Data"))
 y.rawhtml  = true
 y.template = "trojan/update"
 y.value =ipv4_count .. " " .. translate("Records")
 
-y=s:option(DummyValue,"ipv6_data",translate("China IPv6 Data")) 
+y=s:option(DummyValue,"ipv6_data",translate("China IPv6 Data"))
 y.rawhtml  = true
 y.template = "trojan/update"
 y.value =ipv6_count .. " " .. translate("Records")

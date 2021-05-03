@@ -13,7 +13,7 @@ function index()
 	local page = entry({"admin", "services", "trojan"},alias("admin", "services", "trojan", "overview"), _("Trojan-GO"), 2)
 	page.dependent = true
 	page.acl_depends = {"luci-app-trojan"}
-	
+
     entry({"admin", "services", "trojan", "overview"},cbi("trojan/status"),_("Overview"), 10).leaf = true
 	entry({"admin", "services", "trojan", "client"},cbi("trojan/client"),_("Client"), 20).leaf = true
 	--entry({"admin", "services", "trojan", "rules"},cbi("trojan-go/rules"), nil).leaf = true
@@ -23,7 +23,7 @@ function index()
 	entry({"admin", "services", "trojan", "settings"},cbi("trojan/settings"),_("Settings"), 50).leaf = true
 	entry({"admin", "services", "trojan", "update"},cbi("trojan/update"),_("Update"), 60).leaf = true
 	entry({"admin", "services", "trojan", "logs"},cbi("trojan/logs"),_("Logs"), 70).leaf = true
-	
+
 	entry({"admin", "services", "trojan", "ping"}, call("act_ping")).leaf=true
 	entry({"admin", "services", "trojan", "status"},call("action_status")).leaf=true
 	entry({"admin", "services", "trojan", "run"},call("action_run")).leaf=true
@@ -35,7 +35,7 @@ function index()
 	entry({'admin', 'services', "trojan", 'web'}, call('web_check')).leaf=true
 	entry({'admin', 'services', "trojan", 'traffic'}, call('action_traffic')).leaf=true
 	entry({"admin", "services", "trojan", "refresh"}, call("refresh_data")).leaf=true
-	
+
 end
 
 
@@ -43,18 +43,18 @@ local function trojan_running()
 	if nixio.fs.access("/usr/share/trojan/enable.lock") then
 		return "1"
 	else
-		return "0"	
-	end	
+		return "0"
+	end
 end
 
 
 local function dnscrypt_proxy()
- return luci.sys.call("pidof dnscrypt-proxy >/dev/null") == 0                   
-end	
+ return luci.sys.call("pidof dnscrypt-proxy >/dev/null") == 0
+end
 
 
 local function pdnsd_running()
- return luci.sys.call("pidof pdnsd >/dev/null") == 0                   
+ return luci.sys.call("pidof pdnsd >/dev/null") == 0
 end	
 
 
@@ -65,7 +65,7 @@ end
 
 local function trojan_core()
 	if nixio.fs.access("/usr/bin/trojan-go") then
-		local core=luci.sys.exec("/usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P")		
+		local core=luci.sys.exec("/usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P")
 		if core ~= "" then
 			return luci.sys.exec("/usr/bin/trojan-go -version | awk '{print $2}' | sed -n 1P")
 		else
@@ -136,7 +136,7 @@ end
 function action_traffic()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
-		traffic = trojan_traffic(),		
+		traffic = trojan_traffic(),
 	})
 end
 
@@ -145,7 +145,7 @@ function action_run()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
 		pdnsd = pdnsd_running(),
-		dnscrypt = dnscrypt_proxy(),	
+		dnscrypt = dnscrypt_proxy(),
 		client = trojan_running()
 	})
 end
@@ -161,7 +161,7 @@ function act_ping()
 	socket:setopt("socket", "rcvtimeo", 3)
 	socket:setopt("socket", "sndtimeo", 3)
 	e.socket = socket:connect(domain, port)
-	socket:close()	
+	socket:close()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end
@@ -278,7 +278,7 @@ function refresh_data()
 			retstring ="-1"
 		end
 		luci.sys.exec("rm -f /tmp/china_v6.txt ")	
-	end	
+	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({ ret=retstring ,retcount=icount})
 end
