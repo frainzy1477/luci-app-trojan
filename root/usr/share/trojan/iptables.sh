@@ -2,7 +2,7 @@
 NAME=trojan
 if [ "$1" = "start" ];then	
 	server=`awk '/remote_addr/ {print $0}' /etc/trojan/config.json | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
-	udp_allow=$(uci get $NAME.@settings[0].udp 2>/dev/null)	
+	udp_allow=$(uci get $NAME.@settings[0].udp 2>/dev/null)
 	if echo $server | grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$">/dev/null; then
 		Server=$server
 	else

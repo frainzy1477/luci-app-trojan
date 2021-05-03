@@ -226,9 +226,9 @@ stop(){
 		echo "Trojan-GO停止进程守护程序" >$REAL_LOG
 	fi
 	sleep 1
-	echo "Trojan-GO for OpenWRT" >$REAL_LOG	
+	echo "Trojan-GO for OpenWRT" >$REAL_LOG
 	rm rf $TSHARE/enable.lock >/dev/null 2>&1
-	touch $TSHARE/disable.lock 2>/dev/null	
+	touch $TSHARE/disable.lock 2>/dev/null
 	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 		echo "" $LOG >/dev/null 2>&1
 		echo "Client Stopped" >$LOG
