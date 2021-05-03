@@ -21,7 +21,6 @@ define Package/luci-app-trojan/description
 endef
 
 define Build/Prepare
-	po2lmo ${CURDIR}/po/zh-cn/trojan.po ${CURDIR}/po/zh-cn/trojan.zh-cn.lmo
 	chmod +x root/etc/init.d/trojan root/usr/share/trojan/* >/dev/null 2>&1
 endef
 
@@ -95,17 +94,17 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) 	./root/etc/init.d/trojan $(1)/etc/init.d/trojan
 	$(INSTALL_CONF) ./root/etc/config/trojan $(1)/etc/config/trojan
 	$(INSTALL_CONF) ./root/etc/trojan/* $(1)/etc/trojan
-	
+
 	$(INSTALL_DIR) $(1)/usr/bin	
 	$(INSTALL_DIR) $(1)/usr/share/trojan
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/bin/* $(1)/usr/bin
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/trojan/* $(1)/usr/share/trojan
-	
+
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
-	$(INSTALL_DATA) ./po/zh-cn/trojan.zh-cn.lmo $(1)/usr/lib/lua/luci/i18n
-	
+	po2lmo ./po/zh-cn/trojan.po $(1)/usr/lib/lua/luci/i18n/trojan.zh-cn.lmo
+
 	$(INSTALL_DIR) $(1)/www
 	$(INSTALL_DIR) $(1)/www/luci-static
 	$(INSTALL_DIR) $(1)/www/luci-static/trojan
