@@ -1,7 +1,7 @@
-on:
-  push:
-    branches: 
-      - master
+on: 
+  release:
+    types:
+      - created
 
 name: luci-app-trojan
 jobs:
@@ -13,9 +13,14 @@ jobs:
       PKGN: ${{ 'luci-app-trojan' }}
 
     steps:
-    - name: Checkout - ${{ github.ref }}
-      uses: actions/checkout@v1
-
+    - name: Checkout tag
+      run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          tag_name="${GITHUB_REF##*/}"
+          echo Tag $tag_name
+          git checkout $tag_name
+          echo "TAG_NAME=${tag_name}" >> $GITHUB_ENV
+          
     - name: Prepare SDK ENV
       run: |
         wget -q "${URL}"
@@ -60,9 +65,14 @@ jobs:
         make package/${PKGN}/compile -j$(nproc) V=s
         mkdir ../bin
         find bin/ -type f -name "*${PKGN}*" | xargs -t -i mv -vf {} ../bin
-
-    - name: Upload - push to artifact file
-      uses: actions/upload-artifact@v1
+        
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        name: ${{ format('{0}.{1}.{2}', github.workflow, github.actor, github.event_name) }}
-        path: ../bin
+          draft: true
+          name: ${{ env.TAG_NAME }}
+          tag_name: ${{ env.TAG_NAME }}
+          files: ../bin/*.ipk
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
