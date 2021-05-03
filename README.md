@@ -20,7 +20,7 @@
 - cd /tmp
 - opkg update
 - opkg install luci-app-trojan_v2.0.7_all.ipk  
-- opkg install luci-app-trojan_v2.0.7_all.ipk
+- opkg install luci-app-trojan_v2.0.7_all.ipk --force-depends
 
  ## Uninstall
 - opkg remove luci-app-trojan 
