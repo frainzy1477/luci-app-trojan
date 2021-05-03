@@ -13,12 +13,13 @@ jobs:
       PKGN: ${{ 'luci-app-trojan' }}
 
     steps:
-    - name: Checkout tag
+    - name: Checkout - ${{ github.ref }}
+      uses: actions/checkout@v1
+     
+    - name: Checkout - code
       run: |
-          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
           tag_name="${GITHUB_REF##*/}"
           echo Tag $tag_name
-          git checkout $tag_name
           echo "TAG_NAME=${tag_name}" >> $GITHUB_ENV
           
     - name: Prepare SDK ENV
