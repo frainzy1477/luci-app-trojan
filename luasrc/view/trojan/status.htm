@@ -274,7 +274,7 @@
 					<h4 >Youtube<br><br><span id="status_youtube" class="red"><em><%:Checking...%></em></span></h4>
 				</div>
 			</div>
-		</div>	
+		</div>
 
 		<div class="sizz">
 			<div class="block pure-g">
@@ -518,7 +518,7 @@
 			}else{
 				dns.innerHTML = '<b class="red"><%:NOT RUNNING%></b>';
 			}
-		
+
 			if(status.client == "1" ){
 				config.innerHTML = '<b><a style="background-color:black;padding: 5px;font-color:green;color:green;font-weight:bold" onclick="return view(this)"><%:VIEW CONFIG%></a></b>';
 				trojan.innerHTML = '<b class="green"><%:RUNNING%></b>';
@@ -573,7 +573,7 @@
 					var upl = 0;
 				}else{
 					var upl = upl_spd;
-				}			
+				}
 				var dnl_spd = value.split(",")[1];
 				if (dnl_spd == "" || dnl_spd == "undefined" || dnl_spd == "NaN"){
 					var dnl = 0;
@@ -619,7 +619,7 @@
 			if(data.baidu){
 				data.baidu ? $(".baidu").attr("src", _IMG + "img/site_icon_01.png") : $(".baidu").attr("src", _IMG + "img/site_icon1_01.png");
 				data.baidu ? document.getElementById('status_baidu').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_baidu').innerHTML = '<b class="red"><%:NO ACCESS%></b>';
-			}		
+			}
 			if(data.taobao){
 				data.taobao ? $(".taobao").attr("src", _IMG + "img/site_icon_02.png") : $(".taobao").attr("src", _IMG + "img/site_icon1_02.png");
 				data.taobao ? document.getElementById('status_taobao').innerHTML = '<b class="green"><%:NORMAL%></b>' : document.getElementById('status_taobao').innerHTML = '<b class="red"><%:NO ACCESS%></b>';

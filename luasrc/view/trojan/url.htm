@@ -87,7 +87,7 @@
 		var tros = tro.replace("/?", "?&");
 		var query_chk = new URLSearchParams(tros);
 		var sni = query_chk.get("sni");
-		var sni = sni;	
+		var sni = sni;
 		if(query_chk.get("type")=="ws"){
 			var type = query_chk.get("type");
 			var websocket_host = query_chk.get("host");
@@ -99,7 +99,7 @@
 		}
 		if(query_chk.get("encryption")){
 			var sha = trosplit[1].split('=')[5].split('#')[0];
-			var sha_p = decodeURIComponent(sha);		
+			var sha_p = decodeURIComponent(sha);
 			var cipher = sha_p.split(";")[1].split(":")[0];
 			var shadowdocks_passw = sha_p.split(":")[1];
 		}
@@ -174,7 +174,7 @@
 		var textarea = document.createElement("textarea");
 		textarea.textContent = "trojan-go://" + trojan_str;
 		textarea.style.position = "fixed";
-		document.body.appendChild(textarea);	
+		document.body.appendChild(textarea);
 		textarea.select();
 		try {
 			document.execCommand("copy");  
