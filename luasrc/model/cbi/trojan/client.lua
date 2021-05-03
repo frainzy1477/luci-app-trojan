@@ -43,12 +43,12 @@ uci:foreach(trojan, "servers", function(s)
 	end
 end)
 
-local key_table = {}   
-for key,_ in pairs(server_table) do  
-    table.insert(key_table,key)  
-end 
+local key_table = {}
+for key,_ in pairs(server_table) do
+    table.insert(key_table,key)
+end
 
-table.sort(key_table) 
+table.sort(key_table)
 
 
 -- [[ Global Setting ]]--
@@ -68,7 +68,7 @@ o:value("2", translate("Upload Config"))
 
 o = s:option(ListValue, "global_config", translate("Server"))
 local p,h={}
-for t,f in ipairs(fs.glob("/usr/share/trojan/config/*.json"))do
+for t,f in ipairs(fs.glob("/usr/share/trojan/config/*.json")) do
 	h=fs.stat(f)
 	if h then
     p[t]={}
