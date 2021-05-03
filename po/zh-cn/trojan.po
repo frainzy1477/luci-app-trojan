@@ -522,7 +522,7 @@ msgid "Only On Port 53"
 msgstr "仅在端口53上"
 
 msgid "All Ports"
-msgstr "所有港口"
+msgstr "所有端口（默认）"
 
 msgid "UDP Destination Port(s)"
 msgstr "UDP目标端口"
