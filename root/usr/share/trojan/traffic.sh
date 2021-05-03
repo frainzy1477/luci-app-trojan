@@ -24,9 +24,8 @@ else
 fi
 
 if [ "$?" -eq "0" ]; then
-	if [ ! -z $password ];then 
-		speed=`${Core} -api-addr 127.0.0.1:57721 -api traffic -target-password "${password}"  | sed 's/{//g' | sed 's/\}//g'  | sed 's/\"//g' | grep "speed_current:" | awk -F 'speed_current:' '{print $2}'  | grep ":" | awk -F ':' '{print $2 " " $3}' | sed 's/download_speed //g'
-		`
+	if [ ! -z $password ];then
+		speed=`${Core} -api-addr 127.0.0.1:57721 -api traffic -target-password "${password}"  | sed 's/{//g' | sed 's/\}//g'  | sed 's/\"//g' | grep "speed_current:" | awk -F 'speed_current:' '{print $2}'  | grep ":" | awk -F ':' '{print $2 " " $3}' | sed 's/download_speed //g'`
 		if [ $speed ];then
 		  echo "0,${speed}"
 		else

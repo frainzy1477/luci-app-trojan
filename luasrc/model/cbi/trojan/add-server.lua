@@ -19,7 +19,7 @@ local securitys = {
 m = Map(trojan, translate("Add/Edit Server"))
 m.redirect = luci.dispatcher.build_url("admin/services/trojan/servers")
 if m.uci:get(trojan, sid) ~= "servers" then
-	luci.http.redirect(m.redirect) 
+	luci.http.redirect(m.redirect)
 	return
 end
 
@@ -27,7 +27,7 @@ s = m:section(NamedSection, sid, "servers")
 s.anonymous = true
 s.addremove   = false
 
-o = s:option(DummyValue,"trojan_url","trojan-go URL") 
+o = s:option(DummyValue,"trojan_url","trojan-go URL")
 o.rawhtml  = true
 o.template = "trojan/url"
 o.value =sid

@@ -21,7 +21,7 @@ b = Map(trojan)
 
 s = b:section(TypedSection, "server_subscribe", translate("Subscription Update"))
 s.anonymous = true
- 
+
 o = s:option(Flag, "auto_update", translate("Auto Update"))
 o.description = translate("Auto Update Server Subscription")
 
@@ -88,7 +88,7 @@ m:append(Template("trojan/serverlist"))
 
 
 local p,x={}
-for q,v in ipairs(fs.glob("/usr/share/trojan/config/*.json"))do
+for q,v in ipairs(fs.glob("/usr/share/trojan/config/*.json")) do
 x=fs.stat(v)
 if x then
 p[q]={}

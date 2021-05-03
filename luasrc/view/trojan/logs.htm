@@ -8,11 +8,11 @@
 	lv.style.display="inline"
 	XHR.poll(1, '<%=url([[admin]], [[services]], [[trojan]], [[logstatus]])%>', null,
 		function(x, data) {
-			
+
 			var lv = document.getElementById('log');
 			if (x.responseText && lv) {
 				lv.innerHTML += x.responseText;
-				lv.scrollTop = lv.scrollHeight; 
+				lv.scrollTop = lv.scrollHeight;
 			}
 		}
 	);
