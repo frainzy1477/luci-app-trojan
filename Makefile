@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v2.0.7
+PKG_VERSION:=v2.0.8
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -11,7 +11,7 @@ define Package/luci-app-trojan
 	CATEGORY:=LuCI
 	SUBMENU:=2. Trojan
 	TITLE:=LuCI app for Trojan
-	DEPENDS:=+luci-base +wget-ssl +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl +dnscrypt-proxy +coreutils +coreutils-base64 +luci-compat +libc
+	DEPENDS:=+luci-base +wget-ssl +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl +dnscrypt-proxy +coreutils +coreutils-base64 +luci-compat
 	PKGARCH:=all
 	MAINTAINER:=frainzy1477
 endef
@@ -98,6 +98,7 @@ define Package/$(PKG_NAME)/install
 	
 	$(INSTALL_DIR) $(1)/usr/bin	
 	$(INSTALL_DIR) $(1)/usr/share/trojan
+	$(INSTALL_DIR) $(1)/usr/share/trojan/config
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/bin/* $(1)/usr/bin
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
