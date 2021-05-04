@@ -31,9 +31,9 @@ uci_get_by_type() {
 
 run_type=$(uci_get_by_type global run_type 2>/dev/null)
 if [ "${run_type}" == "nat" ];then
-		local_port == "51837"	
+		local_port="51837"	
 else
-		local_port == "51836"
+		local_port="51836"
 fi
 	
 add_cron(){
@@ -116,7 +116,7 @@ start(){
 	lang=$(uci get luci.main.lang 2>/dev/null)
 	enable=$(uci_get_by_type global enable 2>/dev/null)
 	rm -rf $CONFIG_FILE
-	if [ "${enable}" -eq 1 ] && [ -f $Core ] && [ -f  $TSHARE/disable.lock ] && [ -f  $BIN_DIR/trojan-go ]; then
+	if [ "${enable}" -eq 1 ] && [ -f  $TSHARE/disable.lock ] && [ -f  $BIN_DIR/trojan-go ]; then
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 			echo "Starting Client" >$REAL_LOG
 		elif [ "${lang}" == "zh_cn" ];then
@@ -163,7 +163,7 @@ start(){
 					$BIN_DIR/ipt2socks -b 0.0.0.0 -s 127.0.0.1 -p 51836 -l 51837 -R  >/dev/null 2>&1 &
 			else
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "ipt2socks not found" >$REAL_LOG
+					echo "ipt2socks not found" >$REAL_LOG
 				elif [ "${lang}" == "zh_cn" ];then
 					echo "找不到ipt2socks" >$REAL_LOG
 				fi
