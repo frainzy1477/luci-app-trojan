@@ -10,9 +10,12 @@ local uuid = luci.sys.exec("cat /proc/sys/kernel/random/uuid")
 local server_table = {}
 
 local securitys = {
-    "aes-128-gcm",
-    "aes-256-gcm",
-    "chacha20-poly1305"
+	"aes-128-gcm",
+	"aes-256-gcm",
+	"chacha20-poly1305",
+	"aead_aes_128_gcm",
+	"aead_aes_256_gcm",
+	"aead_chacha20_poly1305"
 }
 
 
