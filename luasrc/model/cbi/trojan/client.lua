@@ -85,7 +85,7 @@ o = s:option(ListValue, "global_server", translate("Server"))
 for _,key in pairs(key_table) do o:value(key,server_table[key]) end
 o.default = "nil"
 o.rmempty = true
-o:depends("ctype", "1")
+--o:depends("ctype", "1")
 
 o = s:option(ListValue, "proxy_mode", translate("Mode"))
 o:value("global", translate("Global Mode"))

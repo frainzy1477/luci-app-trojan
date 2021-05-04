@@ -161,7 +161,7 @@ start(){
 			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &						
 			if [ "${run_type}" == "client" ] && [ -f $BIN_DIR/ipt2socks ];then
 					$BIN_DIR/ipt2socks -b 0.0.0.0 -s 127.0.0.1 -p 51836 -l 51837 -R  >/dev/null 2>&1 &
-			else
+			elif [ "${run_type}" == "client" ] && [ ! -f $BIN_DIR/ipt2socks ];then
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 					echo "ipt2socks not found" >$REAL_LOG
 				elif [ "${lang}" == "zh_cn" ];then
