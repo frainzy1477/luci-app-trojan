@@ -13,15 +13,13 @@ uci_get_by_type() {
 	echo ${ret:=$3}
 }
 
-global_config=$(uci_get_by_type global ctype 2>/dev/null)
-
-
-if [ "${global_config}" -eq 1 ];then
-	ACTIVE_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
-	password=$(uci_get_by_name $ACTIVE_SERVER password 2>/dev/null)
-else
-	password=`awk '/password/ {print $0}' /etc/trojan/config.json | sed 's/\[//g' | sed 's/\]//g'  | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
-fi
+#global_config=$(uci_get_by_type global ctype 2>/dev/null)
+#if [ "${global_config}" -eq 1 ];then
+ACTIVE_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
+password=$(uci_get_by_name $ACTIVE_SERVER password 2>/dev/null)
+#else
+#	password=`awk '/password/ {print $0}' /etc/trojan/config.json | sed 's/\[//g' | sed 's/\]//g'  | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
+#fi
 
 if [ "$?" -eq "0" ]; then
 	if [ ! -z $password ];then

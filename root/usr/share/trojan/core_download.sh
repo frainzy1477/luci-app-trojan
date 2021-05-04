@@ -23,7 +23,7 @@ elif [ $lang == "en" ] || [ $lang == "auto" ];then
     echo "${LOGTIME} - Checking latest version.." >$LOG_FILE
 fi
 
-version=`wget -qO- https://github.com/$source/tags | grep "/$source/releases/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//'`
+version=`wget --no-check-certificate -qO- https://github.com/$source/tags | grep "/$source/releases/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//'`
 
 if [ $version ]; then
 	echo $version > $TSHARE/download_core_version 2>&1 & >/dev/null
@@ -67,7 +67,7 @@ update(){
 			echo "${LOGTIME} - Successfully downloaded core, updating now..." >$LOG_FILE
 		fi
 		mv /tmp/trojan-go/trojan-go-$MODELTYPE/trojan-go /usr/bin/trojan-go >/dev/null 2>&1
-		chmod -R 755 /usr/bin
+		chmod +x /usr/bin/trojan-go
 		rm -rf /tmp/trojan-go >/dev/null 2>&1
 		rm -rf $TSHARE/core_version >/dev/null 2>&1
 		mv $TSHARE/download_core_version $TSHARE/core_version >/dev/null 2>&1
@@ -96,7 +96,6 @@ update(){
 		   	/etc/init.d/$NAME restart >/dev/null
 		fi
 }
-
 update
 
 

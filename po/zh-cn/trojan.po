@@ -2,6 +2,9 @@
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 
+msgid "Run Type"
+msgstr "运行类型"
+
 msgid "None"
 msgstr "无"
 

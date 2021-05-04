@@ -13,7 +13,7 @@ subscribe_url=($(uci get $name.@server_subscribe[0].subscribe_url))
 for ((o=0;o<${#subscribe_url[@]};o++))
 do
 
-subscribe_data=$(wget-ssl --user-agent="Trojan Client OpenWRT" --no-check-certificate -T 3 -O- ${subscribe_url[o]})
+subscribe_data=$(wget --user-agent="Trojan Client OpenWRT" --no-check-certificate -T 3 -O- ${subscribe_url[o]})
 
 echo $subscribe_data  | base64 -d | sed 's/\r//g' | sed 's/\:\/\//password=/g'| sed 's/\/?/\&/g'  | sed 's/\@/\&server=/g'| sed 's/#/\&remarks=/g'|sed 's/trojan-go//g'|sed '/^$/d' >>$server_file
 
