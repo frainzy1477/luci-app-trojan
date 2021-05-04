@@ -98,6 +98,7 @@ define Package/$(PKG_NAME)/install
 	
 	$(INSTALL_DIR) $(1)/usr/bin	
 	$(INSTALL_DIR) $(1)/usr/share/trojan
+	$(INSTALL_DIR) $(1)/usr/share/trojan/config
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/bin/* $(1)/usr/bin
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
