@@ -1,13 +1,10 @@
 local uci 		= require("luci.model.uci").cursor()
 local fs    	= require("nixio.fs")
-local uci       = require("luci.model.uci").cursor()
 local trojan 	= "trojan"
 local res_input = "/usr/share/trojan/dnscrypt-resolvers.csv"
 local res_dir   = fs.dirname(res_input)
 local res_list  = {}
 local url       = "https://raw.githubusercontent.com/dyne/dnscrypt-proxy/master/dnscrypt-resolvers.csv"
-
-
 local ipv4_count=0
 local ipv6_count=0
 
@@ -119,7 +116,6 @@ if fs.access(res_input) then
 		end
 	end
 end
-
 
 
 if fs.access("/lib/libustream-ssl.so") then
