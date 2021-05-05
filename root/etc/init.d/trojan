@@ -9,9 +9,7 @@ CONFIG_FILE=/etc/$NAME/config.json
 BIN_DIR=/usr/bin
 LOG="/usr/share/$NAME/$NAME.txt"
 REAL_LOG="/usr/share/$NAME/readlog.txt"
-redir_tcp=0
 pdnsd_enable_flag=0
-switch_enable=0
 switch_server=$1
 MAXFD=32768
 CRON_FILE=/etc/crontabs/root
@@ -29,9 +27,7 @@ uci_get_by_type() {
 	echo ${ret:=$3}
 }
 
-	
 add_cron(){
-
 	[ -z "$(grep -w "$TSHARE/watchdog.sh" $CRON_FILE)" ] && echo "*/1 * * * * $TSHARE/watchdog.sh" >> $CRON_FILE
 	auto=$(uci get $NAME.@server_subscribe[0].auto_update 2>/dev/null)
 	if [ "${auto}" -eq 1 ]; then
@@ -85,15 +81,12 @@ remove_forward_dnsmasq() {
 }
 
 gen_config_file() {
-	local_port="51837"
-	run_type="nat"
 	log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
-	lua $TSHARE/gen_trojan_go $1 $log_level $run_type $local_port >$CONFIG_FILE
+	lua $TSHARE/gen_trojan_go $1 $log_level  >$CONFIG_FILE
 	sed -i 's/\\//g' $CONFIG_FILE	
 }
 
-redir(){
-	gen_config_file $GLOBAL_SERVER 0	
+redir(){	
 	if [ "$dns_mode" == "dnscrypt" ];then
 		sh $TSHARE/dnscrypt.sh >/dev/null 2>&1 &
 	elif [ "$dns_mode" == "pdnsd" ];then
@@ -116,8 +109,7 @@ start(){
 			echo "Starting Client" >$REAL_LOG
 		elif [ "${lang}" == "zh_cn" ];then
 			echo "启动客户端" >$REAL_LOG
-		fi
-		sleep 1
+		fi		
 		local GLOBAL_SERVER
 		local dns_mode pdnsd  dnscrypt
 		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
@@ -127,17 +119,17 @@ start(){
 			GLOBAL_SERVER=$switch_server
 		fi
 		rm -f /var/etc/$NAME*
-		sleep 1
-		redir >/dev/null 2>&1
-		if [ "$dns_mode" != "off" ];then
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-				echo "Enabling Dns" >$REAL_LOG
-			elif [ "${lang}" == "zh_cn" ];then
-				echo "启用DNS" >$REAL_LOG
-			fi
-			set_forward_dnsmasq 2>/dev/null 2>&1
-		fi
+		gen_config_file $GLOBAL_SERVER 0	
 		if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
+			if [ "$dns_mode" != "off" ];then
+				redir >/dev/null 2>&1
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+					echo "Enabling Dns" >$REAL_LOG
+				elif [ "${lang}" == "zh_cn" ];then
+					echo "启用DNS" >$REAL_LOG
+				fi
+				set_forward_dnsmasq 2>/dev/null 2>&1
+			fi		
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Setting up  iptables rules" >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
@@ -149,7 +141,6 @@ start(){
 				echo "Setting Cron Job" >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "设置Cron" >$REAL_LOG
-
 			fi
 			add_cron >/dev/null 2>&1
 			sleep 1
