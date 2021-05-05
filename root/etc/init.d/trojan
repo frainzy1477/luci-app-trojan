@@ -6,7 +6,7 @@ STOP=15
 SERVICE_DAEMONIZE=1
 NAME=trojan
 CONFIG_FILE=/etc/$NAME/config.json
-Core=/usr/bin/trojan-go
+BIN_DIR=/usr/bin
 LOG="/usr/share/$NAME/$NAME.txt"
 REAL_LOG="/usr/share/$NAME/readlog.txt"
 redir_tcp=0
@@ -29,6 +29,7 @@ uci_get_by_type() {
 	echo ${ret:=$3}
 }
 
+	
 add_cron(){
 
 	[ -z "$(grep -w "$TSHARE/watchdog.sh" $CRON_FILE)" ] && echo "*/1 * * * * $TSHARE/watchdog.sh" >> $CRON_FILE
@@ -84,22 +85,11 @@ remove_forward_dnsmasq() {
 }
 
 gen_config_file() {
-	global_config=$(uci_get_by_type global ctype 2>/dev/null)
-	if [ "${global_config}" -eq 1 ];then
-		log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
-		lua $TSHARE/gen_trojan_go $1 $log_level >$CONFIG_FILE
-		sed -i 's/\\//g' $CONFIG_FILE
-	else
-		cp $TSHARE/config/"$(uci_get_by_type global global_config 2>/dev/null)" $CONFIG_FILE
-		run_type=`awk '/run_type/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
-		local_port=`awk '/local_port/ {print $0}' $CONFIG_FILE | sed 's/\,//' | sed 's/\"//g' | grep : | awk -F ': ' '{print $2}'`
-		if [ $run_type != "nat" ];then
-		  sed -i "s/$run_type/nat/g" $CONFIG_FILE
-		fi
-		if [ $local_port != "51837" ];then
-		  sed -i "s/$local_port/51837/g" $CONFIG_FILE
-		fi
-	fi
+	local_port="51837"
+	run_type="nat"
+	log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
+	lua $TSHARE/gen_trojan_go $1 $log_level $run_type $local_port >$CONFIG_FILE
+	sed -i 's/\\//g' $CONFIG_FILE	
 }
 
 redir(){
@@ -121,7 +111,7 @@ start(){
 	lang=$(uci get luci.main.lang 2>/dev/null)
 	enable=$(uci_get_by_type global enable 2>/dev/null)
 	rm -rf $CONFIG_FILE
-	if [ "${enable}" -eq 1 ] && [ -f $Core ] && [ -f  $TSHARE/disable.lock ]; then
+	if [ "${enable}" -eq 1 ] && [ -f  $TSHARE/disable.lock ] && [ -f  $BIN_DIR/trojan-go ]; then
 		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 			echo "Starting Client" >$REAL_LOG
 		elif [ "${lang}" == "zh_cn" ];then
@@ -168,9 +158,9 @@ start(){
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "重启 Dnsmasq 程序" >$REAL_LOG
 			fi
-			/etc/init.d/dnsmasq restart >/dev/null 2>&1
+			/etc/init.d/dnsmasq restart >/dev/null 2>&1			
 			sleep 1
-			$Core -config $CONFIG_FILE  >/dev/null 2>&1 &
+			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &									
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Trojan-GO Core Started Successfully " >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then

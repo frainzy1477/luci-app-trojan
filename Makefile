@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v2.0.8
+PKG_VERSION:=v2.0.9
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -11,7 +11,7 @@ define Package/luci-app-trojan
 	CATEGORY:=LuCI
 	SUBMENU:=2. Trojan
 	TITLE:=LuCI app for Trojan
-	DEPENDS:=+luci-base +wget-ssl +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl +dnscrypt-proxy +coreutils +coreutils-base64 +luci-compat
+	DEPENDS:=+luci-base +wget +unzip +ip +iptables +bash +ipset +libmbedtls +ca-certificates +iptables-mod-tproxy +pdnsd-alt +curl +dnscrypt-proxy +coreutils +coreutils-base64 +luci-compat
 	PKGARCH:=all
 	MAINTAINER:=frainzy1477
 endef
@@ -72,7 +72,6 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	mv /etc/config/trojan.bak /etc/config/trojan 2>/dev/null
 	/etc/init.d/trojan disable 2>/dev/null
 	chmod +x /etc/init.d/trojan 2>/dev/null
-	chmod +x /usr/bin/cnipset 2>/dev/null
 	/etc/init.d/trojan disable 2>/dev/null
 fi
 
@@ -96,11 +95,10 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_CONF) ./root/etc/config/trojan $(1)/etc/config/trojan
 	$(INSTALL_CONF) ./root/etc/trojan/* $(1)/etc/trojan
 	
-	$(INSTALL_DIR) $(1)/usr/bin	
+
 	$(INSTALL_DIR) $(1)/usr/share/trojan
 	$(INSTALL_DIR) $(1)/usr/share/trojan/config
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
-	$(INSTALL_DATA) ./root/usr/bin/* $(1)/usr/bin
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/trojan/* $(1)/usr/share/trojan
 	
