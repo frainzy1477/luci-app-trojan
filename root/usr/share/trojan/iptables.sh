@@ -45,7 +45,6 @@ if [ "$1" = "start" ];then
 	EOF
 
 	proxy_mode=$(uci get $NAME.@global[0].proxy_mode 2>/dev/null)
-	run_type=$(uci get $NAME.@global[0].run_type 2>/dev/null)
 	wan=$(ifconfig | grep 'inet addr' | awk '{print $2}' | cut -d: -f2 2>/dev/null)
 	ipset create localnetwork hash:net
 	ipset add localnetwork 127.0.0.0/8
@@ -61,72 +60,25 @@ if [ "$1" = "start" ];then
 			ipset add localnetwork "$wan_ip4s" 2>/dev/null
 		done
 	fi	
-	if [ "$run_type" == "client" ]; then
-		iptables -t nat -N TROJAN_GO
-		iptables -t nat -F TROJAN_GO
-		iptables -t nat -A TROJAN_GO -m set --match-set localnetwork dst -j RETURN
-		iptables -t nat -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
-		iptables -t nat -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN			
-		iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 -j REDIRECT --to-ports "51837"
-		iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 -j REDIRECT --to-ports "51837"	
-		if [ "$proxy_mode" == "bypasscn" ];then
-			sh /usr/share/trojan/cnipset.sh >/dev/null 2>&1
-			sleep 1
-			iptables -t nat -A TROJAN_GO -p tcp -m set ! --match-set chinav4 dst -j REDIRECT --to-ports "51837"
-		elif [ "$proxy_mode" == "chnroute" ];then
-			sh /usr/share/trojan/cnipset.sh >/dev/null 2>&1
-			sleep 1	
-			iptables -t nat -A TROJAN_GO -p tcp -m set --match-set chinav4 dst -j REDIRECT --to-ports "51837"
-		else
-			iptables -t nat -A TROJAN_GO -p tcp -j REDIRECT --to-ports "51837"
-		fi	
-		iptables -t nat -A PREROUTING -p tcp -j TROJAN_GO
-
-		ip route add local default dev lo table 100
-		ip rule add fwmark 1 lookup 100
-		ipt6="/sbin/ip6tables"
-		iptables -t mangle -N TROJAN_GO
-		iptables -t mangle -F TROJAN_GO
-		iptables -t mangle -A TROJAN_GO -m set --match-set localnetwork dst -j RETURN
-		iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
-		iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
-		if [ "$proxy_mode" == "bypasscn" ];then
-			sh /usr/share/trojan/cnipset.sh >/dev/null 2>&1
-			sleep 1
-			iptables -t mangle -A TROJAN_GO -p udp -m set ! --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		elif [ "$proxy_mode" == "chnroute" ];then
-			sh /usr/share/trojan/cnipset.sh  >/dev/null 2>&1
-			sleep 1	
-			iptables -t mangle -A TROJAN_GO -p udp -m set --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		else
-			iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		fi
-		iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
-	elif [ "$run_type" == "nat" ]; then
-		ip route add local default dev lo table 100
-		ip rule add fwmark 1 lookup 100
-		iptables -t mangle -N TROJAN_GO	
-		iptables -t mangle -N TROJAN_GO
-		iptables -t mangle -A TROJAN_GO -m set --match-set localnetwork dst -j RETURN
-		iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
-		iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
-		if [ "$proxy_mode" == "bypasscn" ];then
-			sh /usr/share/trojan/cnipset.sh >/dev/null 2>&1
-			sleep 1
-			iptables -t mangle -A TROJAN_GO -p tcp -m set ! --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-			iptables -t mangle -A TROJAN_GO -p udp -m set ! --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		elif [ "$proxy_mode" == "chnroute" ];then
-			sh /usr/share/trojan/cnipset.sh >/dev/null 2>&1
-			sleep 1
-			iptables -t mangle -A TROJAN_GO -p tcp -m set --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-			iptables -t mangle -A TROJAN_GO -p udp -m set --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		else
-			iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-			iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		fi
-		iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
-		iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO	
+	iptables -t mangle -N TROJAN_GO
+	iptables -t mangle -F TROJAN_GO
+	iptables -t mangle -A TROJAN_GO -m set --match-set localnetwork dst -j RETURN
+	iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
+	iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
+	if [ "$proxy_mode" == "bypasscn" ];then
+		sh /usr/share/trojan/cnipset.sh >/dev/null 2>&1
+		iptables -t mangle -A TROJAN_GO -p tcp -m set ! --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+		iptables -t mangle -A TROJAN_GO -p udp -m set ! --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+	elif [ "$proxy_mode" == "chnroute" ];then
+		sh /usr/share/trojan/cnipset.sh >/dev/null 2>&1
+		iptables -t mangle -A TROJAN_GO -p tcp -m set --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+		iptables -t mangle -A TROJAN_GO -p udp -m set --match-set chinav4 dst -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+	else
+		iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+		iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
 	fi
+	iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
+	iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
 fi
 
 
@@ -136,8 +88,6 @@ if [ "$1" = "stop" ];then
 	ip rule del fwmark 1 lookup 100
 	iptables -t mangle -F TROJAN_GO 2>/dev/null
 	iptables -t mangle -X TROJAN_GO 2>/dev/null
-	iptables -t nat -F TROJAN_GO >/dev/null 2>&1
-	iptables -t nat -X TROJAN_GO >/dev/null 2>&1
 	ipset -! flush proxy_lan >/dev/null 2>&1
 	ipset -! flush reject_lan >/dev/null 2>&1
 	ipset -! flush gfw >/dev/null 2>&1
@@ -149,7 +99,6 @@ if [ "$1" = "stop" ];then
 	ipset destroy chinav4 >/dev/null 2>&1
 	ipset destroy chinav6 >/dev/null 2>&1
 	ipset destroy localnetwork >/dev/null 2>&1
-
 	nat=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/tcp dpt:53/=' | sort -r)
 	for natx in $nat; do
 			iptables -t nat -D PREROUTING $natx >/dev/null 2>&1
@@ -157,18 +106,6 @@ if [ "$1" = "stop" ];then
 	mag=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
 	for nat_indexv in $mag; do
 		iptables -t mangle -D PREROUTING $nat_indexv >/dev/null 2>&1
-	done
-	magnat=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/TROJAN_GO/=' | sort -r)
-	for nat_index4 in $magnat; do
-		iptables -t nat -D PREROUTING $nat_index4 >/dev/null 2>&1
-	done
-	proxy_lan4=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/proxy_lan src/=' | sort -r)
-	for natx44 in $proxy_lan4; do
-		iptables -t nat -D PREROUTING $natx44 >/dev/null 2>&1
-	done
-	reject_lan4=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/reject_lan src/=' | sort -r)
-	for natx4 in $reject_lan4; do
-		iptables -t nat -D PREROUTING $natx4 >/dev/null 2>&1
 	done
 	proxy_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/proxy_lan src/=' | sort -r)
 	for natx in $proxy_lan; do
@@ -182,21 +119,9 @@ if [ "$1" = "stop" ];then
 	for natv4 in $chinav4_lan; do
 		iptables -t mangle -D PREROUTING $natv4 >/dev/null 2>&1
 	done
-	chinav44_lan=$(ip6tables -nvL nat -t nat | sed 1,2d | sed -n '/chinav4/=' | sort -r)
-	for natv44 in $chinav44_lan; do
-		ip6tables -t nat -D PREROUTING $natv44 >/dev/null 2>&1
-	done
-	pre4=$(iptables -nvL PREROUTING -t nat | sed 1,2d | sed -n '/localnetwork/=' | sort -r)
-	for prer4 in $pre4; do
-		iptables -t nat -D PREROUTING $prer4 2>/dev/null
-	done
 	pre=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/localnetwork/=' | sort -r)
 	for prer in $pre; do
 		iptables -t mangle -D PREROUTING $prer 2>/dev/null
 	done
-	pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/8\.8\./=' 2>/dev/null |sort -rn)
-	for pre_line in $pre_lines; do
-		iptables -t nat -D PREROUTING $pre_line >/dev/null 2>&1
-	done	
 	iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT
 fi

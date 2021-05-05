@@ -29,12 +29,6 @@ uci_get_by_type() {
 	echo ${ret:=$3}
 }
 
-run_type=$(uci_get_by_type global run_type 2>/dev/null)
-if [ "${run_type}" == "nat" ];then
-		local_port="51837"	
-else
-		local_port="51836"
-fi
 	
 add_cron(){
 
@@ -91,7 +85,8 @@ remove_forward_dnsmasq() {
 }
 
 gen_config_file() {
-
+	local_port="51837"
+	run_type="nat"
 	log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
 	lua $TSHARE/gen_trojan_go $1 $log_level $run_type $local_port >$CONFIG_FILE
 	sed -i 's/\\//g' $CONFIG_FILE	
@@ -156,27 +151,16 @@ start(){
 				echo "设置Cron" >$REAL_LOG
 
 			fi
-			add_cron >/dev/null 2>&1			
-			sleep 1
-			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &						
-			if [ "${run_type}" == "client" ] && [ -f $BIN_DIR/ipt2socks ];then
-					$BIN_DIR/ipt2socks -b 0.0.0.0 -s 127.0.0.1 -p 51836 -l 51837 -R  >/dev/null 2>&1 &
-			elif [ "${run_type}" == "client" ] && [ ! -f $BIN_DIR/ipt2socks ];then
-				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
-					echo "ipt2socks not found" >$REAL_LOG
-				elif [ "${lang}" == "zh_cn" ];then
-					echo "找不到ipt2socks" >$REAL_LOG
-				fi
-				sleep 1
-				stop >/dev/null 2>&1 &
-			fi
+			add_cron >/dev/null 2>&1
 			sleep 1
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Restarting Dnsmasq " >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "重启 Dnsmasq 程序" >$REAL_LOG
 			fi
-			/etc/init.d/dnsmasq restart >/dev/null 2>&1
+			/etc/init.d/dnsmasq restart >/dev/null 2>&1			
+			sleep 1
+			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &									
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Trojan-GO Core Started Successfully " >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
@@ -222,7 +206,6 @@ stop(){
 	rm -rf /var/etc/dnscrypt-proxy-ns1.conf >/dev/null 2>&1
 	rm -rf /var/etc/pdnsd.conf >/dev/null 2>&1
 	kill -9 `pidof $NAME-go|sed "s/$//g"` 2>/dev/null
-	kill -9 `pidof ipt2socks|sed "s/$//g"` 2>/dev/null
 	kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 	kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1
   	del_cron >/dev/null 2>&1
