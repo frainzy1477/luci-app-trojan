@@ -54,7 +54,7 @@
 - coreutils 
 - coreutils-base64 
 - luci-compat
-- ipt2socks
+
 
 ## Credits
 * [Trojan-Go](https://github.com/p4gefau1t/trojan-go) by [p4gefau1t](https://github.com/p4gefau1t)
