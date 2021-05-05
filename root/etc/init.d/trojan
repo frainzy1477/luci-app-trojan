@@ -223,6 +223,7 @@ stop(){
 restart(){
 	if pidof trojan-go >/dev/null; then
 		stop  >/dev/null 2>&1
+		sleep 2
 		start >/dev/null 2>&1
 	else
 		start >/dev/null 2>&1

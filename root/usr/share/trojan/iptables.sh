@@ -64,15 +64,15 @@ if [ "$1" = "start" ];then
 	ip route add local default dev lo table 100
 	ip rule add fwmark 1 lookup 100
 	ipt6="/sbin/ip6tables"
-	if [ $ipt6 ];then
-		ip6tables -t mangle -N TROJAN_GO
-		ip6tables -t mangle -F TROJAN_GO
-	fi
 	iptables -t mangle -N TROJAN_GO
 	iptables -t mangle -F TROJAN_GO	
 	iptables -t mangle -A TROJAN_GO -m set --match-set localnetwork dst -j RETURN
 	iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
 	iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
+	if [ $ipt6 ];then
+		ip6tables -t mangle -N TROJAN_GO
+		ip6tables -t mangle -F TROJAN_GO
+	fi	
 	if [ "$proxy_mode" == "bypasscn" ];then
 		sh $TSHARE/cnipset.sh ipv4 >/dev/null 2>&1
 		sleep 1
@@ -94,7 +94,7 @@ if [ "$1" = "start" ];then
 		fi
 	else
 		iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
+		iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01		
 	fi
 	iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
 	iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
@@ -148,9 +148,33 @@ if [ "$1" = "stop" ];then
 	for natv4 in $chinav4_lan; do
 		iptables -t mangle -D PREROUTING $natv4 >/dev/null 2>&1
 	done
+	chinav6_lan=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/chinav6/=' | sort -r)
+	for natv6 in $chinav6_lan; do
+		iptables -t mangle -D PREROUTING $natv6 >/dev/null 2>&1
+	done	
 	pre=$(iptables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/localnetwork/=' | sort -r)
 	for prer in $pre; do
 		iptables -t mangle -D PREROUTING $prer 2>/dev/null
 	done
-	iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT
+	iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT	
+	proxy_lan6=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/proxy_lan src/=' | sort -r)
+	for natx in $proxy_lan6; do
+		ip6tables -t mangle -D PREROUTING $natx >/dev/null 2>&1
+	done
+	reject_lan6=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/reject_lan src/=' | sort -r)
+	for natx in $reject_lan6; do
+		ip6tables -t mangle -D PREROUTING $natx >/dev/null 2>&1
+	done
+	chinav4_lan6=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/chinav4/=' | sort -r)
+	for natv4 in $chinav4_lan6; do
+		ip6tables -t mangle -D PREROUTING $natv4 >/dev/null 2>&1
+	done
+	chinav6_lan6=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/chinav6/=' | sort -r)
+	for natv6 in $chinav6_lan6; do
+		ip6tables -t mangle -D PREROUTING $natv6 >/dev/null 2>&1
+	done	
+	pre6=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/localnetwork/=' | sort -r)
+	for prer in $pre6; do
+		ip6tables -t mangle -D PREROUTING $prer 2>/dev/null
+	done	
 fi
