@@ -109,7 +109,7 @@ start(){
 			echo "Starting Client" >$REAL_LOG
 		elif [ "${lang}" == "zh_cn" ];then
 			echo "启动客户端" >$REAL_LOG
-		fi		
+		fi
 		local GLOBAL_SERVER
 		local dns_mode pdnsd  dnscrypt
 		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
@@ -129,7 +129,7 @@ start(){
 					echo "启用DNS" >$REAL_LOG
 				fi
 				set_forward_dnsmasq 2>/dev/null 2>&1
-			fi		
+			fi
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Setting up  iptables rules" >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
@@ -149,9 +149,9 @@ start(){
 			elif [ "${lang}" == "zh_cn" ];then
 				echo "重启 Dnsmasq 程序" >$REAL_LOG
 			fi
-			/etc/init.d/dnsmasq restart >/dev/null 2>&1			
+			/etc/init.d/dnsmasq restart >/dev/null 2>&1
 			sleep 1
-			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &									
+			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Trojan-GO Core Started Successfully " >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
@@ -190,7 +190,7 @@ stop(){
 		echo "Stopping Client..." >$REAL_LOG
 	elif [ "${lang}" == "zh_cn" ];then
 		echo "正在停止客户端..." >$REAL_LOG
-	fi				
+	fi
 	rm -rf $CONFIG_FILE /var/etc/dnsmasq.$NAME /var/dnsmasq.d/$NAME.conf
 	sh $TSHARE/iptables.sh stop  >/dev/null 2>&1 &
 	remove_forward_dnsmasq >/dev/null 2>&1
