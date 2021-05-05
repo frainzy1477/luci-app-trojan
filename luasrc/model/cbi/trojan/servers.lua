@@ -87,128 +87,128 @@ o.width="10%"
 m:append(Template("trojan/serverlist"))
 
 
-local p,x={}
-for q,v in ipairs(fs.glob("/usr/share/trojan/config/*.json")) do
-x=fs.stat(v)
-if x then
-p[q]={}
-p[q].name=fs.basename(v)
-p[q].mtime=os.date("%Y-%m-%d %H:%M:%S",x.mtime)
-p[q].size=tostring(x.size)
-p[q].remove2=0
-p[q].enable=false
-end
-end
+--local p,x={}
+--for q,v in ipairs(fs.glob("/usr/share/trojan/config/*.json")) do
+--x=fs.stat(v)
+--if x then
+--p[q]={}
+--p[q].name=fs.basename(v)
+--p[q].mtime=os.date("%Y-%m-%d %H:%M:%S",x.mtime)
+--p[q].size=tostring(x.size)
+--p[q].remove2=0
+--p[q].enable=false
+--end
+--end
 
-fr=Form("config_list")
-fr.reset=false
-fr.submit=false
-
-
-
-tb=fr:section(Table,p, translate("Upload Config List"))
-nm=tb:option(DummyValue,"name",translate("File Name"))
-mt=tb:option(DummyValue,"mtime",translate("Upload Time"))
-sz=tb:option(DummyValue,"size",translate("Size"))
-
-function IsYamlFile(p)
-p=p or""
-local p=string.lower(string.sub(p,-5,-1))
-return p==".json"
-end
-
-btndll = tb:option(Button,"download2",translate("Download")) 
-btndll.template="trojan/other_button"
-btndll.render=function(p,q,x)
-p.inputstyle="remove"
-Button.render(p,q,x)
-end
-btndll.write = function (x,q)
-	local sPath, sFile, fd, block
-	sPath = "/usr/share/trojan/config/"..p[q].name
-	sFile = NXFS.basename(sPath)
-	if fs.isdirectory(sPath) then
-		fd = io.popen('json -C "%s" -cz .' % {sPath}, "r")
-		sFile = sFile .. ".json"
-	else
-		fd = nixio.open(sPath, "r")
-	end
-	if not fd then
-		return
-	end
-	HTTP.header('Content-Disposition', 'attachment; filename="%s"' % {sFile})
-	HTTP.prepare_content("application/octet-stream")
-	while true do
-		block = fd:read(nixio.const.buffersize)
-		if (not block) or (#block ==0) then
-			break
-		else
-			HTTP.write(block)
-		end
-	end
-	fd:close()
-	HTTP.close()
-end
-
-
-btnrml=tb:option(Button,"remove2",translate("Remove"))
-btnrml.render=function(p,q,x)
-p.inputstyle="remove"
-Button.render(p,q,x)
-end
-btnrml.write=function(x,q)
-local x=fs.unlink("/usr/share/trojan/config/"..fs.basename(p[q].name))
-if x then table.remove(p,q)end
-return x
-end
+--fr=Form("config_list")
+--fr.reset=false
+--fr.submit=false
 
 
 
-ko = Map(trojan)
-ko.reset = false
-ko.submit = false
-sul =ko:section(TypedSection, "trojan", translate("Upload Config"))
-sul.anonymous = true
-sul.addremove=false
-o = sul:option(FileUpload, "")
-o.description = translate("NB: Only upload file with name .json")
-o.title = translate("  ")
-o.template = "trojan/upload"
-um = sul:option(DummyValue, "", nil)
-um.template = "trojan/dvalue"
+--tb=fr:section(Table,p, translate("Upload Config List"))
+--nm=tb:option(DummyValue,"name",translate("File Name"))
+--mt=tb:option(DummyValue,"mtime",translate("Upload Time"))
+--sz=tb:option(DummyValue,"size",translate("Size"))
 
-local dir, fd
-dir = "/usr/share/trojan/config/"
-http.setfilehandler(
+--function IsYamlFile(p)
+--p=p or""
+--local p=string.lower(string.sub(p,-5,-1))
+--return p==".json"
+--end
 
-	function(meta, chunk, eof)
-		if not fd then
-			if not meta then return end
+--btndll = tb:option(Button,"download2",translate("Download")) 
+--btndll.template="trojan/other_button"
+--btndll.render=function(p,q,x)
+--p.inputstyle="remove"
+--Button.render(p,q,x)
+--end
+--btndll.write = function (x,q)
+--	local sPath, sFile, fd, block
+--	sPath = "/usr/share/trojan/config/"..p[q].name
+--	sFile = NXFS.basename(sPath)
+--	if fs.isdirectory(sPath) then
+--		fd = io.popen('json -C "%s" -cz .' % {sPath}, "r")
+--		sFile = sFile .. ".json"
+--	else
+--		fd = nixio.open(sPath, "r")
+--	end
+--	if not fd then
+--		return
+--	end
+--	HTTP.header('Content-Disposition', 'attachment; filename="%s"' % {sFile})
+--	HTTP.prepare_content("application/octet-stream")
+--	while true do
+--		block = fd:read(nixio.const.buffersize)
+--		if (not block) or (#block ==0) then
+--			break
+--		else
+--			HTTP.write(block)
+--		end
+--	end
+--	fd:close()
+--	HTTP.close()
+--end
 
-			if	meta and chunk then fd = nixio.open(dir .. meta.file, "w") end
 
-			if not fd then
-				um.value = translate("upload file error.")
-				return
-			end
-		end
-		if chunk and fd then
-			fd:write(chunk)
-		end
-		if eof and fd then
-			fd:close()
-			fd = nil
-			um.value = translate("File saved to") .. ' "/usr/share/trojan/config/'..meta.file..'"'
-		end
-	end
-)
+--btnrml=tb:option(Button,"remove2",translate("Remove"))
+--btnrml.render=function(p,q,x)
+--p.inputstyle="remove"
+--Button.render(p,q,x)
+--end
+--btnrml.write=function(x,q)
+--local x=fs.unlink("/usr/share/trojan/config/"..fs.basename(p[q].name))
+--if x then table.remove(p,q)end
+--return x
+--end
 
-if luci.http.formvalue("upload") then
-	local f = luci.http.formvalue("ulfile")
-	if #f <= 0 then
-		um.value = translate("No specify upload file.")
-	end
-end
 
-return b,ko,m , fr
 
+--ko = Map(trojan)
+--ko.reset = false
+--ko.submit = false
+--sul =ko:section(TypedSection, "trojan", translate("Upload Config"))
+--sul.anonymous = true
+--sul.addremove=false
+--o = sul:option(FileUpload, "")
+--o.description = translate("NB: Only upload file with name .json")
+--o.title = translate("  ")
+--o.template = "trojan/upload"
+--um = sul:option(DummyValue, "", nil)
+--um.template = "trojan/dvalue"
+
+--local dir, fd
+--dir = "/usr/share/trojan/config/"
+--http.setfilehandler(
+--
+--	function(meta, chunk, eof)
+--		if not fd then
+--			if not meta then return end
+--
+--			if	meta and chunk then fd = nixio.open(dir .. meta.file, "w") end
+--
+--			if not fd then
+--				um.value = translate("upload file error.")
+--				return
+--			end
+--		end
+--		if chunk and fd then
+--			fd:write(chunk)
+--		end
+--		if eof and fd then
+--			fd:close()
+--			fd = nil
+--			um.value = translate("File saved to") .. ' "/usr/share/trojan/config/'..meta.file..'"'
+--		end
+--	end
+--)
+
+--if luci.http.formvalue("upload") then
+--	local f = luci.http.formvalue("ulfile")
+--	if #f <= 0 then
+--		um.value = translate("No specify upload file.")
+--	end
+--end
+
+--return b,ko, m , fr
+return b, m

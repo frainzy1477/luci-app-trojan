@@ -61,10 +61,10 @@ o.default = "0"
 o:value("0", translate("Disable"))
 o:value("1", translate("Enable"))
 
-o = s:option(ListValue, "ctype", translate("Type"))
-o.default = "1"
-o:value("1", translate("Server List"))
-o:value("2", translate("Upload Config"))
+--o = s:option(ListValue, "ctype", translate("Type"))
+--o.default = "1"
+--o:value("1", translate("Server List"))
+--o:value("2", translate("Upload Config"))
 
 o = s:option(ListValue, "global_config", translate("Server"))
 local p,h={}
@@ -85,13 +85,18 @@ o = s:option(ListValue, "global_server", translate("Server"))
 for _,key in pairs(key_table) do o:value(key,server_table[key]) end
 o.default = "nil"
 o.rmempty = true
-o:depends("ctype", "1")
+--o:depends("ctype", "1")
 
 o = s:option(ListValue, "proxy_mode", translate("Mode"))
 o:value("global", translate("Global Mode"))
 o:value("bypasscn", translate("Bypass CN Mode"))
 o:value("chnroute", translate("Oversea Mode"))
 o.default = "global"
+
+--o = s:option(ListValue, "run_type", translate("Run Type"))
+--o.default = "nat"
+--o:value("nat", translate("TProxy (nat)"))
+--o:value("client", translate("TProxy+ipt2socks (client)"))
 
 --o = s:option(ListValue, "router", translate("RULES"))
 --o.default = "0"
