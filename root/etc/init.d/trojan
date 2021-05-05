@@ -120,7 +120,7 @@ start(){
 		fi
 		rm -f /var/etc/$NAME*
 		gen_config_file $GLOBAL_SERVER 0	
-		if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
+		if [ -f $CONFIG_FILE ] && [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
 			if [ "$dns_mode" != "off" ];then
 				redir >/dev/null 2>&1
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then

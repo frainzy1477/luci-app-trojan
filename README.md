@@ -5,8 +5,8 @@
 	Proxy Client for Openwrt Based On <a href="https://github.com/p4gefau1t/trojan-go" target="_blank">Trojan-GO</a>.
   </p>
   <p align="center">
-  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v2.0.8">
-    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v2.0.8-blue.svg"> 	  
+  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v2.0.9">
+    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v2.0.9-blue.svg"> 	  
   </a>
   <a href="https://github.com/frainzy1477/luci-app-trojan/releases" target="_blank">
         <img src="https://img.shields.io/github/downloads/frainzy1477/luci-app-trojan/total.svg?style=flat-square"/>
@@ -19,8 +19,8 @@
 - Upload ipk file to tmp folder
 - cd /tmp
 - opkg update
-- opkg install luci-app-trojan_v2.0.8_all.ipk  
-- opkg install luci-app-trojan_v2.0.8_all.ipk --force-depends
+- opkg install luci-app-trojan_v2.0.9_all.ipk  
+- opkg install luci-app-trojan_v2.0.9_all.ipk --force-depends
 
  ## Uninstall
 - opkg remove luci-app-trojan 
@@ -47,7 +47,7 @@
 - iptables
 - luci
 - luci-base
-- wget
+- wget-ssl
 - unzip
 - ca-certificates
 - iptables-mod-tproxy
@@ -55,14 +55,12 @@
 - coreutils-base64 
 - luci-compat
 
-
+### trojan-go uri
+```
+trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@abc.xxx.com:443/?sni=abc.xxx.com&type=ws&host=cdn.xxx.com&path=/&encryption=ss%3Baes-128-gcm%3Asspassword#ABC
+```
 ## Credits
 * [Trojan-Go](https://github.com/p4gefau1t/trojan-go) by [p4gefau1t](https://github.com/p4gefau1t)
 
 ## License  
 Luci App For Trojan-Go OpenWrt is released under the GPL v3.0 License - see detailed [LICENSE](https://github.com/frainzy1477/luci-app-trojan/blob/master/LICENSE) .
-
-### trojan-go uri
-```
-trojan-go://79225126-b565-3e5d-a576-1b8f0425e5fd@abc.xxx.com:443/?sni=abc.xxx.com&type=ws&host=cdn.xxx.com&path=/&encryption=ss%3Baes-128-gcm%3Asspassword#ABC
-```
