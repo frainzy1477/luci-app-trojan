@@ -65,14 +65,14 @@ if [ "$1" = "start" ];then
 	ip rule add fwmark 1 lookup 100
 	ipt6="/sbin/ip6tables"
 	iptables -t mangle -N TROJAN_GO
-	iptables -t mangle -F TROJAN_GO	
+	iptables -t mangle -F TROJAN_GO
 	iptables -t mangle -A TROJAN_GO -m set --match-set localnetwork dst -j RETURN
 	iptables -t mangle -A TROJAN_GO -m set --match-set reject_lan src -j RETURN
 	iptables -t mangle -A TROJAN_GO -m set ! --match-set proxy_lan src -j RETURN
 	if [ $ipt6 ];then
 		ip6tables -t mangle -N TROJAN_GO
 		ip6tables -t mangle -F TROJAN_GO
-	fi	
+	fi
 	if [ "$proxy_mode" == "bypasscn" ];then
 		sh $TSHARE/cnipset.sh ipv4 >/dev/null 2>&1
 		sleep 1
@@ -94,7 +94,7 @@ if [ "$1" = "start" ];then
 		fi
 	else
 		iptables -t mangle -A TROJAN_GO -p tcp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
-		iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01		
+		iptables -t mangle -A TROJAN_GO -p udp -j TPROXY --on-port 51837 --tproxy-mark 0x01/0x01
 	fi
 	iptables -t mangle -A PREROUTING -p tcp -j TROJAN_GO
 	iptables -t mangle -A PREROUTING -p udp -j TROJAN_GO
@@ -172,9 +172,9 @@ if [ "$1" = "stop" ];then
 	chinav6_lan6=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/chinav6/=' | sort -r)
 	for natv6 in $chinav6_lan6; do
 		ip6tables -t mangle -D PREROUTING $natv6 >/dev/null 2>&1
-	done	
+	done
 	pre6=$(ip6tables -nvL PREROUTING -t mangle | sed 1,2d | sed -n '/localnetwork/=' | sort -r)
 	for prer in $pre6; do
 		ip6tables -t mangle -D PREROUTING $prer 2>/dev/null
-	done	
+	done
 fi
