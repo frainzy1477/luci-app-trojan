@@ -49,11 +49,11 @@ set_forward_dnsmasq(){
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$port >/dev/null 2>&1
 	uci del_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8 >/dev/null 2>&1
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#$5335 >/dev/null 2>&1
-	if [ "$dns_mode" == "pdnsd" ];then
+	if [ "$dns_mode" == "pdnsd" ]; then
 	    	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5335
 	    	uci delete dhcp.@dnsmasq[0].resolvfile  >/dev/null 2>&1
 	    	uci set dhcp.@dnsmasq[0].noresolv=1
-	elif  [ "$dns_mode" == "dnscrypt" ];then
+	elif  [ "$dns_mode" == "dnscrypt" ]; then
 		uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#$port
 		uci add_list dhcp.@dnsmasq[0].server=/pool.ntp.org/8.8.8.8
 		uci set dhcp.@dnsmasq[0].noresolv=1
@@ -87,9 +87,9 @@ gen_config_file() {
 }
 
 redir(){	
-	if [ "$dns_mode" == "dnscrypt" ];then
+	if [ "$dns_mode" == "dnscrypt" ]; then
 		sh $TSHARE/dnscrypt.sh >/dev/null 2>&1 &
-	elif [ "$dns_mode" == "pdnsd" ];then
+	elif [ "$dns_mode" == "pdnsd" ]; then
 		sh $TSHARE/pdnsd.sh >/dev/null 2>&1 &
 	fi
 }
@@ -105,55 +105,55 @@ start(){
 	enable=$(uci_get_by_type global enable 2>/dev/null)
 	rm -rf $CONFIG_FILE
 	if [ "${enable}" -eq 1 ] && [ -f  $TSHARE/disable.lock ] && [ -f  $BIN_DIR/trojan-go ]; then
-		if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+		if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 			echo "Starting Client" >$REAL_LOG
-		elif [ "${lang}" == "zh_cn" ];then
+		elif [ "${lang}" == "zh_cn" ]; then
 			echo "启动客户端" >$REAL_LOG
 		fi		
 		local GLOBAL_SERVER
 		local dns_mode pdnsd  dnscrypt run_type local_port
 		run_type=$(uci_get_by_type global run_type 2>/dev/null)
-		if [ "${run_type}" == "nat" ];then
+		if [ "${run_type}" == "nat" ]; then
 			local_port="51837"	
 		else
 			local_port="51836"
 		fi
 
 		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
-		if [ -z "$switch_server" ] ;then
+		if [ -z "$switch_server" ] ; then
 			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
 		else
 			GLOBAL_SERVER=$switch_server
 		fi
 		rm -f /var/etc/$NAME*
 		gen_config_file $GLOBAL_SERVER 0 $run_type $local_port	
-		if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
-			if [ "$dns_mode" != "off" ];then
+		if [ -f $CONFIG_FILE ] &&  [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
+			if [ "$dns_mode" != "off" ]; then
 				redir >/dev/null 2>&1
-				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 					echo "Enabling Dns" >$REAL_LOG
-				elif [ "${lang}" == "zh_cn" ];then
+				elif [ "${lang}" == "zh_cn" ]; then
 					echo "启用DNS" >$REAL_LOG
 				fi
 				set_forward_dnsmasq 2>/dev/null 2>&1
 			fi		
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+			if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 				echo "Setting up  iptables rules" >$REAL_LOG
-			elif [ "${lang}" == "zh_cn" ];then
+			elif [ "${lang}" == "zh_cn" ]; then
 				echo "设置 iptables" >$REAL_LOG
 			fi
 			rules >/dev/null 2>&1
 			sleep 2
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+			if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 				echo "Setting Cron Job" >$REAL_LOG
-			elif [ "${lang}" == "zh_cn" ];then
+			elif [ "${lang}" == "zh_cn" ]; then
 				echo "设置Cron" >$REAL_LOG
 			fi
 			add_cron >/dev/null 2>&1
 			sleep 1
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+			if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 				echo "Restarting Dnsmasq " >$REAL_LOG
-			elif [ "${lang}" == "zh_cn" ];then
+			elif [ "${lang}" == "zh_cn" ]; then
 				echo "重启 Dnsmasq 程序" >$REAL_LOG
 			fi
 			/etc/init.d/dnsmasq restart >/dev/null 2>&1			
@@ -162,27 +162,27 @@ start(){
 			if [ "${run_type}" == "client" ] && [ -f $BIN_DIR/ipt2socks ];then
 				$BIN_DIR/ipt2socks -b 0.0.0.0 -s 127.0.0.1 -p 51836 -l 51837  >/dev/null 2>&1 &
 			elif [ "${run_type}" == "client" ] && [ ! -f $BIN_DIR/ipt2socks ];then
-				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 					echo "ipt2socks not found" >$REAL_LOG
-				elif [ "${lang}" == "zh_cn" ];then
+				elif [ "${lang}" == "zh_cn" ]; then
 					echo "找不到ipt2socks" >$REAL_LOG
 				fi
 				sleep 1
 				stop >/dev/null 2>&1 &
 			fi									
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+			if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 				echo "Trojan-GO Core Started Successfully " >$REAL_LOG
-			elif [ "${lang}" == "zh_cn" ];then
+			elif [ "${lang}" == "zh_cn" ]; then
 				echo "Trojan-GO计划任务,启动进程守护程序" >$REAL_LOG
 			fi
 			mv $TSHARE/disable.lock $TSHARE/enable.lock
-			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+			if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 				echo "Trojan-GO Started Successfully " >$REAL_LOG
 				sleep 1
 				echo "Trojan-GO is Running " >$REAL_LOG
 				sleep 1
 				echo "Trojan-GO for OpenWRT" >$REAL_LOG
-			elif [ "${lang}" == "zh_cn" ];then
+			elif [ "${lang}" == "zh_cn" ]; then
 				echo "Trojan-GO启动成功，请等待服务器上线！" >$REAL_LOG
 				sleep 1
 				echo "Trojan-GO运行中" >$REAL_LOG
@@ -204,9 +204,9 @@ start(){
 
 stop(){ 
 	lang=$(uci get luci.main.lang 2>/dev/null)
-	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+	if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 		echo "Stopping Client..." >$REAL_LOG
-	elif [ "${lang}" == "zh_cn" ];then
+	elif [ "${lang}" == "zh_cn" ]; then
 		echo "正在停止客户端..." >$REAL_LOG
 	fi				
 	rm -rf $CONFIG_FILE /var/etc/dnsmasq.$NAME /var/dnsmasq.d/$NAME.conf
@@ -220,19 +220,19 @@ stop(){
 	kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1
   	del_cron >/dev/null 2>&1
 	echo "0" > /usr/share/$NAME/logstatus_check >/dev/null 2>&1
-	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+	if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 		echo "Trojan-GO Core Stopped Successfully " >$REAL_LOG
-	elif [ "${lang}" == "zh_cn" ];then
+	elif [ "${lang}" == "zh_cn" ]; then
 		echo "Trojan-GO停止进程守护程序" >$REAL_LOG
 	fi
 	sleep 1
 	echo "Trojan-GO for OpenWRT" >$REAL_LOG
 	rm rf $TSHARE/enable.lock >/dev/null 2>&1
 	touch $TSHARE/disable.lock 2>/dev/null
-	if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+	if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 		echo "" $LOG >/dev/null 2>&1
 		echo "Client Stopped" >$LOG
-	elif [ "${lang}" == "zh_cn" ];then
+	elif [ "${lang}" == "zh_cn" ]; then
 		echo "" $LOG >/dev/null 2>&1
 		echo "客户端停止" >$LOG
 	fi
