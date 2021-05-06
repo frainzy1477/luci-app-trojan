@@ -1,6 +1,8 @@
 
 config global
 	option enable '0'
+	option run_type 'nat'
+	option proxy_mode 'global'	
 
 config settings
 	option address '127.0.0.1'

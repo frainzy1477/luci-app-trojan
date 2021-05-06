@@ -93,10 +93,10 @@ o:value("bypasscn", translate("Bypass CN Mode"))
 o:value("chnroute", translate("Oversea Mode"))
 o.default = "global"
 
---o = s:option(ListValue, "run_type", translate("Run Type"))
---o.default = "nat"
---o:value("nat", translate("TProxy (nat)"))
---o:value("client", translate("TProxy+ipt2socks (client)"))
+o = s:option(ListValue, "run_type", translate("Run Type"))
+o.default = "nat"
+o:value("nat", translate("TProxy (nat)"))
+o:value("client", translate("TProxy+ipt2socks (client)"))
 
 --o = s:option(ListValue, "router", translate("RULES"))
 --o.default = "0"

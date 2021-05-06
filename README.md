@@ -54,6 +54,7 @@
 - coreutils 
 - coreutils-base64 
 - luci-compat
+- ipt2socks
 
 ### trojan-go uri
 ```
