@@ -82,7 +82,7 @@ remove_forward_dnsmasq() {
 
 gen_config_file() {
 	log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
-	lua $TSHARE/gen_trojan_go $1 $log_level  >$CONFIG_FILE
+	lua $TSHARE/gen_trojan_go $1 $log_level $3 $4 >$CONFIG_FILE
 	sed -i 's/\\//g' $CONFIG_FILE	
 }
 
@@ -111,7 +111,14 @@ start(){
 			echo "启动客户端" >$REAL_LOG
 		fi		
 		local GLOBAL_SERVER
-		local dns_mode pdnsd  dnscrypt
+		local dns_mode pdnsd  dnscrypt run_type local_port
+		run_type=$(uci_get_by_type global run_type 2>/dev/null)
+		if [ "${run_type}" == "nat" ];then
+			local_port="51837"	
+		else
+			local_port="51836"
+		fi
+
 		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
 		if [ -z "$switch_server" ] ;then
 			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
@@ -119,8 +126,8 @@ start(){
 			GLOBAL_SERVER=$switch_server
 		fi
 		rm -f /var/etc/$NAME*
-		gen_config_file $GLOBAL_SERVER 0	
-		if [ -f $CONFIG_FILE ] && [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
+		gen_config_file $GLOBAL_SERVER 0 $run_type $local_port	
+		if [ "$(ls -l $CONFIG_FILE|awk '{print int($5)}')" -ne 0 ]; then
 			if [ "$dns_mode" != "off" ];then
 				redir >/dev/null 2>&1
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
@@ -151,7 +158,18 @@ start(){
 			fi
 			/etc/init.d/dnsmasq restart >/dev/null 2>&1			
 			sleep 1
-			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &									
+			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &
+			if [ "${run_type}" == "client" ] && [ -f $BIN_DIR/ipt2socks ];then
+				$BIN_DIR/ipt2socks -b 0.0.0.0 -s 127.0.0.1 -p 51836 -l 51837  >/dev/null 2>&1 &
+			elif [ "${run_type}" == "client" ] && [ ! -f $BIN_DIR/ipt2socks ];then
+				if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
+					echo "ipt2socks not found" >$REAL_LOG
+				elif [ "${lang}" == "zh_cn" ];then
+					echo "找不到ipt2socks" >$REAL_LOG
+				fi
+				sleep 1
+				stop >/dev/null 2>&1 &
+			fi									
 			if [ "${lang}" == "en" ] || [ $lang == "auto" ];then
 				echo "Trojan-GO Core Started Successfully " >$REAL_LOG
 			elif [ "${lang}" == "zh_cn" ];then
@@ -197,6 +215,7 @@ stop(){
 	rm -rf /var/etc/dnscrypt-proxy-ns1.conf >/dev/null 2>&1
 	rm -rf /var/etc/pdnsd.conf >/dev/null 2>&1
 	kill -9 `pidof $NAME-go|sed "s/$//g"` 2>/dev/null
+	kill -9 `pidof ipt2socks|sed "s/$//g"` 2>/dev/null
 	kill -9 $(busybox ps -w | grep pdnsd | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 	kill -9 $(busybox ps -w | grep dnscrypt-proxy | grep -v grep | awk '{print $1}') >/dev/null 2>&1
   	del_cron >/dev/null 2>&1
