@@ -109,7 +109,8 @@ start(){
 			echo "Starting Client" >$REAL_LOG
 		elif [ "${lang}" == "zh_cn" ]; then
 			echo "启动客户端" >$REAL_LOG
-		fi		
+		fi
+		kill -9 `pidof ipt2socks|sed "s/$//g"` 2>/dev/null
 		local GLOBAL_SERVER
 		local dns_mode pdnsd  dnscrypt run_type local_port
 		run_type=$(uci_get_by_type global run_type 2>/dev/null)
