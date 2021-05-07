@@ -233,7 +233,7 @@ end
 
 function web_check()
     local e = {}
-    local port = 443
+    local port = 80
     e.baidu = check('www.baidu.com', port)
     e.taobao = check('www.taobao.com', port)
     e.google = check('www.google.com', port)
