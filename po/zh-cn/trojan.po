@@ -2,6 +2,9 @@
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 
+msgid "View Config"
+msgstr "看看配置"
+
 msgid "Run Type"
 msgstr "运行类型"
 
