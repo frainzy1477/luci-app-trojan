@@ -84,9 +84,11 @@ gen_config_file() {
 	log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
 	lua $TSHARE/gen_trojan_go $1 $log_level $3 $4 >$CONFIG_FILE
 	sed -i 's/\\//g' $CONFIG_FILE
-	sh /usr/share/trojan/rule.sh >/dev/null 2>&1
-	sed -n -i -e '/api/r /tmp/rules.json' -e 1x -e '2,${x;p}' -e '${x;p}' $CONFIG_FILE 
-	rm -rf /tmp/rules.json >/dev/null 2>&1
+	if [ $(uci get trojan.@global[0].router) == "true" ]; then
+		sh /usr/share/trojan/rule.sh >/dev/null 2>&1
+		sed -n -i -e '/"api": {/r /tmp/rules.json' -e 1x -e '2,${x;p}' -e '${x;p}' $CONFIG_FILE 
+		rm -rf /tmp/rules.json >/dev/null 2>&1
+	fi
 }
 
 redir(){	
@@ -164,7 +166,7 @@ start(){
 			sleep 1
 			$BIN_DIR/trojan-go -config $CONFIG_FILE  >/dev/null 2>&1 &
 			if [ "${run_type}" == "client" ] && [ -f $BIN_DIR/ipt2socks ];then
-				$BIN_DIR/ipt2socks -b 0.0.0.0 -s 127.0.0.1 -p 51836 -l 51837  >/dev/null 2>&1 &
+				$BIN_DIR/ipt2socks -b 0.0.0.0 -s 0.0.0.0 -p 51836 -l 51837  >/dev/null 2>&1 &
 			elif [ "${run_type}" == "client" ] && [ ! -f $BIN_DIR/ipt2socks ];then
 				if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 					echo "ipt2socks not found" >$REAL_LOG

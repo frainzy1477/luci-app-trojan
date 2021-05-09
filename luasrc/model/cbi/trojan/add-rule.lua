@@ -34,7 +34,7 @@ o:value("geoip", translate("GEOIP"))
 o:value("geosite", translate("GEOSITE"))
 o:value("domain", translate("DOMAIN"))
 o:value("full", translate("FULL"))
-o:value("regex", translate("REGREX"))
+o:value("regexp", translate("REGREX"))
 o:value("cidr", translate("CIDR"))
 
 

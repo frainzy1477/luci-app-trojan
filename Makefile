@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v2.0.9
+PKG_VERSION:=v2.1.0
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk

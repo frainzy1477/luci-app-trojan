@@ -11,18 +11,50 @@ config settings
 	option log_level '1'	
 	option dns_mode 'pdnsd'
 	option tunnel_forward '8.8.4.4:53'
-
 	
 config server_subscribe
 	list subscribe_url ''
 	option auto_update '0'
 	option auto_update_time '0'
 
-
 config trojan 'config'
 	option download_core 'linux-amd64'
 	option download_source 'frainzy1477/trojan-go'
 
+config rules
+	option type 'bypass'
+	option format 'geoip'
+	option name 'cn'
+
+config rules
+	option type 'bypass'
+	option format 'geoip'
+	option name 'private'
+
+config rules
+	option format 'geosite'
+	option name 'cn'
+	option type 'bypass'
+
+config rules
+	option format 'geosite'
+	option name 'geolocation-cn'
+	option type 'bypass'
+
+config rules
+	option type 'proxy'
+	option format 'geosite'
+	option name 'geolocation-!cn'
+
+config rules
+	option type 'block'
+	option format 'geosite'
+	option name 'category-ads'
+
+config rules
+	option type 'block'
+	option format 'geosite'
+	option name 'category-ads-all'
 
 
 

@@ -575,8 +575,11 @@ msgstr "类型"
 msgid "Format"
 msgstr "格式"
 
-msgid "Name"
-msgstr "名称"
+msgid "Rule"
+msgstr "规则"
+
+msgid "Rule List"
+msgstr "规则列表"
 
 msgid "Choose Type"
 msgstr "选择类型"

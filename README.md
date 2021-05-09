@@ -5,8 +5,8 @@
 	Proxy Client for Openwrt Based On <a href="https://github.com/p4gefau1t/trojan-go" target="_blank">Trojan-GO</a>.
   </p>
   <p align="center">
-  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v2.0.9">
-    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v2.0.9-blue.svg"> 	  
+  <a target="_blank" href="https://github.com/frainzy1477/luci-app-trojan/releases/tag/v2.1.0">
+    <img src="https://img.shields.io/badge/Luci%20App%20For%20TrojanGo-v2.1.0-blue.svg"> 	  
   </a>
   <a href="https://github.com/frainzy1477/luci-app-trojan/releases" target="_blank">
         <img src="https://img.shields.io/github/downloads/frainzy1477/luci-app-trojan/total.svg?style=flat-square"/>
@@ -19,8 +19,8 @@
 - Upload ipk file to tmp folder
 - cd /tmp
 - opkg update
-- opkg install luci-app-trojan_v2.0.9_all.ipk  
-- opkg install luci-app-trojan_v2.0.9_all.ipk --force-depends
+- opkg install luci-app-trojan_v2.1.0_all.ipk  
+- opkg install luci-app-trojan_v2.1.0_all.ipk --force-depends
 
  ## Uninstall
 - opkg remove luci-app-trojan 
@@ -35,6 +35,7 @@
 - Support Trojan(Trojan-Go)
 - Ping Custom Proxy Servers
 - Access Control
+- Rule Manager
 
 ## Dependency
 - curl

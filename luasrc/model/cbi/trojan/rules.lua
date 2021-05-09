@@ -20,7 +20,7 @@ o.write = function()
 end
 
 
-x = y:section(TypedSection, "rules", translate("Rules"))
+x = y:section(TypedSection, "rules", translate("Rule List"))
 x.anonymous = true
 x.addremove = true
 x.sortable = false
@@ -46,7 +46,7 @@ function o.cfgvalue(...)
 end
 
 
-o = x:option(DummyValue, "name", translate("Name"))
+o = x:option(DummyValue, "name", translate("Rule"))
 function o.cfgvalue(...)
 	return Value.cfgvalue(...) or translate("None")
 end
