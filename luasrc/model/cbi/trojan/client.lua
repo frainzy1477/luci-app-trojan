@@ -98,20 +98,12 @@ o.default = "nat"
 o:value("nat", translate("TProxy (nat)"))
 o:value("client", translate("TProxy+ipt2socks (client)"))
 
---o = s:option(ListValue, "router", translate("RULES"))
---o.default = "0"
---o:value("false", translate("Disable"))
---o:value("true", translate("Enable"))
---o:depends("ctype", "1")
+o = s:option(ListValue, "router", translate("Rules"))
+o.default = "false"
+o:value("false", translate("Disable"))
+o:value("true", translate("Enable"))
+o:depends("run_type", "client")
 
---o = s:option(Button,"Manager")
---o.title = translate("MANAGER")
---o.inputtitle = translate("RULE MANAGER")
---o.inputstyle = "reload"
---o.write = function()
---  luci.http.redirect(luci.dispatcher.build_url("admin", "services", "trojan", "rules"))
---end
---o:depends("router", "true")
 
 o = s:option(Button,"start")
 o.title = translate("Operation")

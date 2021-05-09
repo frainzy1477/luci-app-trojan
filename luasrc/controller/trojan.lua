@@ -16,8 +16,8 @@ function index()
 
     entry({"admin", "services", "trojan", "overview"},cbi("trojan/status"),_("Overview"), 10).leaf = true
 	entry({"admin", "services", "trojan", "client"},cbi("trojan/client"),_("Client"), 20).leaf = true
-	--entry({"admin", "services", "trojan", "rules"},cbi("trojan-go/rules"), nil).leaf = true
-	--entry({"admin", "services", "trojan", "rule"},cbi("trojan-go/add-rule"), nil).leaf = true
+	entry({"admin", "services", "trojan", "rules"},cbi("trojan/rules"),_("Rules"), 25).leaf = true
+	entry({"admin", "services", "trojan", "rule"},cbi("trojan/add-rule"), nil).leaf = true
 	entry({"admin", "services", "trojan", "servers" },cbi("trojan/servers"),_("Servers"), 30).leaf = true
 	entry({"admin", "services", "trojan", "server"},cbi("trojan/add-server"), nil).leaf = true
 	entry({"admin", "services", "trojan", "settings"},cbi("trojan/settings"),_("Settings"), 50).leaf = true
@@ -221,12 +221,11 @@ end
 
 
 function check(host, port)
-    local nixio = require "nixio"
-    local socket = nixio.socket("inet", "stream")
-    socket:setopt("socket", "rcvtimeo", 2)
-    socket:setopt("socket", "sndtimeo", 2)
-    local ret = socket:connect(host, port)
-    socket:close()
+	local socket = nixio.socket("inet", "stream")
+	socket:setopt("socket", "rcvtimeo", 3)
+	socket:setopt("socket", "sndtimeo", 3)
+	local ret = socket:connect(host, port)
+	socket:close()
     return ret
 end
 

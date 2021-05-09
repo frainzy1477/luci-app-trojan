@@ -83,7 +83,10 @@ remove_forward_dnsmasq() {
 gen_config_file() {
 	log_level=$(uci get $NAME.@settings[0].log_level 2>/dev/null)
 	lua $TSHARE/gen_trojan_go $1 $log_level $3 $4 >$CONFIG_FILE
-	sed -i 's/\\//g' $CONFIG_FILE	
+	sed -i 's/\\//g' $CONFIG_FILE
+	sh /usr/share/trojan/rule.sh >/dev/null 2>&1
+	sed -n -i -e '/api/r /tmp/rules.json' -e 1x -e '2,${x;p}' -e '${x;p}' $CONFIG_FILE 
+	rm -rf /tmp/rules.json >/dev/null 2>&1
 }
 
 redir(){	

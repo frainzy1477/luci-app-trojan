@@ -74,9 +74,6 @@ msgstr "客户端"
 msgid "Status"
 msgstr "状态"
 
-msgid "Type"
-msgstr "选择类型"
-
 msgid "Server"
 msgstr "主服务器"
 
@@ -559,3 +556,30 @@ msgstr "完全不输出日志"
 
 msgid "Specify the log level. The higher the level, the less information is output"
 msgstr "指定日志等级。等级越高，输出的信息越少"
+
+msgid "Rules"
+msgstr "规则"
+
+msgid "Rule Manager"
+msgstr "规则经理"
+
+msgid "Add/Edit Rule"
+msgstr "添加/编辑规则"
+
+msgid "Add/Edit Server"
+msgstr "添加/编辑服务器"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Format"
+msgstr "格式"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Choose Type"
+msgstr "选择类型"
+
+msgid "Choose Format"
+msgstr "选择格式"
