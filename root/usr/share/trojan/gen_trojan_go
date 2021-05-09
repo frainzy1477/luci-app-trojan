@@ -37,10 +37,9 @@ local trojan = {
         idle_timeout = tonumber(node.idle_timeout),
     } or nil,
     tcp = (node.fast_open == "true") and {
-        no_delay = node.no_delay,
-        keep_alive = node.keep_alive,
-        fast_open = (node.fast_open == "true") and true or false,
-        fast_open_qlen = 20
+	    keep_alive =  (node.keep_alive == "true") and true or false,
+        no_delay = (node.no_delay == "true") and true or false,
+        prefer_ipv4 = (node.prefer_ipv4 == "true") and true or false
     } or nil,
     transport_plugin = (node.plugin == "true") and {
         enabled = true,

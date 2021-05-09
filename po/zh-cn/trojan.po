@@ -586,3 +586,6 @@ msgstr "选择类型"
 
 msgid "Choose Format"
 msgstr "选择格式"
+
+msgid "Prefer ipv4"
+msgstr "首选ipv4"

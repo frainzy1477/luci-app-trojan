@@ -109,6 +109,10 @@ o:value("true", translate("True"))
 o:value("false", translate("False"))
 o:depends("fast_open", "true")
 
+o = s:option(ListValue, "prefer_ipv4", translate("Prefer ipv4"))
+o.default = "false"
+o:value("true", translate("True"))
+o:value("false", translate("False"))
 
 
 -- shadowdocks ---
