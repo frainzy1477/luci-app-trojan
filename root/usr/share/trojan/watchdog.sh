@@ -7,7 +7,7 @@ enable=$(uci get trojan.@global[0].enable 2>/dev/null)
 dns_mode=$(uci get trojan.@settings[0].dns_mode 2>/dev/null)
 
 if [ "${count}" -gt 10000 ];then
- echo "" $REAL_LOG >/dev/null 2>&1
+ cat /dev/null > /usr/share/trojan/trojan.txt 2>&1
 fi
 
 if [ "${enable}" -eq 1 ];then
