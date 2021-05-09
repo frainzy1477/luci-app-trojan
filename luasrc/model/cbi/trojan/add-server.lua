@@ -58,7 +58,7 @@ o.rmempty = true
 -- fingerPrint --
 o = s:option(ListValue, "fingerprint", translate("FingerPrint"))
 o.default = "firefox"
-o:value("", translate("None"))
+o:value(" ", translate("None"))
 o:value("firefox", translate("firefox"))
 o:value("chrome", translate("chrome"))
 o:value("ios", translate("ios"))
@@ -113,7 +113,7 @@ o = s:option(ListValue, "prefer_ipv4", translate("Prefer ipv4"))
 o.default = "false"
 o:value("true", translate("True"))
 o:value("false", translate("False"))
-
+o:depends("fast_open", "true")
 
 -- shadowdocks ---
 o = s:option(ListValue, "shadowdocks", translate("Enable Shadowdocks"))

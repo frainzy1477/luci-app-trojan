@@ -18,6 +18,7 @@ local trojan = {
     password = {node.password},
     log_level = tonumber(log_level),
     log_file = "/usr/share/trojan/trojan.txt",
+	udp_timeout = 60,
     ssl = {
         cert = "",
         cipher = cipher,
