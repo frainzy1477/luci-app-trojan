@@ -86,7 +86,8 @@ gen_config_file() {
 	sed -i 's/\\//g' $CONFIG_FILE
 	if [ $(uci get trojan.@global[0].router) == "true" ]; then
 		sh /usr/share/trojan/rule.sh >/dev/null 2>&1
-		sed -n -i -e '/"api": {/r /tmp/rules.json' -e 1x -e '2,${x;p}' -e '${x;p}' $CONFIG_FILE 
+		#sed -n -i -e '/"api": {/r /tmp/rules.json' -e 1x -e '2,${x;p}' -e '${x;p}' $CONFIG_FILE 
+		sed -i -e '1r /tmp/rules.json' $CONFIG_FILE >/dev/null 2>&1
 		rm -rf /tmp/rules.json >/dev/null 2>&1
 	fi
 }
@@ -124,7 +125,6 @@ start(){
 		else
 			local_port="51836"
 		fi
-
 		dns_mode=$(uci get $NAME.@settings[0].dns_mode 2>/dev/null)
 		if [ -z "$switch_server" ] ; then
 			GLOBAL_SERVER=$(uci_get_by_type global global_server 2>/dev/null)
@@ -207,14 +207,13 @@ start(){
 	fi
 }
 
-
 stop(){ 
 	lang=$(uci get luci.main.lang 2>/dev/null)
 	if [ "${lang}" == "en" ] || [ $lang == "auto" ]; then
 		echo "Stopping Client..." >$REAL_LOG
 	elif [ "${lang}" == "zh_cn" ]; then
 		echo "正在停止客户端..." >$REAL_LOG
-	fi				
+	fi
 	rm -rf $CONFIG_FILE /var/etc/dnsmasq.$NAME /var/dnsmasq.d/$NAME.conf
 	sh $TSHARE/iptables.sh stop  >/dev/null 2>&1 &
 	remove_forward_dnsmasq >/dev/null 2>&1

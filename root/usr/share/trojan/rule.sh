@@ -22,8 +22,8 @@ rule()
 	
 }
 
- config_load trojan
- config_foreach rule "rules"
+config_load trojan
+config_foreach rule "rules"
 
 bypass_rule(){
  num=$(grep -c '' /tmp/rules_bypass.conf 2>/dev/null)
@@ -88,21 +88,19 @@ proxy_rule(){
  sed -i -e '$a\     ],' /tmp/proxy.conf  2>/dev/null
 } 
  
- bypass_rule && block_rule && proxy_rule
+bypass_rule && block_rule && proxy_rule
  
- cat /tmp/bypass.conf /tmp/block.conf >> /tmp/rules
- cat /tmp/rules /tmp/proxy.conf >> /tmp/rules.json
- 
+cat /tmp/bypass.conf /tmp/block.conf >> /tmp/rules
+cat /tmp/rules /tmp/proxy.conf >> /tmp/rules.json
 
-
- sed -i "1i\   \"router\":{" /tmp/rules.json 2>/dev/null  
- sed -i "2i\     \"enabled\": $(uci get trojan.@global[0].router)," /tmp/rules.json 2>/dev/null 
- sed -i -e '$a\     \"default_policy\": \"proxy\",' /tmp/rules.json
- sed -i -e '$a\     \"domain_strategy\": \"ip_if_non_match\",' /tmp/rules.json
- sed -i -e '$a\     \"geoip\": \"/etc/trojan/geoip.dat\",' /tmp/rules.json
- sed -i -e '$a\     \"geosite\": \"/etc/trojan/geosite.dat\"' /tmp/rules.json
- sed -i -e '$a\   },' /tmp/rules.json
+sed -i "1i\   \"router\":{" /tmp/rules.json 2>/dev/null  
+sed -i "2i\     \"enabled\": $(uci get trojan.@global[0].router)," /tmp/rules.json 2>/dev/null 
+sed -i -e '$a\     \"default_policy\": \"proxy\",' /tmp/rules.json
+sed -i -e '$a\     \"domain_strategy\": \"ip_if_non_match\",' /tmp/rules.json
+sed -i -e '$a\     \"geoip\": \"/usr/bin/geoip.dat\",' /tmp/rules.json
+sed -i -e '$a\     \"geosite\": \"/usr/bin/geosite.dat\"' /tmp/rules.json
+sed -i -e '$a\   },' /tmp/rules.json
  #sed -i -e '$a\}' /tmp/rules.json
- rm -rf /tmp/rules_proxy.conf /tmp/rules_block.conf  /tmp/rules_bypass.conf /tmp/bypass.conf /tmp/rules \
- /tmp/proxy.conf /tmp/block.conf /tmp/bypass.conf
+rm -rf /tmp/rules_proxy.conf /tmp/rules_block.conf  /tmp/rules_bypass.conf /tmp/bypass.conf /tmp/rules \
+/tmp/proxy.conf /tmp/block.conf /tmp/bypass.conf
  

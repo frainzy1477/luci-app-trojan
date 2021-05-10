@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk 
 
 PKG_NAME:=luci-app-trojan
-PKG_VERSION:=v2.1.0
+PKG_VERSION:=v2.1.1
 PKG_MAINTAINER:=frainzy1477
 
 include $(INCLUDE_DIR)/package.mk
@@ -22,7 +22,7 @@ endef
 
 define Build/Prepare
 	po2lmo ${CURDIR}/po/zh-cn/trojan.po ${CURDIR}/po/zh-cn/trojan.zh-cn.lmo
-	chmod +x root/etc/init.d/trojan root/usr/share/trojan/* >/dev/null 2>&1
+	chmod +x /root/etc/init.d/trojan /root/usr/share/trojan/* >/dev/null 2>&1
 endef
 
 define Build/Configure
@@ -95,7 +95,6 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_CONF) ./root/etc/config/trojan $(1)/etc/config/trojan
 	$(INSTALL_CONF) ./root/etc/trojan/* $(1)/etc/trojan
 	
-
 	$(INSTALL_DIR) $(1)/usr/share/trojan
 	$(INSTALL_DIR) $(1)/usr/share/trojan/config
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
