@@ -22,7 +22,7 @@ endef
 
 define Build/Prepare
 	po2lmo ${CURDIR}/po/zh-cn/trojan.po ${CURDIR}/po/zh-cn/trojan.zh-cn.lmo
-	chmod +x /root/etc/init.d/trojan /root/usr/share/trojan/* >/dev/null 2>&1
+	chmod +x root/etc/init.d/trojan root/usr/share/trojan/* >/dev/null 2>&1
 endef
 
 define Build/Configure
